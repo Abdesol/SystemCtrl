@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="SystemCtrl.Core/SystemCtrl.Core.csproj" />
   <Project Path="SystemCtrl.Desktop/SystemCtrl.Desktop.csproj" />
 </Solution>
