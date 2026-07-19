@@ -1,14 +1,14 @@
 using ReactiveUI;
+using ReactiveUI.SourceGenerators;
 
 namespace SystemCtrl.Desktop.ViewModels;
 
-public class MainViewModel : ViewModelBase
+public partial class MainViewModel : ViewModelBase
 {
-    private string _greeting = "Welcome to Avalonia!";
-
-    public string Greeting
+    public MainViewModel()
     {
-        get => _greeting;
-        set => this.RaiseAndSetIfChanged(ref _greeting, value);
+        Greeting = "Hello World!";
     }
+    
+    [Reactive] public partial string Greeting { get; set; }
 }

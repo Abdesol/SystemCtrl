@@ -20,6 +20,11 @@
             <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
             <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
         </PackageReference>
+        <PackageReference Include="ReactiveUI" Version="23.2.28" />
         <PackageReference Include="ReactiveUI.Avalonia" Version="12.0.3"/>
+        <PackageReference Include="ReactiveUI.SourceGenerators" Version="3.1.0">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
 </Project>
