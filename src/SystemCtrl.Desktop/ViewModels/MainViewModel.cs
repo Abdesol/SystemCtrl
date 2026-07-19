@@ -1,14 +1,21 @@
+using System.Collections.ObjectModel;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
+using SystemCtrl.Core.Interfaces;
+using SystemCtrl.Core.Models;
 
 namespace SystemCtrl.Desktop.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
-    public MainViewModel()
+    private IWindowsServiceManager _windowsServiceManager;
+    public MainViewModel(IWindowsServiceManager windowsServiceManager)
     {
-        Greeting = "Hello World!";
+        _windowsServiceManager = windowsServiceManager;
+
+        Services = new ObservableCollection<WindowsServiceInfo>(_windowsServiceManager.GetServices());
     }
     
-    [Reactive] public partial string Greeting { get; set; }
+    [Reactive]
+    public partial ObservableCollection<WindowsServiceInfo> Services { get; set; }
 }
