@@ -1,0 +1,50 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Styles.Resources>
+        <SolidColorBrush x:Key="Background">#F4F4F6</SolidColorBrush>
+        <SolidColorBrush x:Key="Foreground">#111118</SolidColorBrush>
+
+        <SolidColorBrush x:Key="Card">#FFFFFF</SolidColorBrush>
+        <SolidColorBrush x:Key="CardForeground">#111118</SolidColorBrush>
+
+        <SolidColorBrush x:Key="Popover">#FFFFFF</SolidColorBrush>
+        <SolidColorBrush x:Key="PopoverForeground">#111118</SolidColorBrush>
+
+        <SolidColorBrush x:Key="Primary">#111118</SolidColorBrush>
+        <SolidColorBrush x:Key="PrimaryForeground">#FFFFFF</SolidColorBrush>
+
+        <SolidColorBrush x:Key="Secondary">#EBEBEE</SolidColorBrush>
+        <SolidColorBrush x:Key="SecondaryForeground">#111118</SolidColorBrush>
+
+        <SolidColorBrush x:Key="Muted">#EBEBEE</SolidColorBrush>
+        <SolidColorBrush x:Key="MutedForeground">#6B6B7B</SolidColorBrush>
+
+        <SolidColorBrush x:Key="Accent">#E4E4E8</SolidColorBrush>
+        <SolidColorBrush x:Key="AccentForeground">#111118</SolidColorBrush>
+
+        <SolidColorBrush x:Key="Destructive">#b91c1c</SolidColorBrush>
+        <SolidColorBrush x:Key="DestructiveForeground">#FFFFFF</SolidColorBrush>
+
+        <SolidColorBrush x:Key="Border" Opacity="0.07">#000000</SolidColorBrush>
+        <SolidColorBrush x:Key="Input">Transparent</SolidColorBrush>
+        <SolidColorBrush x:Key="InputBackground">#EBEBEE</SolidColorBrush>
+        <SolidColorBrush x:Key="SwitchBackground">#C5C5CE</SolidColorBrush>
+        <SolidColorBrush x:Key="Ring">#C5C5CE</SolidColorBrush>
+
+        <SolidColorBrush x:Key="Sidebar">#FAFAFA</SolidColorBrush>
+        <SolidColorBrush x:Key="SidebarForeground">#111111</SolidColorBrush>
+        <SolidColorBrush x:Key="SidebarPrimary">#030213</SolidColorBrush>
+        <SolidColorBrush x:Key="SidebarPrimaryForeground">#FAFAFA</SolidColorBrush>
+        <SolidColorBrush x:Key="SidebarAccent">#F5F5F5</SolidColorBrush>
+        <SolidColorBrush x:Key="SidebarAccentForeground">#1A1A1A</SolidColorBrush>
+        <SolidColorBrush x:Key="SidebarBorder">#EBEBEB</SolidColorBrush>
+        <SolidColorBrush x:Key="SidebarRing">#B3B3B3</SolidColorBrush>
+
+        <Color x:Key="Chart1">#E8651A</Color>
+        <Color x:Key="Chart2">#28A89B</Color>
+        <Color x:Key="Chart3">#3B5E7A</Color>
+        <Color x:Key="Chart4">#D4B83A</Color>
+        <Color x:Key="Chart5">#CFA030</Color>
+
+    </Styles.Resources>
+</Styles>

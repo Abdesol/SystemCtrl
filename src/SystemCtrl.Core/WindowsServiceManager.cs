@@ -1,3 +1,6 @@
+using System.Diagnostics;
+using System.Management;
+using System.Security.Cryptography.X509Certificates;
 using System.ServiceProcess;
 using Microsoft.Win32;
 using SystemCtrl.Core.Interfaces;
@@ -19,6 +22,36 @@ public class WindowsServiceManager : IWindowsServiceManager
                 Status = service.Status.ToString(),
                 StartType = service.StartType.ToString()
             });
+    }
+    
+    public DetailedWindowsServiceInfo? GetDetailedInfo(string serviceName)
+    {
+        using var service = new ServiceController(serviceName);
+
+        using var key = Registry.LocalMachine.OpenSubKey(
+            $@"SYSTEM\CurrentControlSet\Services\{serviceName}");
+
+        var path = key?.GetValue("ImagePath")?.ToString() ?? string.Empty;
+
+        path = Environment.ExpandEnvironmentVariables(path)
+            .Trim('"');
+
+        var executableName = string.IsNullOrWhiteSpace(path)
+            ? string.Empty
+            : Path.GetFileName(path);
+
+        return new DetailedWindowsServiceInfo
+        {
+            ServiceName = service.ServiceName,
+            ExecutablePath = path,
+            ExecutableName = executableName,
+            Publisher = GetPublisher(path),
+            IsSigned = IsSigned(path),
+            ServiceAccount = key?.GetValue("ObjectName")?.ToString() ?? string.Empty,
+            StartupAccount = key?.GetValue("ObjectName")?.ToString() ?? string.Empty,
+            ProcessId = GetProcessId(service),
+            // Category = DetermineCategory(service, path)
+        };
     }
 
     public void Start(string serviceName)
@@ -75,5 +108,43 @@ public class WindowsServiceManager : IWindowsServiceManager
         return path.StartsWith(
             Environment.GetFolderPath(Environment.SpecialFolder.Windows),
             StringComparison.OrdinalIgnoreCase);
+    }
+    
+    private string GetPublisher(string path)
+    {
+        if (!File.Exists(path))
+            return string.Empty;
+
+        var versionInfo = FileVersionInfo.GetVersionInfo(path);
+
+        return versionInfo.CompanyName ?? string.Empty;
+    }
+    
+    private bool IsSigned(string path)
+    {
+        if (!File.Exists(path))
+            return false;
+
+        try
+        {
+            _ = X509CertificateLoader.LoadCertificateFromFile(path);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+    
+    private int? GetProcessId(ServiceController service)
+    {
+        using var searcher = new ManagementObjectSearcher(
+            $"SELECT ProcessId FROM Win32_Service WHERE Name='{service.ServiceName}'");
+
+        using var result = searcher.Get().Cast<ManagementObject>().FirstOrDefault();
+
+        return result?["ProcessId"] as uint? is { } pid
+            ? (int)pid
+            : null;
     }
 }

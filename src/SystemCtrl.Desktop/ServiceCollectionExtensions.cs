@@ -10,6 +10,8 @@ public static class ServiceCollectionExtensions
     public static void AddServices(this IServiceCollection collection)
     {
         collection.AddTransient<MainViewModel>();
+        collection.AddTransient<DetailedServiceViewModel>();
+        
         collection.AddScoped<IWindowsServiceManager, WindowsServiceManager>();
     }
 }
