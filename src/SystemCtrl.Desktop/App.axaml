@@ -9,6 +9,40 @@
     </Application.DataTemplates>
 
     <Application.Styles>
-        <FluentTheme />
+        <StyleInclude Source="avares://SystemCtrl.Desktop/Styles/Colors.axaml" />
+
+        <FluentTheme>
+            <FluentTheme.Palettes>
+                <ColorPaletteResources x:Key="Light"
+                                       Accent="{StaticResource PrimaryColor}"
+                                       AltHigh="{StaticResource CardColor}"
+                                       AltLow="{StaticResource BackgroundColor}"
+                                       AltMedium="{StaticResource SidebarColor}"
+                                       AltMediumHigh="{StaticResource CardColor}"
+                                       AltMediumLow="{StaticResource AltMediumLowColor}"
+                                       BaseHigh="{StaticResource ForegroundColor}"
+                                       BaseLow="{StaticResource SecondaryColor}"
+                                       BaseMedium="{StaticResource MutedForegroundColor}"
+                                       BaseMediumHigh="{StaticResource BaseMediumHighColor}"
+                                       BaseMediumLow="{StaticResource BaseMediumLowColor}"
+                                       ChromeAltLow="{StaticResource ForegroundColor}"
+                                       ChromeBlackHigh="{StaticResource BorderColor}"
+                                       ChromeBlackLow="{StaticResource ChromeBlackLowColor}"
+                                       ChromeBlackMedium="{StaticResource ChromeBlackMediumColor}"
+                                       ChromeBlackMediumLow="{StaticResource ChromeBlackMediumLowColor}"
+                                       ChromeDisabledHigh="{StaticResource ChromeDisabledHighColor}"
+                                       ChromeDisabledLow="{StaticResource ChromeDisabledLowColor}"
+                                       ChromeGray="{StaticResource ChromeGrayColor}"
+                                       ChromeHigh="{StaticResource RingColor}"
+                                       ChromeLow="{StaticResource BackgroundColor}"
+                                       ChromeMedium="{StaticResource AccentColor}"
+                                       ChromeMediumLow="{StaticResource SecondaryColor}"
+                                       ChromeWhite="{StaticResource CardColor}"
+                                       ListLow="{StaticResource SecondaryColor}"
+                                       ListMedium="{StaticResource RingColor}"
+                                       RegionColor="{StaticResource BackgroundColor}"
+                                       ErrorText="{StaticResource DestructiveColor}" />
+            </FluentTheme.Palettes>
+        </FluentTheme>
     </Application.Styles>
 </Application>
