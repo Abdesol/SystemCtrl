@@ -45,4 +45,12 @@
             </FluentTheme.Palettes>
         </FluentTheme>
     </Application.Styles>
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <FontFamily x:Key="Outfit">avares://SystemCtrl.Desktop/Assets/Fonts#Outfit</FontFamily>
+            <FontFamily x:Key="ContentControlThemeFontFamily">avares://SystemCtrl.Desktop/Assets/Fonts#Outfit</FontFamily>
+        </ResourceDictionary>
+
+    </Application.Resources>
 </Application>

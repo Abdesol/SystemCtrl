@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Folder Include="Assets\Fonts\" />
         <Folder Include="Models\"/>
         <AvaloniaResource Include="Assets\**"/>
     </ItemGroup>

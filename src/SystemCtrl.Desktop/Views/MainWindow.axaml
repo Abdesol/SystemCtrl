@@ -12,30 +12,33 @@
     <Design.DataContext>
         <vm:MainViewModel />
     </Design.DataContext>
-    
-    <Grid RowDefinitions="Auto, *">
-        <TextBlock Grid.Row="0" HorizontalAlignment="Center"
-                   Margin="0,0,0,10"
-                   Text="Services"/>
-        
-        <ScrollViewer Grid.Row="1"
-                      HorizontalAlignment="Stretch"
-                      VerticalAlignment="Stretch"
-                      HorizontalScrollBarVisibility="Disabled"
-                      VerticalScrollBarVisibility="Auto">
-            <ItemsControl ItemsSource="{Binding Services}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Spacing="2"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding DisplayName}"/>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
+    <Grid VerticalAlignment="Stretch"
+          HorizontalAlignment="Stretch"
+          Background="{StaticResource Background}">
+        <Grid RowDefinitions="Auto, *">
+            <TextBlock Grid.Row="0" HorizontalAlignment="Center"
+                       Margin="0,0,0,10"
+                       Text="Services" />
+
+            <ScrollViewer Grid.Row="1"
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch"
+                          HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Services}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Spacing="2" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding DisplayName}" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
     </Grid>
 </Window>
