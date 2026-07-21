@@ -9,7 +9,10 @@
     </Application.DataTemplates>
 
     <Application.Styles>
+        <StyleInclude Source="avares://SystemCtrl.Desktop/Assets/Icons.axaml" />
         <StyleInclude Source="avares://SystemCtrl.Desktop/Styles/Colors.axaml" />
+        
+        <StyleInclude Source="avares://SystemCtrl.Desktop/Styles/Controls/Buttons.axaml" />
 
         <FluentTheme>
             <FluentTheme.Palettes>
@@ -51,6 +54,5 @@
             <FontFamily x:Key="Outfit">avares://SystemCtrl.Desktop/Assets/Fonts#Outfit</FontFamily>
             <FontFamily x:Key="ContentControlThemeFontFamily">avares://SystemCtrl.Desktop/Assets/Fonts#Outfit</FontFamily>
         </ResourceDictionary>
-
     </Application.Resources>
 </Application>

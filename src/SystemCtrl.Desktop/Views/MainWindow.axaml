@@ -7,38 +7,67 @@
         x:Class="SystemCtrl.Desktop.Views.MainWindow"
         x:DataType="vm:MainViewModel"
         Icon="/Assets/avalonia-logo.ico"
-        Title="SystemCtrl">
+        Title="SystemCtrl"
+        WindowDecorations="BorderOnly"
+        ExtendClientAreaToDecorationsHint="True"
+        MinHeight="400"
+        MinWidth="700"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource Background}">
 
     <Design.DataContext>
         <vm:MainViewModel />
     </Design.DataContext>
-    <Grid VerticalAlignment="Stretch"
-          HorizontalAlignment="Stretch"
-          Background="{StaticResource Background}">
-        <Grid RowDefinitions="Auto, *">
-            <TextBlock Grid.Row="0" HorizontalAlignment="Center"
-                       Margin="0,0,0,10"
-                       Text="Services" />
+    
+    <Grid Margin="{Binding $parent[Window].OffScreenMargin}"
+          VerticalAlignment="Stretch"
+          HorizontalAlignment="Stretch">
+        <Grid RowDefinitions="Auto, *"
+              Margin="10">
+            <Grid Row="0" HorizontalAlignment="Stretch"
+                  ColumnDefinitions="*, Auto"
+                  Height="50">
+                <TextBlock Grid.Column="0"
+                           HorizontalAlignment="Stretch"
+                           VerticalAlignment="Center"
+                           TextAlignment="Left"
+                           Text="SystemCtrl"
+                           FontWeight="SemiBold"
+                           FontSize="15"/>
+                <StackPanel Grid.Column="1"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Stretch"
+                            Orientation="Horizontal"
+                            Spacing="10">
+                    
+                </StackPanel>
+            </Grid>
+            
+            <Grid Row="1" RowDefinitions="Auto, *">
+                <TextBlock Grid.Row="0" HorizontalAlignment="Center"
+                           Margin="0,0,0,10"
+                           Text="Services" />
 
-            <ScrollViewer Grid.Row="1"
-                          HorizontalAlignment="Stretch"
-                          VerticalAlignment="Stretch"
-                          HorizontalScrollBarVisibility="Disabled"
-                          VerticalScrollBarVisibility="Auto">
-                <ItemsControl ItemsSource="{Binding Services}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Spacing="2" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
+                <ScrollViewer Grid.Row="1"
+                              HorizontalAlignment="Stretch"
+                              VerticalAlignment="Stretch"
+                              HorizontalScrollBarVisibility="Disabled"
+                              VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding Services}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Spacing="2" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
 
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding DisplayName}" />
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding DisplayName}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
         </Grid>
     </Grid>
 </Window>
