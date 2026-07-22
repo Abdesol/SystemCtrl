@@ -7,9 +7,9 @@
         x:Class="SystemCtrl.Desktop.Views.MainWindow"
         x:DataType="vm:MainViewModel"
         Icon="/Assets/avalonia-logo.ico"
-        Title=""
+        Title="SystemCtrl"
         ExtendClientAreaToDecorationsHint="True"
-        WindowDecorations="Full"
+        WindowDecorations="BorderOnly"
         MinHeight="400"
         MinWidth="700"
         WindowStartupLocation="CenterScreen"
@@ -29,14 +29,28 @@
           VerticalAlignment="Stretch"
           HorizontalAlignment="Stretch">
         <Grid RowDefinitions="Auto, *"
-              Margin="13,10">
-            <TextBlock Grid.Row="0"
-                       HorizontalAlignment="Stretch"
-                       VerticalAlignment="Center"
-                       TextAlignment="Left"
-                       Text="SystemCtrl"
-                       FontWeight="SemiBold"
-                       FontSize="20"/>
+              Margin="15,0">
+            <Grid Row="0" 
+                  Background="Transparent"
+                  HorizontalAlignment="Stretch"
+                  ColumnDefinitions="*, Auto"
+                  Height="50"
+                  PointerPressed="ChangeWindowPosition">
+                <TextBlock Grid.Column="0"
+                           HorizontalAlignment="Stretch"
+                           VerticalAlignment="Center"
+                           TextAlignment="Left"
+                           Text="SystemCtrl"
+                           FontWeight="SemiBold"
+                           FontSize="20"/>
+                <StackPanel Grid.Column="1"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Stretch"
+                            Orientation="Horizontal"
+                            Spacing="10">
+                    
+                </StackPanel>
+            </Grid>
             
             <Grid Row="1" RowDefinitions="Auto, *">
                 <TextBlock Grid.Row="0" HorizontalAlignment="Center"
