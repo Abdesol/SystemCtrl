@@ -9,7 +9,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
     }
-    
+
     private void ChangeWindowPosition(object sender, PointerPressedEventArgs e)
     {
         base.OnPointerPressed(e);

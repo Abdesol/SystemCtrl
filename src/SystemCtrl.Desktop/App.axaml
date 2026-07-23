@@ -11,40 +11,48 @@
     <Application.Styles>
         <StyleInclude Source="avares://SystemCtrl.Desktop/Assets/Icons.axaml" />
         <StyleInclude Source="avares://SystemCtrl.Desktop/Styles/Colors.axaml" />
-        
-        <StyleInclude Source="avares://SystemCtrl.Desktop/Styles/Controls/Buttons.axaml" />
+
+        <StyleInclude Source="avares://SystemCtrl.Desktop/Styles/Controls/Button.axaml" />
+        <StyleInclude Source="avares://SystemCtrl.Desktop/Styles/Controls/WindowDrawnDecorations.axaml" />
 
         <FluentTheme>
             <FluentTheme.Palettes>
                 <ColorPaletteResources x:Key="Light"
-                                       Accent="{StaticResource PrimaryColor}"
-                                       AltHigh="{StaticResource CardColor}"
-                                       AltLow="{StaticResource BackgroundColor}"
-                                       AltMedium="{StaticResource SidebarColor}"
-                                       AltMediumHigh="{StaticResource CardColor}"
+                                       Accent="{StaticResource AccentFillColorDefault}"
+
+                                       AltHigh="{StaticResource ControlFillColorDefault}"
+                                       AltLow="{StaticResource SystemBackgroundColor}"
+                                       AltMedium="{StaticResource NavigationViewBackgroundColor}"
+                                       AltMediumHigh="{StaticResource ControlFillColorDefault}"
                                        AltMediumLow="{StaticResource AltMediumLowColor}"
-                                       BaseHigh="{StaticResource ForegroundColor}"
-                                       BaseLow="{StaticResource SecondaryColor}"
-                                       BaseMedium="{StaticResource MutedForegroundColor}"
+
+                                       BaseHigh="{StaticResource TextFillColorPrimary}"
+                                       BaseLow="{StaticResource ControlFillColorSecondary}"
+                                       BaseMedium="{StaticResource TextFillColorTertiary}"
                                        BaseMediumHigh="{StaticResource BaseMediumHighColor}"
                                        BaseMediumLow="{StaticResource BaseMediumLowColor}"
-                                       ChromeAltLow="{StaticResource ForegroundColor}"
-                                       ChromeBlackHigh="{StaticResource BorderColor}"
+
+                                       ChromeAltLow="{StaticResource TextFillColorPrimary}"
+                                       ChromeBlackHigh="{StaticResource ControlStrokeColorDefault}"
                                        ChromeBlackLow="{StaticResource ChromeBlackLowColor}"
                                        ChromeBlackMedium="{StaticResource ChromeBlackMediumColor}"
                                        ChromeBlackMediumLow="{StaticResource ChromeBlackMediumLowColor}"
                                        ChromeDisabledHigh="{StaticResource ChromeDisabledHighColor}"
                                        ChromeDisabledLow="{StaticResource ChromeDisabledLowColor}"
                                        ChromeGray="{StaticResource ChromeGrayColor}"
-                                       ChromeHigh="{StaticResource RingColor}"
-                                       ChromeLow="{StaticResource BackgroundColor}"
-                                       ChromeMedium="{StaticResource AccentColor}"
-                                       ChromeMediumLow="{StaticResource SecondaryColor}"
-                                       ChromeWhite="{StaticResource CardColor}"
-                                       ListLow="{StaticResource SecondaryColor}"
-                                       ListMedium="{StaticResource RingColor}"
-                                       RegionColor="{StaticResource BackgroundColor}"
-                                       ErrorText="{StaticResource DestructiveColor}" />
+
+                                       ChromeHigh="{StaticResource FocusStrokeColor}"
+                                       ChromeLow="{StaticResource SystemBackgroundColor}"
+                                       ChromeMedium="{StaticResource ControlFillColorTertiary}"
+                                       ChromeMediumLow="{StaticResource ControlFillColorSecondary}"
+                                       ChromeWhite="{StaticResource ControlFillColorDefault}"
+
+                                       ListLow="{StaticResource ControlFillColorSecondary}"
+                                       ListMedium="{StaticResource FocusStrokeColor}"
+
+                                       RegionColor="{StaticResource SystemBackgroundColor}"
+
+                                       ErrorText="{StaticResource ErrorColor}" />
             </FluentTheme.Palettes>
         </FluentTheme>
     </Application.Styles>
