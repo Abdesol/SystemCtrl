@@ -1,7 +1,58 @@
+using System.Collections.ObjectModel;
 using ReactiveUI;
+using ReactiveUI.SourceGenerators;
+using SystemCtrl.Core.Interfaces;
+using SystemCtrl.Core.Models;
 
 namespace SystemCtrl.Desktop.ViewModels;
 
-public class SettingsViewModel : ViewModelBase
+public partial class SettingsViewModel : ViewModelBase
 {
+    private readonly ISettingsService _settingsService;
+
+    [Reactive]
+    public partial string ApiKey { get; set; }
+
+    [Reactive]
+    public partial string SelectedModel { get; set; }
+
+    [Reactive]
+    public partial ObservableCollection<string> AvailableModels { get; set; }
+
+    public SettingsViewModel(ISettingsService settingsService)
+    {
+        _settingsService = settingsService;
+        var settings = _settingsService.LoadSettings();
+        
+        ApiKey = settings.GeminiApiKey;
+        SelectedModel = settings.GeminiModel;
+        
+        AvailableModels =
+        [
+            "gemini-3.5-flash",
+            "gemini-3.5-flash-lite",
+            "gemini-3.1-pro",
+            "gemini-2.5-pro",
+            "gemini-2.5-flash"
+        ];
+
+        if (!AvailableModels.Contains(SelectedModel))
+        {
+            SelectedModel = AvailableModels[0];
+        }
+    }
+
+    public System.Action? OnSaved { get; set; }
+
+    [ReactiveCommand]
+    public void SaveSettings()
+    {
+        var settings = new AppSettings
+        {
+            GeminiApiKey = ApiKey,
+            GeminiModel = SelectedModel
+        };
+        _settingsService.SaveSettings(settings);
+        OnSaved?.Invoke();
+    }
 }

@@ -13,5 +13,7 @@ public static class ServiceCollectionExtensions
         collection.AddTransient<ServiceDetailViewModel>();
         
         collection.AddScoped<IWindowsServiceManager, WindowsServiceManager>();
+        collection.AddScoped<ISettingsService, SettingsService>();
+        collection.AddTransient<SettingsViewModel>();
     }
 }

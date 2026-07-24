@@ -39,6 +39,8 @@ public partial class MainViewModel : ViewModelBase
     [ReactiveCommand]
     public void OpenSettings()
     {
-        SlidePanel.Open("Settings", new SettingsViewModel());
+        var settingsViewModel = _serviceProvider.GetRequiredService<SettingsViewModel>();
+        settingsViewModel.OnSaved = () => SlidePanel.Close();
+        SlidePanel.Open("Settings", settingsViewModel);
     }
 }
