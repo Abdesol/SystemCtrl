@@ -46,17 +46,41 @@
                   HorizontalAlignment="Stretch"
                   ColumnDefinitions="*, Auto">
                 <Grid Column="0" HorizontalAlignment="Stretch">
-                    
+                    <TextBox Text="{Binding SearchText}"
+                             Watermark="Search services..."
+                             CornerRadius="8"
+                             BorderThickness="0"
+                             Padding="10,8"
+                             Height="36"
+                             Margin="0,0,15,0"
+                             Background="{DynamicResource CardBackgroundBrush}"
+                             VerticalAlignment="Center">
+                        <TextBox.InnerLeftContent>
+                            <Viewbox Height="16" Margin="12,0,8,0">
+                                <Path Data="{StaticResource SearchIcon}"
+                                      Fill="{DynamicResource SystemBaseMediumColor}"
+                                      Stretch="Uniform"/>
+                            </Viewbox>
+                        </TextBox.InnerLeftContent>
+                    </TextBox>
                 </Grid>
-                <Button Grid.Column="1"
-                        Command="{Binding OpenSettingsCommand}"
-                        VerticalAlignment="Center">
-                    <Viewbox Height="18">
-                        <Path Data="{StaticResource SettingsIcon}"
-                              Stretch="Uniform"
-                              Fill="{StaticResource SystemBaseHighColor}"/>
-                    </Viewbox>
-                </Button>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="15" VerticalAlignment="Center">
+                    <Button Command="{Binding RefreshServicesCommand}">
+                        <Viewbox Height="18">
+                            <Path Data="{StaticResource RestartIcon}"
+                                  Stretch="Uniform"
+                                  Fill="{StaticResource SystemBaseHighColor}"/>
+                        </Viewbox>
+                    </Button>
+                    
+                    <Button Command="{Binding OpenSettingsCommand}">
+                        <Viewbox Height="18">
+                            <Path Data="{StaticResource SettingsIcon}"
+                                  Stretch="Uniform"
+                                  Fill="{StaticResource SystemBaseHighColor}"/>
+                        </Viewbox>
+                    </Button>
+                </StackPanel>
             </Grid>
             
             <Grid Row="2" RowDefinitions="Auto, *"
