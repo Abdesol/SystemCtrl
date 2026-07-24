@@ -28,7 +28,7 @@
     <Panel Margin="{Binding $parent[Window].OffScreenMargin}"
            VerticalAlignment="Stretch"
            HorizontalAlignment="Stretch">
-        <Grid RowDefinitions="Auto, *"
+        <Grid RowDefinitions="Auto, Auto, *"
               Margin="15,12">
             <Grid Row="0"
                   Background="Transparent"
@@ -41,7 +41,25 @@
                            FontWeight="SemiBold"
                            FontSize="20" />
             </Grid>
-            <Grid Row="1" RowDefinitions="Auto, *"
+            <Grid Row="1"
+                  Margin="0,20,0,0"
+                  HorizontalAlignment="Stretch"
+                  ColumnDefinitions="*, Auto">
+                <Grid Column="0" HorizontalAlignment="Stretch">
+                    
+                </Grid>
+                <Button Grid.Column="1"
+                        Command="{Binding OpenSettingsCommand}"
+                        VerticalAlignment="Center">
+                    <Viewbox Height="18">
+                        <Path Data="{StaticResource SettingsIcon}"
+                              Stretch="Uniform"
+                              Fill="{StaticResource SystemBaseHighColor}"/>
+                    </Viewbox>
+                </Button>
+            </Grid>
+            
+            <Grid Row="2" RowDefinitions="Auto, *"
                   Margin="0,15,0,0">
                 <Grid Grid.Row="0">
 

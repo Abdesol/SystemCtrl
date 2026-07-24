@@ -35,4 +35,10 @@ public partial class MainViewModel : ViewModelBase
         serviceDetailViewModel.Load(selectedService);
         SlidePanel.Open(selectedService.DisplayName, serviceDetailViewModel);
     }
+
+    [ReactiveCommand]
+    public void OpenSettings()
+    {
+        SlidePanel.Open("Settings", new SettingsViewModel());
+    }
 }
