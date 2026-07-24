@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:behaviors="clr-namespace:SystemCtrl.Desktop.Behaviors"
+        xmlns:controls="clr-namespace:SystemCtrl.Desktop.Controls"
         xmlns:sp="clr-namespace:System.ServiceProcess;assembly=System.ServiceProcess.ServiceController"
         xmlns:conv="using:SystemCtrl.Desktop.Converters"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
@@ -76,6 +77,8 @@
                                     HorizontalAlignment="Stretch"
                                     HorizontalContentAlignment="Stretch"
                                     VerticalContentAlignment="Stretch"
+                                    Command="{Binding $parent[Window].((vm:MainViewModel)DataContext).OpenServiceCommand}"
+                                    CommandParameter="{Binding}"
                                     Margin="0,0,5,5">
                                     <Border CornerRadius="10"
                                             HorizontalAlignment="Stretch"
@@ -188,5 +191,10 @@
                 </ScrollViewer>
             </Grid>
         </Grid>
+
+        <controls:SlidePanel DataContext="{Binding SlidePanel}"
+                             HorizontalAlignment="Stretch"
+                             VerticalAlignment="Stretch"
+                             IsHitTestVisible="{Binding IsOpen}" />
     </Panel>
 </Window>

@@ -1,0 +1,128 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SystemCtrl.Desktop.ViewModels"
+             xmlns:sp="clr-namespace:System.ServiceProcess;assembly=System.ServiceProcess.ServiceController"
+             xmlns:conv="using:SystemCtrl.Desktop.Converters"
+             x:Class="SystemCtrl.Desktop.Views.ServiceDetailView"
+             x:DataType="vm:ServiceDetailViewModel">
+
+    <UserControl.Resources>
+        <conv:EqualityConverter x:Key="EqualityConverter" />
+    </UserControl.Resources>
+
+    <UserControl.Styles>
+        <Style Selector="Border.IsStopped">
+            <Setter Property="Background" Value="{DynamicResource DangerBackgroundBrush}" />
+            <Setter Property="TextElement.Foreground" Value="{DynamicResource DangerForegroundBrush}" />
+        </Style>
+        <Style Selector="Border.IsRunning">
+            <Setter Property="Background" Value="{DynamicResource SuccessBackgroundBrush}" />
+            <Setter Property="TextElement.Foreground" Value="{DynamicResource SuccessForegroundBrush}" />
+        </Style>
+        <Style Selector="Border.IsStartPending, Border.IsContinuePending">
+            <Setter Property="Background" Value="{DynamicResource InfoBackgroundBrush}" />
+            <Setter Property="TextElement.Foreground" Value="{DynamicResource InfoForegroundBrush}" />
+        </Style>
+        <Style Selector="Border.IsStopPending, Border.IsPausePending">
+            <Setter Property="Background" Value="{DynamicResource WarningBackgroundBrush}" />
+            <Setter Property="TextElement.Foreground" Value="{DynamicResource WarningForegroundBrush}" />
+        </Style>
+        <Style Selector="Border.IsPaused">
+            <Setter Property="Background" Value="{DynamicResource CautionBackgroundBrush}" />
+            <Setter Property="TextElement.Foreground" Value="{DynamicResource CautionForegroundBrush}" />
+        </Style>
+        <Style Selector="Border.IsAutomatic">
+            <Setter Property="Background" Value="{DynamicResource SuccessBackgroundBrush}" />
+            <Setter Property="TextElement.Foreground" Value="{DynamicResource SuccessForegroundBrush}" />
+        </Style>
+        <Style Selector="Border.IsManual">
+            <Setter Property="Background" Value="{DynamicResource NeutralBackgroundBrush}" />
+            <Setter Property="TextElement.Foreground" Value="{DynamicResource NeutralForegroundBrush}" />
+        </Style>
+        <Style Selector="Border.IsDisabled">
+            <Setter Property="Background" Value="{DynamicResource DangerBackgroundBrush}" />
+            <Setter Property="TextElement.Foreground" Value="{DynamicResource DangerForegroundBrush}" />
+        </Style>
+        <Style Selector="Border.IsBoot, Border.IsSystem">
+            <Setter Property="Background" Value="{DynamicResource SpecialBackgroundBrush}" />
+            <Setter Property="TextElement.Foreground" Value="{DynamicResource SpecialForegroundBrush}" />
+        </Style>
+    </UserControl.Styles>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="20"
+                    IsVisible="{Binding Service, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <StackPanel Spacing="4">
+                <TextBlock Text="NAME"
+                           FontSize="10"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource SystemBaseMediumColor}"
+                           LetterSpacing="1.2" />
+                <TextBlock Text="{Binding Service.DisplayName}"
+                           FontSize="16"
+                           FontWeight="SemiBold"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+
+            <StackPanel Spacing="4">
+                <TextBlock Text="SERVICE NAME"
+                           FontSize="10"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource SystemBaseMediumColor}"
+                           LetterSpacing="1.2" />
+                <TextBlock Text="{Binding Service.ServiceName}"
+                           FontSize="13"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+            </StackPanel>
+
+            <StackPanel Spacing="8">
+                <TextBlock Text="STATE"
+                           FontSize="10"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource SystemBaseMediumColor}"
+                           LetterSpacing="1.2" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Border CornerRadius="8"
+                            Classes.IsStopped="{Binding Service.Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.Stopped}}"
+                            Classes.IsStartPending="{Binding Service.Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.StartPending}}"
+                            Classes.IsStopPending="{Binding Service.Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.StopPending}}"
+                            Classes.IsRunning="{Binding Service.Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.Running}}"
+                            Classes.IsContinuePending="{Binding Service.Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.ContinuePending}}"
+                            Classes.IsPausePending="{Binding Service.Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.PausePending}}"
+                            Classes.IsPaused="{Binding Service.Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.Paused}}">
+                        <TextBlock Text="{Binding Service.Status}"
+                                   FontSize="12"
+                                   FontWeight="SemiBold"
+                                   Margin="10,5" />
+                    </Border>
+
+                    <Border CornerRadius="8"
+                            Classes.IsBoot="{Binding Service.StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.Boot}}"
+                            Classes.IsSystem="{Binding Service.StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.System}}"
+                            Classes.IsAutomatic="{Binding Service.StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.Automatic}}"
+                            Classes.IsManual="{Binding Service.StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.Manual}}"
+                            Classes.IsDisabled="{Binding Service.StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.Disabled}}">
+                        <TextBlock Text="{Binding Service.StartType}"
+                                   FontSize="12"
+                                   FontWeight="SemiBold"
+                                   Margin="10,5" />
+                    </Border>
+                </StackPanel>
+            </StackPanel>
+
+            <StackPanel Spacing="4">
+                <TextBlock Text="DESCRIPTION"
+                           FontSize="10"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource SystemBaseMediumColor}"
+                           LetterSpacing="1.2" />
+                <TextBlock Text="{Binding Service.Description}"
+                           FontSize="13"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

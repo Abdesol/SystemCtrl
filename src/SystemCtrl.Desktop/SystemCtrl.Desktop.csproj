@@ -9,7 +9,9 @@
     <ItemGroup>
         <Folder Include="Assets\Fonts\" />
         <AvaloniaResource Include="Assets\**"/>
+        <Folder Include="Controls\" />
         <Folder Include="Models\" />
+        <Folder Include="Services\" />
     </ItemGroup>
 
     <ItemGroup>

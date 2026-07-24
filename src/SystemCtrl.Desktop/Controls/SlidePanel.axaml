@@ -1,0 +1,45 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SystemCtrl.Desktop.ViewModels"
+             x:Class="SystemCtrl.Desktop.Controls.SlidePanel"
+             x:DataType="vm:SlidePanelViewModel">
+
+    <UserControl.Styles>
+        <Style Selector="Border#DimOverlay">
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="IsHitTestVisible" Value="False" />
+            <Setter Property="Transitions">
+                <Transitions>
+                    <DoubleTransition Property="Opacity" Duration="0:0:0.3" Easing="CubicEaseInOut" />
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Border#DimOverlay.Open">
+            <Setter Property="Opacity" Value="1" />
+            <Setter Property="IsHitTestVisible" Value="True" />
+        </Style>
+    </UserControl.Styles>
+
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+        <Border x:Name="DimOverlay"
+                Classes.Open="{Binding IsOpen}"
+                Background="#4D000000"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                DoubleTapped="DimOverlay_DoubleTapped" />
+
+        <Border x:Name="PanelRoot"
+                Width="420"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Stretch"
+                Background="{StaticResource CardBackgroundBrush}"
+                BoxShadow="-8 0 40 0 #1A000000"
+                CornerRadius="16,0,0,16">
+            <ContentControl Margin="20,48,12,20"
+                            Content="{Binding Content}"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch" />
+        </Border>
+    </Grid>
+</UserControl>
