@@ -12,7 +12,7 @@
         MinHeight="400"
         MinWidth="700"
         WindowStartupLocation="CenterScreen"
-        Background="{StaticResource Background}">
+        Background="{StaticResource BackgroundBrush}">
     <Design.DataContext>
         <vm:MainViewModel />
     </Design.DataContext>

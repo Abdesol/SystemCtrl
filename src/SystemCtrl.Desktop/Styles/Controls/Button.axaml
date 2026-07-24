@@ -48,10 +48,10 @@
     
     <Style Selector="Button.LightPointerOverAndPressed">
         <Style Selector="^:pointerover /template/ ContentPresenter">    
-            <Setter Property="Background" Value="{StaticResource ButtonBackgroundPointerOver}"/>
+            <Setter Property="Background" Value="{StaticResource ButtonBackgroundPointerOverBrush}"/>
         </Style>
         <Style Selector="^:pressed /template/ ContentPresenter">
-            <Setter Property="Background" Value="{StaticResource ButtonBackgroundPressed}"/>
+            <Setter Property="Background" Value="{StaticResource ButtonBackgroundPressedBrush}"/>
         </Style>
     </Style>
 </Styles>

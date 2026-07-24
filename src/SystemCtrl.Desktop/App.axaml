@@ -18,22 +18,22 @@
         <FluentTheme>
             <FluentTheme.Palettes>
                 <ColorPaletteResources x:Key="Light"
-                                       Accent="{StaticResource AccentFillColorDefault}"
+                                       Accent="{StaticResource AccentFillDefaultColor}"
 
-                                       AltHigh="{StaticResource ControlFillColorDefault}"
-                                       AltLow="{StaticResource SystemBackgroundColor}"
+                                       AltHigh="{StaticResource ControlFillDefaultColor}"
+                                       AltLow="{StaticResource BackgroundColor}"
                                        AltMedium="{StaticResource NavigationViewBackgroundColor}"
-                                       AltMediumHigh="{StaticResource ControlFillColorDefault}"
+                                       AltMediumHigh="{StaticResource ControlFillDefaultColor}"
                                        AltMediumLow="{StaticResource AltMediumLowColor}"
 
-                                       BaseHigh="{StaticResource TextFillColorPrimary}"
-                                       BaseLow="{StaticResource ControlFillColorSecondary}"
-                                       BaseMedium="{StaticResource TextFillColorTertiary}"
+                                       BaseHigh="{StaticResource TextFillPrimaryColor}"
+                                       BaseLow="{StaticResource ControlFillSecondaryColor}"
+                                       BaseMedium="{StaticResource TextFillTertiaryColor}"
                                        BaseMediumHigh="{StaticResource BaseMediumHighColor}"
                                        BaseMediumLow="{StaticResource BaseMediumLowColor}"
 
-                                       ChromeAltLow="{StaticResource TextFillColorPrimary}"
-                                       ChromeBlackHigh="{StaticResource ControlStrokeColorDefault}"
+                                       ChromeAltLow="{StaticResource TextFillPrimaryColor}"
+                                       ChromeBlackHigh="{StaticResource ControlStrokeDefaultColor}"
                                        ChromeBlackLow="{StaticResource ChromeBlackLowColor}"
                                        ChromeBlackMedium="{StaticResource ChromeBlackMediumColor}"
                                        ChromeBlackMediumLow="{StaticResource ChromeBlackMediumLowColor}"
@@ -42,15 +42,15 @@
                                        ChromeGray="{StaticResource ChromeGrayColor}"
 
                                        ChromeHigh="{StaticResource FocusStrokeColor}"
-                                       ChromeLow="{StaticResource SystemBackgroundColor}"
-                                       ChromeMedium="{StaticResource ControlFillColorTertiary}"
-                                       ChromeMediumLow="{StaticResource ControlFillColorSecondary}"
-                                       ChromeWhite="{StaticResource ControlFillColorDefault}"
+                                       ChromeLow="{StaticResource BackgroundColor}"
+                                       ChromeMedium="{StaticResource ControlFillTertiaryColor}"
+                                       ChromeMediumLow="{StaticResource ControlFillSecondaryColor}"
+                                       ChromeWhite="{StaticResource ControlFillDefaultColor}"
 
-                                       ListLow="{StaticResource ControlFillColorSecondary}"
+                                       ListLow="{StaticResource ControlFillSecondaryColor}"
                                        ListMedium="{StaticResource FocusStrokeColor}"
 
-                                       RegionColor="{StaticResource SystemBackgroundColor}"
+                                       RegionColor="{StaticResource BackgroundColor}"
 
                                        ErrorText="{StaticResource ErrorColor}" />
             </FluentTheme.Palettes>
