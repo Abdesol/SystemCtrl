@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Management;
 using System.Security.Cryptography.X509Certificates;
+using System.Security.Principal;
 using System.ServiceProcess;
 using Microsoft.Win32;
 using SystemCtrl.Core.Interfaces;
@@ -59,12 +60,52 @@ public class WindowsServiceManager : IWindowsServiceManager
         };
     }
 
+    private void ExecuteElevated(string fileName, string arguments)
+    {
+        var processInfo = new ProcessStartInfo
+        {
+            FileName = fileName,
+            Arguments = arguments,
+            UseShellExecute = true,
+            Verb = "runas",
+            WindowStyle = ProcessWindowStyle.Hidden
+        };
+
+        try
+        {
+            using var process = Process.Start(processInfo);
+            process?.WaitForExit();
+        }
+        catch (System.ComponentModel.Win32Exception)
+        {
+            // User cancelled the UAC prompt
+        }
+    }
+
+    private bool IsAdministrator()
+    {
+        using (WindowsIdentity identity = WindowsIdentity.GetCurrent())
+        {
+            WindowsPrincipal principal = new WindowsPrincipal(identity);
+            return principal.IsInRole(WindowsBuiltInRole.Administrator);
+        }
+    }
+
     public void Start(string serviceName)
     {
         using var service = new ServiceController(serviceName);
 
         if (service.Status != ServiceControllerStatus.Running)
-            service.Start();
+        {
+            if (IsAdministrator())
+            {
+                service.Start();
+            }
+            else
+            {
+                ExecuteElevated("sc.exe", $"start \"{serviceName}\"");
+            }
+        }
     }
 
     public void Stop(string serviceName)
@@ -72,17 +113,54 @@ public class WindowsServiceManager : IWindowsServiceManager
         using var service = new ServiceController(serviceName);
 
         if (service.Status != ServiceControllerStatus.Stopped)
-            service.Stop();
+        {
+            if (IsAdministrator())
+            {
+                service.Stop();
+            }
+            else
+            {
+                ExecuteElevated("sc.exe", $"stop \"{serviceName}\"");
+            }
+        }
     }
 
     public void Restart(string serviceName)
     {
-        Stop(serviceName);
+        if (IsAdministrator())
+        {
+            Stop(serviceName);
+            using var service = new ServiceController(serviceName);
+            service.WaitForStatus(ServiceControllerStatus.Stopped);
+            service.Start();
+        }
+        else
+        {
+            ExecuteElevated("powershell.exe", $"-Command \"Restart-Service -Name '{serviceName}' -Force\"");
+        }
+    }
 
-        using var service = new ServiceController(serviceName);
-        service.WaitForStatus(ServiceControllerStatus.Stopped);
+    public void SetStartType(string serviceName, ServiceStartMode startMode)
+    {
+        string startTypeStr = startMode switch
+        {
+            ServiceStartMode.Automatic => "auto",
+            ServiceStartMode.Manual => "demand",
+            ServiceStartMode.Disabled => "disabled",
+            ServiceStartMode.Boot => "boot",
+            ServiceStartMode.System => "system",
+            _ => "demand"
+        };
 
-        service.Start();
+        if (IsAdministrator())
+        {
+             var pi = new ProcessStartInfo("sc.exe", $"config \"{serviceName}\" start= {startTypeStr}") { CreateNoWindow = true };
+             Process.Start(pi)?.WaitForExit();
+        }
+        else
+        {
+             ExecuteElevated("sc.exe", $"config \"{serviceName}\" start= {startTypeStr}");
+        }
     }
 
     private bool IsSystemService(ServiceController service)

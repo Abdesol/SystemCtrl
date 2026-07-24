@@ -1,3 +1,4 @@
+using System.ServiceProcess;
 using SystemCtrl.Core.Models;
 
 namespace SystemCtrl.Core.Interfaces;
@@ -13,4 +14,6 @@ public interface IWindowsServiceManager
     void Stop(string serviceName);
 
     void Restart(string serviceName);
+
+    void SetStartType(string serviceName, ServiceStartMode startMode);
 }

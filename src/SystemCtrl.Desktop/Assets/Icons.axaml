@@ -7,5 +7,9 @@
         <Geometry x:Key="MinimizeIcon">M2048 1229v-205h-2048v205h2048z</Geometry>
         <Geometry x:Key="MaximizeIcon">M2048 1638h-410v410h-1638v-1638h410v-410h1638v1638zm-614-1024h-1229v1229h1229v-1229zm409-409h-1229v205h1024v1024h205v-1229z</Geometry>
         <Geometry x:Key="InfoIcon">M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z</Geometry>
+        <Geometry x:Key="PlayIcon">M8 5v14l11-7z</Geometry>
+        <Geometry x:Key="StopIcon">M6 6h12v12H6z</Geometry>
+        <Geometry x:Key="RestartIcon">M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z</Geometry>
+        <Geometry x:Key="BlockIcon">M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8 0-1.85.63-3.55 1.69-4.9L16.9 18.31C15.55 19.37 13.85 20 12 20zm6.31-3.1L7.1 5.69C8.45 4.63 10.15 4 12 4c4.42 0 8 3.58 8 8 0 1.85-.63 3.55-1.69 4.9z</Geometry>
     </Styles.Resources>
 </Styles>

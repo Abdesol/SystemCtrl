@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using SystemCtrl.Core;
 using SystemCtrl.Core.Interfaces;
+using SystemCtrl.Desktop.Services;
 using SystemCtrl.Desktop.ViewModels;
 
 namespace SystemCtrl.Desktop;

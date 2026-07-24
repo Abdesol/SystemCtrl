@@ -52,8 +52,9 @@
         </Style>
     </UserControl.Styles>
 
-    <Grid>
-        <ScrollViewer VerticalScrollBarVisibility="Auto"
+    <Grid RowDefinitions="*, Auto">
+        <ScrollViewer Grid.Row="0"
+                      VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled"
                       HorizontalAlignment="Stretch"
                       VerticalAlignment="Stretch">
@@ -259,5 +260,84 @@
 
             </StackPanel>
         </ScrollViewer>
+
+        <Border Grid.Row="1"
+                BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="20"
+                IsVisible="{Binding Service, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <UniformGrid Columns="2" Rows="2">
+                <UniformGrid.Styles>
+                    <Style Selector="Button">
+                        <Setter Property="CornerRadius" Value="10"/>
+                    </Style>
+                </UniformGrid.Styles>
+                <Button Command="{Binding StartService}"
+                        Margin="0,0,5,5"
+                        Height="32"
+                        Background="{DynamicResource SystemAccentColor}"
+                        Foreground="White"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <PathIcon Data="{StaticResource PlayIcon}" Width="10" Height="10" Foreground="White" />
+                        <TextBlock Text="Start" FontWeight="Medium" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+
+                <Button Command="{Binding StopService}"
+                        Margin="5,0,0,5"
+                        Height="32"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center"
+                        BorderThickness="2"
+                        BorderBrush="{DynamicResource DangerBackgroundBrush}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <PathIcon Data="{StaticResource StopIcon}" Width="10" Height="10" />
+                        <TextBlock Text="Stop" FontWeight="Medium" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+
+                <Button Command="{Binding RestartService}"
+                        Margin="0,5,5,0"
+                        Height="32"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center"
+                        BorderThickness="2"
+                        BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <PathIcon Data="{StaticResource RestartIcon}" Width="10" Height="10" />
+                        <TextBlock Text="Restart" FontWeight="Medium" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+
+                <Panel Margin="5,5,0,0">
+                    <Button Command="{Binding DisableAutoStart}"
+                            Height="32"
+                            Background="{DynamicResource DangerBackgroundBrush}"
+                            Foreground="{DynamicResource DangerForegroundBrush}"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            IsVisible="{Binding IsAutoStart}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <PathIcon Data="{StaticResource BlockIcon}" Width="10" Height="10" Foreground="{DynamicResource DangerForegroundBrush}" />
+                            <TextBlock Text="Disable Auto-start" FontWeight="Medium" VerticalAlignment="Center" Foreground="{DynamicResource DangerForegroundBrush}" />
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding EnableAutoStart}"
+                            Height="32"
+                            Background="{DynamicResource SuccessBackgroundBrush}"
+                            Foreground="{DynamicResource SuccessForegroundBrush}"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Center"
+                            IsVisible="{Binding !IsAutoStart}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <PathIcon Data="{StaticResource PlayIcon}" Width="10" Height="10" Foreground="{DynamicResource SuccessForegroundBrush}" />
+                            <TextBlock Text="Enable Auto-start" FontWeight="Medium" VerticalAlignment="Center" Foreground="{DynamicResource SuccessForegroundBrush}" />
+                        </StackPanel>
+                    </Button>
+                </Panel>
+            </UniformGrid>
+        </Border>
     </Grid>
 </UserControl>

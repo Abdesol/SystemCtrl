@@ -4,7 +4,7 @@ using System.Text.Json;
 using SystemCtrl.Core.Interfaces;
 using SystemCtrl.Core.Models;
 
-namespace SystemCtrl.Core;
+namespace SystemCtrl.Desktop.Services;
 
 public class SettingsService : ISettingsService
 {
@@ -30,7 +30,7 @@ public class SettingsService : ISettingsService
 
         try
         {
-            string json = File.ReadAllText(_settingsFilePath);
+            var json = File.ReadAllText(_settingsFilePath);
             return JsonSerializer.Deserialize<AppSettings>(json) ?? new AppSettings();
         }
         catch
@@ -43,7 +43,7 @@ public class SettingsService : ISettingsService
     {
         try
         {
-            string json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
+            var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(_settingsFilePath, json);
         }
         catch
