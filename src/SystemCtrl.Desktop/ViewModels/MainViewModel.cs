@@ -23,7 +23,6 @@ public partial class MainViewModel : ViewModelBase
         _windowsServiceManager = windowsServiceManager;
 
         _allServices = _windowsServiceManager.GetServices().ToList();
-        Services = new ObservableCollection<WindowsServiceInfo>(_allServices);
         SlidePanel = new SlidePanelViewModel();
 
         this.WhenAnyValue(x => x.SearchText)
@@ -31,7 +30,7 @@ public partial class MainViewModel : ViewModelBase
     }
 
     [Reactive]
-    public partial ObservableCollection<WindowsServiceInfo> Services { get; set; }
+    public partial ObservableCollection<ServiceItemViewModel> Services { get; set; }
 
     [Reactive]
     public partial string SearchText { get; set; } = string.Empty;
@@ -41,25 +40,58 @@ public partial class MainViewModel : ViewModelBase
 
     private void FilterServices()
     {
-        if (string.IsNullOrWhiteSpace(SearchText))
+        var settingsService = _serviceProvider.GetRequiredService<ISettingsService>();
+        var settings = settingsService.LoadSettings();
+        var pinnedServices = settings.PinnedServices ?? new List<string>();
+
+        IEnumerable<WindowsServiceInfo> filtered = _allServices;
+
+        if (!string.IsNullOrWhiteSpace(SearchText))
         {
-            Services = new ObservableCollection<WindowsServiceInfo>(_allServices);
+            var query = SearchText.ToLowerInvariant();
+            filtered = _allServices.Where(s => 
+                s.DisplayName.ToLowerInvariant().Contains(query) || 
+                s.ServiceName.ToLowerInvariant().Contains(query));
+        }
+
+        var sorted = filtered.OrderByDescending(s => pinnedServices.Contains(s.ServiceName)).ThenBy(s => s.DisplayName);
+        
+        var viewModels = sorted.Select(s => new ServiceItemViewModel(
+            s, 
+            pinnedServices.Contains(s.ServiceName), 
+            TogglePinAction,
+            OpenServiceAction
+        ));
+
+        Services = new ObservableCollection<ServiceItemViewModel>(viewModels);
+    }
+
+    private void TogglePinAction(ServiceItemViewModel item)
+    {
+        var settingsService = _serviceProvider.GetRequiredService<ISettingsService>();
+        var settings = settingsService.LoadSettings();
+        
+        if (settings.PinnedServices == null)
+            settings.PinnedServices = new List<string>();
+
+        if (settings.PinnedServices.Contains(item.Service.ServiceName))
+        {
+            settings.PinnedServices.Remove(item.Service.ServiceName);
         }
         else
         {
-            var query = SearchText.ToLowerInvariant();
-            Services = new ObservableCollection<WindowsServiceInfo>(_allServices.Where(s => 
-                s.DisplayName.ToLowerInvariant().Contains(query) || 
-                s.ServiceName.ToLowerInvariant().Contains(query)));
+            settings.PinnedServices.Add(item.Service.ServiceName);
         }
+        
+        settingsService.SaveSettings(settings);
+        FilterServices();
     }
 
-    [ReactiveCommand]
-    public void OpenService(WindowsServiceInfo selectedService)
+    private void OpenServiceAction(ServiceItemViewModel item)
     {
         var serviceDetailViewModel = _serviceProvider.GetRequiredService<ServiceDetailViewModel>();
-        serviceDetailViewModel.Load(selectedService);
-        SlidePanel.Open(selectedService.DisplayName, serviceDetailViewModel);
+        serviceDetailViewModel.Load(item.Service);
+        SlidePanel.Open(item.Service.DisplayName, serviceDetailViewModel);
     }
 
     [ReactiveCommand]
