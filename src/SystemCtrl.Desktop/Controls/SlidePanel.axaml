@@ -34,10 +34,39 @@
                 Background="{StaticResource CardBackgroundBrush}"
                 BoxShadow="-8 0 40 0 #1A000000"
                 CornerRadius="16,0,0,16">
-            <ContentControl Margin="0,48,0,15"
-                            Content="{Binding Content}"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Stretch" />
+            <Grid RowDefinitions="Auto, *"
+                  Margin="20,0">
+                <Grid Grid.Row="0"
+                      ColumnDefinitions="Auto, *"
+                      Margin="0,32,0,20">
+                    <Button Grid.Column="0"
+                            VerticalAlignment="Center"
+                            Command="{Binding CloseCommand}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Path Height="10"
+                                  Data="{StaticResource ChevronLeftIcon}"
+                                  Fill="{StaticResource SystemBaseHighColor}"
+                                  Stretch="Uniform" />
+                            <TextBlock VerticalAlignment="Center"
+                                       FontSize="13"
+                                       FontWeight="Medium"
+                                       Foreground="{StaticResource SystemBaseHighColor}"
+                                       Text="Back" />
+                        </StackPanel>
+                    </Button>
+                    <TextBlock Grid.Column="1" Text="{Binding Title}"
+                               VerticalAlignment="Center"
+                               Margin="18,0,0,0"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               TextWrapping="Wrap" />
+                </Grid>
+                <ContentControl Grid.Row="1"
+                                Margin="-20, 0"
+                                Content="{Binding Content}"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch" />
+            </Grid>
         </Border>
     </Grid>
 </UserControl>

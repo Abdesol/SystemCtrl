@@ -22,14 +22,14 @@
         <Setter Property="Foreground" Value="{TemplateBinding Foreground}" />
         <Setter Property="BorderBrush" Value="{TemplateBinding BorderBrush}" />
         <Setter Property="CornerRadius" Value="{TemplateBinding CornerRadius}" />
-        <Setter Property="RenderTransform" Value="scale(0.95)" />
+        <Setter Property="RenderTransform" Value="scale(0.98)" />
     </Style>
     <Style Selector="Button:pressed /template/ ContentPresenter">
         <Setter Property="Background" Value="{TemplateBinding Background}" />
         <Setter Property="Foreground" Value="{TemplateBinding Foreground}" />
         <Setter Property="BorderBrush" Value="{TemplateBinding BorderBrush}" />
         <Setter Property="CornerRadius" Value="{TemplateBinding CornerRadius}" />
-        <Setter Property="RenderTransform" Value="scale(0.92)" />
+        <Setter Property="RenderTransform" Value="scale(0.96)" />
     </Style>
     <Style Selector="Button:disabled /template/ ContentPresenter">
         <Setter Property="Background" Value="{TemplateBinding Background}" />

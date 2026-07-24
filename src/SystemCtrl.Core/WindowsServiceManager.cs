@@ -186,7 +186,7 @@ public class WindowsServiceManager : IWindowsServiceManager
 
         using var result = searcher.Get().Cast<ManagementObject>().FirstOrDefault();
 
-        return result?["ProcessId"] as uint? is { } pid
+        return result?["ProcessId"] as uint? is { } pid && pid != 0
             ? (int)pid
             : null;
     }

@@ -58,14 +58,8 @@
                       HorizontalAlignment="Stretch"
                       VerticalAlignment="Stretch">
             <StackPanel Spacing="20"
-                        Margin="20,0"
+                        Margin="20,0,20,30"
                         IsVisible="{Binding Service, Converter={x:Static ObjectConverters.IsNotNull}}">
-
-                <!-- NAME -->
-                <TextBlock Text="{Binding Service.DisplayName}"
-                           FontSize="16"
-                           FontWeight="SemiBold"
-                           TextWrapping="Wrap" />
 
                 <!-- SERVICE NAME -->
                 <StackPanel Spacing="4">
@@ -151,16 +145,13 @@
                                 IsVisible="{Binding DetailedInfo, Converter={x:Static ObjectConverters.IsNotNull}}">
 
                         <!-- EXECUTABLE -->
-                        <StackPanel Spacing="4">
+                        <StackPanel Spacing="4"
+                                    IsVisible="{Binding DetailedInfo.ExecutablePath, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
                             <TextBlock Text="EXECUTABLE"
                                        FontSize="10"
                                        FontWeight="SemiBold"
                                        Foreground="{DynamicResource SystemBaseMediumColor}"
                                        LetterSpacing="1.2" />
-                            <TextBlock Text="{Binding DetailedInfo.ExecutableName, Converter={StaticResource ToUnknown}}"
-                                       FontSize="13"
-                                       FontWeight="Medium"
-                                       TextWrapping="Wrap" />
                             <TextBlock Text="{Binding DetailedInfo.ExecutablePath}"
                                        FontSize="11"
                                        TextWrapping="Wrap"
@@ -189,10 +180,11 @@
                                            FontWeight="SemiBold"
                                            Foreground="{DynamicResource SystemBaseMediumColor}"
                                            LetterSpacing="1.2" />
-                                <TextBlock Text="{Binding DetailedInfo.FileVersion, Converter={StaticResource ToUnknown}}"
-                                           FontSize="13"
-                                           TextWrapping="Wrap"
-                                           Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+                                <TextBlock
+                                    Text="{Binding DetailedInfo.FileVersion, Converter={StaticResource ToUnknown}}"
+                                    FontSize="13"
+                                    TextWrapping="Wrap"
+                                    Foreground="{DynamicResource SystemBaseMediumHighColor}" />
                             </StackPanel>
                             <StackPanel Grid.Column="2" Spacing="4">
                                 <TextBlock Text="FILE SIZE"
@@ -200,9 +192,10 @@
                                            FontWeight="SemiBold"
                                            Foreground="{DynamicResource SystemBaseMediumColor}"
                                            LetterSpacing="1.2" />
-                                <TextBlock Text="{Binding DetailedInfo.FileSizeFormatted, Converter={StaticResource ToUnknown}}"
-                                           FontSize="13"
-                                           Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+                                <TextBlock
+                                    Text="{Binding DetailedInfo.FileSizeFormatted, Converter={StaticResource ToUnknown}}"
+                                    FontSize="13"
+                                    Foreground="{DynamicResource SystemBaseMediumHighColor}" />
                             </StackPanel>
                         </Grid>
 
@@ -213,26 +206,24 @@
                                        FontWeight="SemiBold"
                                        Foreground="{DynamicResource SystemBaseMediumColor}"
                                        LetterSpacing="1.2" />
-                            <TextBlock Text="{Binding DetailedInfo.ServiceAccount, Converter={StaticResource ToUnknown}}"
-                                       FontSize="13"
-                                       TextWrapping="Wrap"
-                                       Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+                            <TextBlock
+                                Text="{Binding DetailedInfo.ServiceAccount, Converter={StaticResource ToUnknown}}"
+                                FontSize="13"
+                                TextWrapping="Wrap"
+                                Foreground="{DynamicResource SystemBaseMediumHighColor}" />
                         </StackPanel>
 
                         <!-- PROCESS ID -->
-                        <StackPanel Spacing="4">
+                        <StackPanel Spacing="4"
+                                    IsVisible="{Binding DetailedInfo.ProcessId, Converter={x:Static ObjectConverters.IsNotNull}}">
                             <TextBlock Text="PROCESS ID"
                                        FontSize="10"
                                        FontWeight="SemiBold"
                                        Foreground="{DynamicResource SystemBaseMediumColor}"
                                        LetterSpacing="1.2" />
-                            <TextBlock FontSize="13"
-                                       Foreground="{DynamicResource SystemBaseMediumHighColor}">
-                                <TextBlock.Text>
-                                    <Binding Path="DetailedInfo.ProcessId"
-                                             Converter="{StaticResource ToUnknown}" />
-                                </TextBlock.Text>
-                            </TextBlock>
+                            <TextBlock Text="{Binding DetailedInfo.ProcessId}"
+                                       FontSize="13"
+                                       Foreground="{DynamicResource SystemBaseMediumHighColor}" />
                         </StackPanel>
 
                         <!-- DEPENDENCIES -->

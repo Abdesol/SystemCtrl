@@ -94,5 +94,10 @@
 
         <SolidColorBrush x:Key="SpecialBackgroundBrush" Color="{StaticResource SpecialBackgroundColor}" />
         <SolidColorBrush x:Key="SpecialForegroundBrush" Color="{StaticResource SpecialForegroundColor}" />
+
+        <SolidColorBrush x:Key="PrimaryTextBrush" Color="{StaticResource TextFillPrimaryColor}" />
+        <SolidColorBrush x:Key="SeparatorBrush" Color="#E4E4E8" />
+        <SolidColorBrush x:Key="HoverBrush" Color="{StaticResource ButtonBackgroundPointerOverColor}" />
+        <SolidColorBrush x:Key="PressedBrush" Color="{StaticResource ButtonBackgroundPressedColor}" />
     </Styles.Resources>
 </Styles>
