@@ -8,7 +8,7 @@ public class WindowsServiceInfo
     
     public string ServiceName { get; set; } = string.Empty;
     
-    public string? Description { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
 
     public ServiceControllerStatus Status { get; set; } 
 

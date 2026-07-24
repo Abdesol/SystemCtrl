@@ -19,7 +19,7 @@ public class WindowsServiceManager : IWindowsServiceManager
             {
                 DisplayName = service.DisplayName,
                 ServiceName = service.ServiceName.ToUpper(),
-                Description = GetServiceDescription(service.ServiceName),
+                Description = GetServiceDescription(service.ServiceName) ?? "(No Description)",
                 Status = service.Status,
                 StartType = service.StartType
             });
@@ -101,10 +101,28 @@ public class WindowsServiceManager : IWindowsServiceManager
 
         var path = key?.GetValue("ImagePath")?.ToString();
 
-        if (path == null)
+        if (string.IsNullOrWhiteSpace(path))
             return false;
 
-        path = Environment.ExpandEnvironmentVariables(path);
+        path = Environment.ExpandEnvironmentVariables(path).Trim('"');
+
+        if (path.StartsWith(@"\SystemRoot\", StringComparison.OrdinalIgnoreCase))
+        {
+            path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), path.Substring(@"\SystemRoot\".Length));
+        }
+        else if (path.StartsWith(@"System32\", StringComparison.OrdinalIgnoreCase))
+        {
+            path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), path.Substring(@"System32\".Length));
+        }
+        else if (path.StartsWith(@"\??\"))
+        {
+            path = path.Substring(@"\??\".Length);
+        }
+
+        if (path.Contains(@"\system32\", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
 
         return path.StartsWith(
             Environment.GetFolderPath(Environment.SpecialFolder.Windows),

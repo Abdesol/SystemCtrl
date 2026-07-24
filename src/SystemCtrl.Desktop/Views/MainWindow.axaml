@@ -64,14 +64,13 @@
                             <DataTemplate>
                                 <Button
                                     Classes="SmallScale"
+                                    Height="115"
                                     Background="Transparent"
                                     HorizontalAlignment="Stretch"
-                                    VerticalAlignment="Stretch"
                                     HorizontalContentAlignment="Stretch"
                                     VerticalContentAlignment="Stretch"
                                     Margin="0,0,5,5">
-                                    <Border Height="115"
-                                            CornerRadius="10"
+                                    <Border CornerRadius="10"
                                             HorizontalAlignment="Stretch"
                                             VerticalAlignment="Stretch"
                                             Background="{StaticResource CardBackgroundBrush}">
@@ -83,19 +82,26 @@
                                                        TextAlignment="Left"
                                                        TextTrimming="CharacterEllipsis"
                                                        FontWeight="Medium"
-                                                       FontSize="14" />
+                                                       FontSize="15" />
                                             <TextBlock Grid.Row="1"
                                                        Text="{Binding ServiceName}"
                                                        HorizontalAlignment="Stretch"
                                                        TextAlignment="Left"
                                                        FontWeight="Light"
                                                        Foreground="{DynamicResource SystemBaseMediumColor}"
-                                                       FontSize="11" 
-                                                       Margin="0,2,0,0"/>
+                                                       FontSize="10" />
                                             <Grid Row="2"
                                                   HorizontalAlignment="Stretch"
-                                                  VerticalAlignment="Stretch">
-
+                                                  VerticalAlignment="Stretch"
+                                                  Margin="0,8,0,0">
+                                                <TextBlock Text="{Binding Description}"
+                                                           HorizontalAlignment="Stretch"
+                                                           VerticalAlignment="Stretch"
+                                                           TextWrapping="WrapWithOverflow"
+                                                           TextTrimming="WordEllipsis"
+                                                           TextAlignment="Left"
+                                                           Foreground="{DynamicResource SystemBaseMediumColor}"
+                                                           FontSize="13" />
                                             </Grid>
                                         </Grid>
                                     </Border>

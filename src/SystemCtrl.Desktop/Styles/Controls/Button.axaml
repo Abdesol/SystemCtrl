@@ -50,10 +50,10 @@
     <Style Selector="Button.SmallScale">
         <Setter Property="RenderTransform" Value="scale(1)" />
         <Style Selector="^:pointerover /template/ ContentPresenter">    
-            <Setter Property="RenderTransform" Value="scale(0.9925)" />
+            <Setter Property="RenderTransform" Value="scale(0.9945)" />
         </Style>
         <Style Selector="^:pressed /template/ ContentPresenter">
-            <Setter Property="RenderTransform" Value="scale(0.990)" />
+            <Setter Property="RenderTransform" Value="scale(0.9925)" />
         </Style>
     </Style>
     
