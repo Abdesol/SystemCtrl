@@ -17,10 +17,11 @@ public class WindowsServiceManager : IWindowsServiceManager
             .Where(service => includeSystemServices || !IsSystemService(service))
             .Select(service => new WindowsServiceInfo
             {
-                Name = service.ServiceName,
                 DisplayName = service.DisplayName,
-                Status = service.Status.ToString(),
-                StartType = service.StartType.ToString()
+                ServiceName = service.ServiceName.ToUpper(),
+                Description = GetServiceDescription(service.ServiceName),
+                Status = service.Status,
+                StartType = service.StartType
             });
     }
     
@@ -146,5 +147,13 @@ public class WindowsServiceManager : IWindowsServiceManager
         return result?["ProcessId"] as uint? is { } pid
             ? (int)pid
             : null;
+    }
+    
+    public static string? GetServiceDescription(string serviceName)
+    {
+        using var key = Registry.LocalMachine.OpenSubKey(
+            $@"SYSTEM\CurrentControlSet\Services\{serviceName}");
+
+        return key?.GetValue("Description")?.ToString();
     }
 }

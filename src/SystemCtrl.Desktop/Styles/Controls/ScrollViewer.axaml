@@ -1,0 +1,14 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Style Selector="ScrollViewer">
+        <Setter Property="Padding" Value="0,0,10,0" />
+    </Style>
+    <Style Selector="ScrollViewer /template/ ScrollBar#PART_VerticalScrollBar">
+        <Setter Property="MinWidth" Value="10"/>
+        <Setter Property="Width" Value="10"/>
+    </Style>
+    <Style Selector="ScrollViewer /template/ ScrollBar#PART_HorizontalScrollBar">
+        <Setter Property="MinHeight" Value="10"/>
+        <Setter Property="Height" Value="10"/>
+    </Style>
+</Styles>

@@ -54,7 +54,7 @@
                                 <!--     </Viewbox> -->
                                 <!-- </Button> -->
                                 <Button x:Name="PART_MinimizeButton"
-                                        Classes="LightPointerOverAndPressed"
+                                        Classes="LightColorPointerOverAndPressed"
                                         Theme="{StaticResource FluentDrawnCaptionButton}"
                                         WindowDecorationProperties.ElementRole="MinimizeButton">
                                     <Viewbox Width="11" Margin="2">
@@ -64,7 +64,7 @@
                                     </Viewbox>
                                 </Button>
                                 <Button x:Name="PART_MaximizeButton"
-                                        Classes="LightPointerOverAndPressed"
+                                        Classes="LightColorPointerOverAndPressed"
                                         Theme="{StaticResource FluentDrawnCaptionButton}"
                                         WindowDecorationProperties.ElementRole="MaximizeButton">
                                     <Viewbox Width="11" Margin="2">

@@ -8,8 +8,8 @@
 
     <ItemGroup>
         <Folder Include="Assets\Fonts\" />
-        <Folder Include="Models\"/>
         <AvaloniaResource Include="Assets\**"/>
+        <Folder Include="Models\" />
     </ItemGroup>
 
     <ItemGroup>
@@ -28,6 +28,7 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Xaml.Behaviors.Avalonia" Version="12.0.5" />
     </ItemGroup>
 
     <ItemGroup>

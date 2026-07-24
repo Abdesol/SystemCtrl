@@ -4,55 +4,26 @@
         <Color x:Key="BackgroundColor">#F4F4F6</Color>
         <Color x:Key="TextFillPrimaryColor">#111118</Color>
         
-        <Color x:Key="ButtonBackgroundColor">#111118</Color>
-        <Color x:Key="ButtonForegroundColor">#FFFFFF</Color>
+        <Color x:Key="CardBackgroundColor">#FFFFFF</Color>
 
         <Color x:Key="ButtonBackgroundPointerOverColor">#E8E8EC</Color>
         <Color x:Key="ButtonBackgroundPressedColor">#DCDCE2</Color>
 
-        <Color x:Key="ButtonForegroundPointerOverColor">#FFFFFF</Color>
-        <Color x:Key="ButtonForegroundPressedColor">#FFFFFF</Color>
-
         <Color x:Key="ControlFillDefaultColor">#FFFFFF</Color>
-        <Color x:Key="TextFillOnControlColor">#111118</Color>
-
-        <Color x:Key="FlyoutBackgroundColor">#FFFFFF</Color>
-        <Color x:Key="TextFillOnFlyoutColor">#111118</Color>
-
         <Color x:Key="AccentFillDefaultColor">#111118</Color>
-        <Color x:Key="TextFillOnAccentColor">#FFFFFF</Color>
 
         <Color x:Key="ControlFillSecondaryColor">#EBEBEE</Color>
-        <Color x:Key="TextFillColorSecondary">#111118</Color>
 
         <Color x:Key="ControlFillTertiaryColor">#E4E4E8</Color>
         <Color x:Key="TextFillTertiaryColor">#6B6B7B</Color>
 
         <Color x:Key="ErrorColor">#B91C1C</Color>
-        <Color x:Key="TextFillColorOnError">#FFFFFF</Color>
-        
-        
         <Color x:Key="RedColor">#B91C1C</Color>
 
         <Color x:Key="ControlStrokeDefaultColor">#000000</Color>
-        <Color x:Key="TextControlBackgroundColor">#EBEBEE</Color>
-        <Color x:Key="ToggleSwitchFillOffColor">#C5C5CE</Color>
         <Color x:Key="FocusStrokeColor">#C5C5CE</Color>
 
         <Color x:Key="NavigationViewBackgroundColor">#FAFAFA</Color>
-        <Color x:Key="NavigationViewForegroundColor">#111111</Color>
-        <Color x:Key="NavigationViewSelectionColor">#030213</Color>
-        <Color x:Key="NavigationViewSelectionForegroundColor">#FAFAFA</Color>
-        <Color x:Key="NavigationViewPointerOverColor">#F5F5F5</Color>
-        <Color x:Key="NavigationViewPointerOverForegroundColor">#1A1A1A</Color>
-        <Color x:Key="NavigationViewBorderColor">#EBEBEB</Color>
-        <Color x:Key="NavigationViewFocusColor">#B3B3B3</Color>
-
-        <Color x:Key="Chart1Color">#E8651A</Color>
-        <Color x:Key="Chart2Color">#28A89B</Color>
-        <Color x:Key="Chart3Color">#3B5E7A</Color>
-        <Color x:Key="Chart4Color">#D4B83A</Color>
-        <Color x:Key="Chart5Color">#CFA030</Color>
 
         <Color x:Key="AltMediumLowColor">#F7F7F9</Color>
         <Color x:Key="BaseMediumHighColor">#3B3B45</Color>
@@ -69,99 +40,17 @@
 
         <SolidColorBrush x:Key="BackgroundBrush"
                          Color="{StaticResource BackgroundColor}" />
-        <SolidColorBrush x:Key="TextFillPrimaryBrush"
-                         Color="{StaticResource TextFillPrimaryColor}" />
 
-        <SolidColorBrush x:Key="ControlFillDefaultBrush"
-                         Color="{StaticResource ControlFillDefaultColor}" />
-        <SolidColorBrush x:Key="TextFillOnControlBrush"
-                         Color="{StaticResource TextFillOnControlColor}" />
-
-        <SolidColorBrush x:Key="FlyoutBackgroundBrush"
-                         Color="{StaticResource FlyoutBackgroundColor}" />
-        <SolidColorBrush x:Key="TextFillOnFlyoutBrush"
-                         Color="{StaticResource TextFillOnFlyoutColor}" />
-
-        <SolidColorBrush x:Key="AccentFillBrush"
-                         Color="{StaticResource AccentFillDefaultColor}" />
-        <SolidColorBrush x:Key="TextFillOnAccentBrush"
-                         Color="{StaticResource TextFillOnAccentColor}" />
-
-        <SolidColorBrush x:Key="ControlFillSecondaryBrush"
-                         Color="{StaticResource ControlFillSecondaryColor}" />
-        <SolidColorBrush x:Key="TextFillSecondaryBrush"
-                         Color="{StaticResource TextFillColorSecondary}" />
-
-        <SolidColorBrush x:Key="ControlFillTertiaryBrush"
-                         Color="{StaticResource ControlFillTertiaryColor}" />
-        <SolidColorBrush x:Key="TextFillTertiaryBrush"
-                         Color="{StaticResource TextFillTertiaryColor}" />
-
-        <SolidColorBrush x:Key="ErrorBrush"
-                         Color="{StaticResource ErrorColor}" />
+        <SolidColorBrush x:Key="CardBackgroundBrush"
+                         Color="{StaticResource CardBackgroundColor}" />
 
         <SolidColorBrush x:Key="RedBrush"
                          Color="{StaticResource RedColor}" />
-        
-        <SolidColorBrush x:Key="TextFillOnErrorBrush"
-                         Color="{StaticResource TextFillColorOnError}" />
-
-        <SolidColorBrush x:Key="ControlStrokeBrush"
-                         Color="{StaticResource ControlStrokeDefaultColor}"
-                         Opacity="0.07" />
-
-        <SolidColorBrush x:Key="TextControlBackgroundBrush"
-                         Color="{StaticResource TextControlBackgroundColor}" />
-
-        <SolidColorBrush x:Key="TextControlBorderBrush"
-                         Color="Transparent" />
-
-        <SolidColorBrush x:Key="ToggleSwitchFillOffBrush"
-                         Color="{StaticResource ToggleSwitchFillOffColor}" />
-
-        <SolidColorBrush x:Key="FocusStrokeBrush"
-                         Color="{StaticResource FocusStrokeColor}" />
-
-        <SolidColorBrush x:Key="NavigationViewBackgroundBrush"
-                         Color="{StaticResource NavigationViewBackgroundColor}" />
-
-        <SolidColorBrush x:Key="NavigationViewForegroundBrush"
-                         Color="{StaticResource NavigationViewForegroundColor}" />
-
-        <SolidColorBrush x:Key="NavigationViewSelectionBrush"
-                         Color="{StaticResource NavigationViewSelectionColor}" />
-
-        <SolidColorBrush x:Key="NavigationViewSelectionForegroundBrush"
-                         Color="{StaticResource NavigationViewSelectionForegroundColor}" />
-
-        <SolidColorBrush x:Key="NavigationViewPointerOverBrush"
-                         Color="{StaticResource NavigationViewPointerOverColor}" />
-
-        <SolidColorBrush x:Key="NavigationViewPointerOverForegroundBrush"
-                         Color="{StaticResource NavigationViewPointerOverForegroundColor}" />
-
-        <SolidColorBrush x:Key="NavigationViewBorderBrush"
-                         Color="{StaticResource NavigationViewBorderColor}" />
-
-        <SolidColorBrush x:Key="NavigationViewFocusBrush"
-                         Color="{StaticResource NavigationViewFocusColor}" />
-        
-        <SolidColorBrush x:Key="ButtonBackgroundBrush"
-                         Color="{StaticResource ButtonBackgroundColor}" />
-
-        <SolidColorBrush x:Key="ButtonForegroundBrush"
-                         Color="{StaticResource ButtonForegroundColor}" />
 
         <SolidColorBrush x:Key="ButtonBackgroundPointerOverBrush"
                          Color="{StaticResource ButtonBackgroundPointerOverColor}" />
 
         <SolidColorBrush x:Key="ButtonBackgroundPressedBrush"
                          Color="{StaticResource ButtonBackgroundPressedColor}" />
-
-        <SolidColorBrush x:Key="ButtonForegroundPointerOverBrush"
-                         Color="{StaticResource ButtonForegroundPointerOverColor}" />
-
-        <SolidColorBrush x:Key="ButtonForegroundPressedBrush"
-                         Color="{StaticResource ButtonForegroundPressedColor}" />
     </Styles.Resources>
 </Styles>

@@ -19,6 +19,6 @@ public class DetailedServiceViewModel : ViewModelBase
     public async Task Load(WindowsServiceInfo service)
     {
         Service = service;
-        DetailedInfo = _windowsServiceManager.GetDetailedInfo(service.Name);
+        DetailedInfo = _windowsServiceManager.GetDetailedInfo(service.ServiceName);
     }
 }

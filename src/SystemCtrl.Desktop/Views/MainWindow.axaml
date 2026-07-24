@@ -3,6 +3,7 @@
         xmlns:vm="using:SystemCtrl.Desktop.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:behaviors="clr-namespace:SystemCtrl.Desktop.Behaviors"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="SystemCtrl.Desktop.Views.MainWindow"
         x:DataType="vm:MainViewModel"
@@ -21,7 +22,7 @@
            VerticalAlignment="Stretch"
            HorizontalAlignment="Stretch">
         <Grid RowDefinitions="Auto, *"
-              Margin="15,10,15,5">
+              Margin="15,12">
             <Grid Row="0"
                   Background="Transparent"
                   HorizontalAlignment="Stretch"
@@ -33,26 +34,72 @@
                            FontWeight="SemiBold"
                            FontSize="20" />
             </Grid>
-            <Grid Row="1" RowDefinitions="Auto, *">
-                <TextBlock Grid.Row="0" HorizontalAlignment="Center"
-                           Margin="0,0,0,10"
-                           Text="Services" />
+            <Grid Row="1" RowDefinitions="Auto, *"
+                  Margin="0,15,0,0">
+                <Grid Grid.Row="0">
+                    
+                </Grid>
 
                 <ScrollViewer Grid.Row="1"
                               HorizontalAlignment="Stretch"
                               VerticalAlignment="Stretch"
                               HorizontalScrollBarVisibility="Disabled"
-                              VerticalScrollBarVisibility="Auto">
-                    <ItemsControl ItemsSource="{Binding Services}">
+                              VerticalScrollBarVisibility="Auto"
+                              Margin="0,0,-15,0">
+                    <ItemsControl ItemsSource="{Binding Services}"
+                                  HorizontalAlignment="Stretch">
+                        
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <StackPanel Spacing="2" />
+                                <UniformGrid>
+                                    <Interaction.Behaviors>
+                                        <behaviors:AdaptiveUniformGridBehavior
+                                            MinItemWidth="320"
+                                            MaxColumns="5"/>
+                                    </Interaction.Behaviors>
+                                </UniformGrid>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
-
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding DisplayName}" />
+                                <Button
+                                    Classes="SmallScale"
+                                    Background="Transparent"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    HorizontalContentAlignment="Stretch"
+                                    VerticalContentAlignment="Stretch"
+                                    Margin="0,0,5,5">
+                                    <Border Height="115"
+                                            CornerRadius="10"
+                                            HorizontalAlignment="Stretch"
+                                            VerticalAlignment="Stretch"
+                                            Background="{StaticResource CardBackgroundBrush}">
+                                        <Grid RowDefinitions="Auto, Auto, *, Auto"
+                                              Margin="15">
+                                            <TextBlock Grid.Row="0"
+                                                       Text="{Binding DisplayName}"
+                                                       HorizontalAlignment="Stretch"
+                                                       TextAlignment="Left"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       FontWeight="Medium"
+                                                       FontSize="14" />
+                                            <TextBlock Grid.Row="1"
+                                                       Text="{Binding ServiceName}"
+                                                       HorizontalAlignment="Stretch"
+                                                       TextAlignment="Left"
+                                                       FontWeight="Light"
+                                                       Foreground="{DynamicResource SystemBaseMediumColor}"
+                                                       FontSize="11" 
+                                                       Margin="0,2,0,0"/>
+                                            <Grid Row="2"
+                                                  HorizontalAlignment="Stretch"
+                                                  VerticalAlignment="Stretch">
+
+                                            </Grid>
+                                        </Grid>
+                                    </Border>
+                                </Button>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
