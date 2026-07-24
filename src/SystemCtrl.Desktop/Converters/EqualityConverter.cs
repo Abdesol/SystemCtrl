@@ -24,6 +24,16 @@ public class EqualityConverter : IValueConverter
             }
         }
 
+        if (parameter is string s && value is IConvertible convertible)
+        {
+            try
+            {
+                var converted = System.Convert.ChangeType(s, value.GetType(), culture);
+                return value.Equals(converted);
+            }
+            catch { }
+        }
+
         return value.Equals(parameter);
     }
 

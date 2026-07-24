@@ -34,24 +34,28 @@ public class WindowsServiceManager : IWindowsServiceManager
 
         var path = key?.GetValue("ImagePath")?.ToString() ?? string.Empty;
 
-        path = Environment.ExpandEnvironmentVariables(path)
-            .Trim('"');
+        path = Environment.ExpandEnvironmentVariables(path).Trim('"');
 
         var executableName = string.IsNullOrWhiteSpace(path)
             ? string.Empty
             : Path.GetFileName(path);
+
+        var dependencies = service.ServicesDependedOn
+            .Select(d => d.DisplayName)
+            .ToArray();
 
         return new DetailedWindowsServiceInfo
         {
             ServiceName = service.ServiceName,
             ExecutablePath = path,
             ExecutableName = executableName,
+            FileVersion = GetFileVersion(path),
+            FileSizeBytes = GetFileSizeBytes(path),
             Publisher = GetPublisher(path),
             IsSigned = IsSigned(path),
             ServiceAccount = key?.GetValue("ObjectName")?.ToString() ?? string.Empty,
-            StartupAccount = key?.GetValue("ObjectName")?.ToString() ?? string.Empty,
+            Dependencies = dependencies,
             ProcessId = GetProcessId(service),
-            // Category = DetermineCategory(service, path)
         };
     }
 
@@ -139,6 +143,25 @@ public class WindowsServiceManager : IWindowsServiceManager
 
         return versionInfo.CompanyName ?? string.Empty;
     }
+
+    private string GetFileVersion(string path)
+    {
+        if (!File.Exists(path))
+            return string.Empty;
+
+        var versionInfo = FileVersionInfo.GetVersionInfo(path);
+
+        return versionInfo.FileVersion ?? string.Empty;
+    }
+
+    private long? GetFileSizeBytes(string path)
+    {
+        if (!File.Exists(path))
+            return null;
+
+        return new FileInfo(path).Length;
+    }
+
     
     private bool IsSigned(string path)
     {

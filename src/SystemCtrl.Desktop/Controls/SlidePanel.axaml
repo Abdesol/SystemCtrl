@@ -21,14 +21,12 @@
     </UserControl.Styles>
 
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-
         <Border x:Name="DimOverlay"
                 Classes.Open="{Binding IsOpen}"
                 Background="#4D000000"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
                 DoubleTapped="DimOverlay_DoubleTapped" />
-
         <Border x:Name="PanelRoot"
                 Width="420"
                 HorizontalAlignment="Right"
@@ -36,7 +34,7 @@
                 Background="{StaticResource CardBackgroundBrush}"
                 BoxShadow="-8 0 40 0 #1A000000"
                 CornerRadius="16,0,0,16">
-            <ContentControl Margin="20,48,12,20"
+            <ContentControl Margin="0,48,0,15"
                             Content="{Binding Content}"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch" />
