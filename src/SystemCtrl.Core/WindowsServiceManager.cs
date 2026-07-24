@@ -86,7 +86,8 @@ public class WindowsServiceManager : IWindowsServiceManager
         var systemKeywords = new[]
         {
             "Microsoft Defender",
-            "Windows Defender"
+            "Windows Defender",
+            "Windows Media"
         };
 
         if (systemKeywords.Any(keyword =>

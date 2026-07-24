@@ -37,6 +37,27 @@
         <Color x:Key="ChromeDisabledLowColor">#9B9BAA</Color>
         <Color x:Key="ChromeGrayColor">#767680</Color>
 
+        <!-- Status Colors -->
+        <Color x:Key="SuccessBackgroundColor">#ECFDF5</Color>
+        <Color x:Key="SuccessForegroundColor">#059669</Color>
+
+        <Color x:Key="DangerBackgroundColor">#FFF1F2</Color>
+        <Color x:Key="DangerForegroundColor">#E11D48</Color>
+
+        <Color x:Key="InfoBackgroundColor">#EFF6FF</Color>
+        <Color x:Key="InfoForegroundColor">#2563EB</Color>
+
+        <Color x:Key="WarningBackgroundColor">#FFF7ED</Color>
+        <Color x:Key="WarningForegroundColor">#EA580C</Color>
+
+        <Color x:Key="CautionBackgroundColor">#FFFBEB</Color>
+        <Color x:Key="CautionForegroundColor">#D97706</Color>
+
+        <Color x:Key="NeutralBackgroundColor">#F8FAFC</Color>
+        <Color x:Key="NeutralForegroundColor">#475569</Color>
+
+        <Color x:Key="SpecialBackgroundColor">#FAF5FF</Color>
+        <Color x:Key="SpecialForegroundColor">#9333EA</Color>
 
         <SolidColorBrush x:Key="BackgroundBrush"
                          Color="{StaticResource BackgroundColor}" />
@@ -52,5 +73,26 @@
 
         <SolidColorBrush x:Key="ButtonBackgroundPressedBrush"
                          Color="{StaticResource ButtonBackgroundPressedColor}" />
+
+        <SolidColorBrush x:Key="SuccessBackgroundBrush" Color="{StaticResource SuccessBackgroundColor}" />
+        <SolidColorBrush x:Key="SuccessForegroundBrush" Color="{StaticResource SuccessForegroundColor}" />
+
+        <SolidColorBrush x:Key="DangerBackgroundBrush" Color="{StaticResource DangerBackgroundColor}" />
+        <SolidColorBrush x:Key="DangerForegroundBrush" Color="{StaticResource DangerForegroundColor}" />
+
+        <SolidColorBrush x:Key="InfoBackgroundBrush" Color="{StaticResource InfoBackgroundColor}" />
+        <SolidColorBrush x:Key="InfoForegroundBrush" Color="{StaticResource InfoForegroundColor}" />
+
+        <SolidColorBrush x:Key="WarningBackgroundBrush" Color="{StaticResource WarningBackgroundColor}" />
+        <SolidColorBrush x:Key="WarningForegroundBrush" Color="{StaticResource WarningForegroundColor}" />
+
+        <SolidColorBrush x:Key="CautionBackgroundBrush" Color="{StaticResource CautionBackgroundColor}" />
+        <SolidColorBrush x:Key="CautionForegroundBrush" Color="{StaticResource CautionForegroundColor}" />
+
+        <SolidColorBrush x:Key="NeutralBackgroundBrush" Color="{StaticResource NeutralBackgroundColor}" />
+        <SolidColorBrush x:Key="NeutralForegroundBrush" Color="{StaticResource NeutralForegroundColor}" />
+
+        <SolidColorBrush x:Key="SpecialBackgroundBrush" Color="{StaticResource SpecialBackgroundColor}" />
+        <SolidColorBrush x:Key="SpecialForegroundBrush" Color="{StaticResource SpecialForegroundColor}" />
     </Styles.Resources>
 </Styles>

@@ -4,6 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:behaviors="clr-namespace:SystemCtrl.Desktop.Behaviors"
+        xmlns:sp="clr-namespace:System.ServiceProcess;assembly=System.ServiceProcess.ServiceController"
+        xmlns:conv="using:SystemCtrl.Desktop.Converters"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="SystemCtrl.Desktop.Views.MainWindow"
         x:DataType="vm:MainViewModel"
@@ -17,6 +19,10 @@
     <Design.DataContext>
         <vm:MainViewModel />
     </Design.DataContext>
+
+    <Window.Resources>
+        <conv:EqualityConverter x:Key="EqualityConverter" />
+    </Window.Resources>
 
     <Panel Margin="{Binding $parent[Window].OffScreenMargin}"
            VerticalAlignment="Stretch"
@@ -37,7 +43,7 @@
             <Grid Row="1" RowDefinitions="Auto, *"
                   Margin="0,15,0,0">
                 <Grid Grid.Row="0">
-                    
+
                 </Grid>
 
                 <ScrollViewer Grid.Row="1"
@@ -49,14 +55,14 @@
                     <ItemsControl ItemsSource="{Binding Services}"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Top">
-                        
+
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <UniformGrid>
                                     <Interaction.Behaviors>
                                         <behaviors:AdaptiveUniformGridBehavior
                                             MinItemWidth="320"
-                                            MaxColumns="5"/>
+                                            MaxColumns="5" />
                                     </Interaction.Behaviors>
                                 </UniformGrid>
                             </ItemsPanelTemplate>
@@ -65,7 +71,7 @@
                             <DataTemplate>
                                 <Button
                                     Classes="SmallScale"
-                                    Height="115"
+                                    Height="125"
                                     Background="Transparent"
                                     HorizontalAlignment="Stretch"
                                     HorizontalContentAlignment="Stretch"
@@ -104,6 +110,75 @@
                                                            Foreground="{DynamicResource SystemBaseMediumColor}"
                                                            FontSize="13" />
                                             </Grid>
+                                            <StackPanel Grid.Row="3"
+                                                        Spacing="6"
+                                                        Orientation="Horizontal"
+                                                        Margin="0,8,0,0"
+                                                        HorizontalAlignment="Stretch">
+                                                <StackPanel.Styles>
+                                                    <Style Selector="Border.IsStopped">
+                                                        <Setter Property="Background" Value="{DynamicResource DangerBackgroundBrush}" />
+                                                        <Setter Property="TextElement.Foreground" Value="{DynamicResource DangerForegroundBrush}" />
+                                                    </Style>
+                                                    <Style Selector="Border.IsRunning">
+                                                        <Setter Property="Background" Value="{DynamicResource SuccessBackgroundBrush}" />
+                                                        <Setter Property="TextElement.Foreground" Value="{DynamicResource SuccessForegroundBrush}" />
+                                                    </Style>
+                                                    <Style Selector="Border.IsStartPending, Border.IsContinuePending">
+                                                        <Setter Property="Background" Value="{DynamicResource InfoBackgroundBrush}" />
+                                                        <Setter Property="TextElement.Foreground" Value="{DynamicResource InfoForegroundBrush}" />
+                                                    </Style>
+                                                    <Style Selector="Border.IsStopPending, Border.IsPausePending">
+                                                        <Setter Property="Background" Value="{DynamicResource WarningBackgroundBrush}" />
+                                                        <Setter Property="TextElement.Foreground" Value="{DynamicResource WarningForegroundBrush}" />
+                                                    </Style>
+                                                    <Style Selector="Border.IsPaused">
+                                                        <Setter Property="Background" Value="{DynamicResource CautionBackgroundBrush}" />
+                                                        <Setter Property="TextElement.Foreground" Value="{DynamicResource CautionForegroundBrush}" />
+                                                    </Style>
+
+                                                    <Style Selector="Border.IsAutomatic">
+                                                        <Setter Property="Background" Value="{DynamicResource SuccessBackgroundBrush}" />
+                                                        <Setter Property="TextElement.Foreground" Value="{DynamicResource SuccessForegroundBrush}" />
+                                                    </Style>
+                                                    <Style Selector="Border.IsManual">
+                                                        <Setter Property="Background" Value="{DynamicResource NeutralBackgroundBrush}" />
+                                                        <Setter Property="TextElement.Foreground" Value="{DynamicResource NeutralForegroundBrush}" />
+                                                    </Style>
+                                                    <Style Selector="Border.IsDisabled">
+                                                        <Setter Property="Background" Value="{DynamicResource DangerBackgroundBrush}" />
+                                                        <Setter Property="TextElement.Foreground" Value="{DynamicResource DangerForegroundBrush}" />
+                                                    </Style>
+                                                    <Style Selector="Border.IsBoot, Border.IsSystem">
+                                                        <Setter Property="Background" Value="{DynamicResource SpecialBackgroundBrush}" />
+                                                        <Setter Property="TextElement.Foreground" Value="{DynamicResource SpecialForegroundBrush}" />
+                                                    </Style>
+                                                </StackPanel.Styles>
+
+                                                <Border CornerRadius="8" 
+                                                        Classes.IsStopped="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.Stopped}}"
+                                                        Classes.IsStartPending="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.StartPending}}"
+                                                        Classes.IsStopPending="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.StopPending}}"
+                                                        Classes.IsRunning="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.Running}}"
+                                                        Classes.IsContinuePending="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.ContinuePending}}"
+                                                        Classes.IsPausePending="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.PausePending}}"
+                                                        Classes.IsPaused="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.Paused}}">
+                                                    <TextBlock Text="{Binding Status}" FontSize="11"
+                                                               FontWeight="SemiBold"
+                                                               Margin="7,4" />
+                                                </Border>
+
+                                                <Border CornerRadius="8"
+                                                        Classes.IsBoot="{Binding StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.Boot}}"
+                                                        Classes.IsSystem="{Binding StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.System}}"
+                                                        Classes.IsAutomatic="{Binding StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.Automatic}}"
+                                                        Classes.IsManual="{Binding StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.Manual}}"
+                                                        Classes.IsDisabled="{Binding StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.Disabled}}">
+                                                    <TextBlock Text="{Binding StartType}" FontSize="11"
+                                                               FontWeight="SemiBold" 
+                                                               Margin="7,4" />
+                                                </Border>
+                                            </StackPanel>
                                         </Grid>
                                     </Border>
                                 </Button>
