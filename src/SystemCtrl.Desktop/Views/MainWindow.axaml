@@ -47,7 +47,8 @@
                               VerticalScrollBarVisibility="Auto"
                               Margin="0,0,-15,0">
                     <ItemsControl ItemsSource="{Binding Services}"
-                                  HorizontalAlignment="Stretch">
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Top">
                         
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
