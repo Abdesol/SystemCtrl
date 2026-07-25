@@ -182,9 +182,19 @@
                                     Command="{Binding OpenServiceCommand}"
                                     Margin="0,0,5,5">
                                     <Button.ContextMenu>
-                                        <ContextMenu>
+                                        <ContextMenu Background="{DynamicResource CardBackgroundBrush}"
+                                                     BorderBrush="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"
+                                                     BorderThickness="1"
+                                                     CornerRadius="10"
+                                                     Width="100">
                                             <MenuItem Header="Open"
                                                       Command="{Binding OpenServiceCommand}" />
+                                            <MenuItem Header="Start"
+                                                      Command="{Binding StartCommand}"
+                                                      IsVisible="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.Stopped}}" />
+                                            <MenuItem Header="Stop"
+                                                      Command="{Binding StopCommand}"
+                                                      IsVisible="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.Running}}" />
                                             <MenuItem Header="{Binding PinActionText}"
                                                       Command="{Binding TogglePinCommand}" />
                                         </ContextMenu>
@@ -341,7 +351,11 @@
                                     Command="{Binding OpenTaskCommand}"
                                     Margin="0,0,5,5">
                                     <Button.ContextMenu>
-                                        <ContextMenu>
+                                        <ContextMenu Background="{DynamicResource CardBackgroundBrush}"
+                                                     BorderBrush="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"
+                                                     BorderThickness="1"
+                                                     CornerRadius="10"
+                                                     Width="100">
                                             <MenuItem Header="Open"
                                                       Command="{Binding OpenTaskCommand}" />
                                             <MenuItem Header="{Binding PinActionText}"

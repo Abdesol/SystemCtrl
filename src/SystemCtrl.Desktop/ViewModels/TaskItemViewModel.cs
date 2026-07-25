@@ -15,7 +15,9 @@ public partial class TaskItemViewModel : ViewModelBase
         WindowsTaskInfo task,
         bool isPinned,
         Action<TaskItemViewModel> onTogglePin,
-        Action<TaskItemViewModel> onOpen)
+        Action<TaskItemViewModel> onOpen,
+        Action<TaskItemViewModel> onStart,
+        Action<TaskItemViewModel> onStop)
     {
         Task = task;
         IsPinned = isPinned;
@@ -37,7 +39,7 @@ public partial class TaskItemViewModel : ViewModelBase
     public DateTime? NextRunTime => Task.NextRunTime;
 
     [ReactiveCommand]
-    public void TogglePin()
+    public void TogglePinCommand()
     {
         IsPinned = !IsPinned;
         this.RaisePropertyChanged(nameof(PinActionText));
@@ -45,7 +47,7 @@ public partial class TaskItemViewModel : ViewModelBase
     }
 
     [ReactiveCommand]
-    public void OpenTask()
+    public void OpenTaskCommand()
     {
         _onOpen?.Invoke(this);
     }

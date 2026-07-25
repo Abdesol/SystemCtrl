@@ -17,17 +17,20 @@ public partial class MainViewModel : ViewModelBase
     private readonly IServiceProvider _serviceProvider;
     private readonly IWindowsServiceManager _windowsServiceManager;
     private readonly IWindowsTaskManager _windowsTaskManager;
+    private readonly IErrorDialogService _errorDialog;
     private List<WindowsServiceInfo> _allServices;
     private List<WindowsTaskInfo> _allTasks;
 
     public MainViewModel(
         IServiceProvider serviceProvider,
         IWindowsServiceManager windowsServiceManager,
-        IWindowsTaskManager windowsTaskManager)
+        IWindowsTaskManager windowsTaskManager,
+        IErrorDialogService errorDialog)
     {
         _serviceProvider = serviceProvider;
         _windowsServiceManager = windowsServiceManager;
         _windowsTaskManager = windowsTaskManager;
+        _errorDialog = errorDialog;
 
         _allServices = _windowsServiceManager.GetServices().ToList();
         _allTasks = _windowsTaskManager.GetTasks().ToList();
@@ -117,7 +120,9 @@ public partial class MainViewModel : ViewModelBase
             s,
             pinnedServices.Contains(s.ServiceName),
             TogglePinAction,
-            OpenServiceAction));
+            OpenServiceAction,
+            StartServiceAction,
+            StopServiceAction));
 
         Services = new ObservableCollection<ServiceItemViewModel>(viewModels);
     }
@@ -146,7 +151,9 @@ public partial class MainViewModel : ViewModelBase
             t,
             pinnedTasks.Contains(t.TaskPath),
             TogglePinTaskAction,
-            OpenTaskAction));
+            OpenTaskAction,
+            StartTaskAction,
+            StopTaskAction));
 
         Tasks = new ObservableCollection<TaskItemViewModel>(viewModels);
     }
@@ -197,6 +204,62 @@ public partial class MainViewModel : ViewModelBase
         var taskDetailViewModel = _serviceProvider.GetRequiredService<TaskDetailViewModel>();
         taskDetailViewModel.Load(item.Task);
         SlidePanel.Open(item.Task.TaskName, taskDetailViewModel);
+    }
+
+    private async void StartServiceAction(ServiceItemViewModel item)
+    {
+        try
+        {
+            await System.Threading.Tasks.Task.Run(() => _windowsServiceManager.Start(item.Service.ServiceName));
+            await System.Threading.Tasks.Task.Delay(1000);
+            RefreshServices();
+        }
+        catch (Exception ex)
+        {
+            await _errorDialog.ShowAsync($"Failed to start '{item.DisplayName}'", ex.Message, ex.ToString());
+        }
+    }
+
+    private async void StopServiceAction(ServiceItemViewModel item)
+    {
+        try
+        {
+            await System.Threading.Tasks.Task.Run(() => _windowsServiceManager.Stop(item.Service.ServiceName));
+            await System.Threading.Tasks.Task.Delay(1000);
+            RefreshServices();
+        }
+        catch (Exception ex)
+        {
+            await _errorDialog.ShowAsync($"Failed to stop '{item.DisplayName}'", ex.Message, ex.ToString());
+        }
+    }
+
+    private async void StartTaskAction(TaskItemViewModel item)
+    {
+        try
+        {
+            await System.Threading.Tasks.Task.Run(() => _windowsTaskManager.Run(item.Task.TaskPath));
+            await System.Threading.Tasks.Task.Delay(1000);
+            RefreshTasks();
+        }
+        catch (Exception ex)
+        {
+            await _errorDialog.ShowAsync($"Failed to start '{item.DisplayName}'", ex.Message, ex.ToString());
+        }
+    }
+
+    private async void StopTaskAction(TaskItemViewModel item)
+    {
+        try
+        {
+            await System.Threading.Tasks.Task.Run(() => _windowsTaskManager.Stop(item.Task.TaskPath));
+            await System.Threading.Tasks.Task.Delay(1000);
+            RefreshTasks();
+        }
+        catch (Exception ex)
+        {
+            await _errorDialog.ShowAsync($"Failed to stop '{item.DisplayName}'", ex.Message, ex.ToString());
+        }
     }
 
     [ReactiveCommand]

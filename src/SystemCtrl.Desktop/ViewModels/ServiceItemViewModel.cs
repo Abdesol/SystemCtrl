@@ -10,13 +10,17 @@ public partial class ServiceItemViewModel : ViewModelBase
 {
     private readonly Action<ServiceItemViewModel> _onTogglePin;
     private readonly Action<ServiceItemViewModel> _onOpen;
+    private readonly Action<ServiceItemViewModel> _onStart;
+    private readonly Action<ServiceItemViewModel> _onStop;
 
-    public ServiceItemViewModel(WindowsServiceInfo service, bool isPinned, Action<ServiceItemViewModel> onTogglePin, Action<ServiceItemViewModel> onOpen)
+    public ServiceItemViewModel(WindowsServiceInfo service, bool isPinned, Action<ServiceItemViewModel> onTogglePin, Action<ServiceItemViewModel> onOpen, Action<ServiceItemViewModel> onStart, Action<ServiceItemViewModel> onStop)
     {
         Service = service;
         IsPinned = isPinned;
         _onTogglePin = onTogglePin;
         _onOpen = onOpen;
+        _onStart = onStart;
+        _onStop = onStop;
     }
 
     [Reactive]
@@ -34,7 +38,7 @@ public partial class ServiceItemViewModel : ViewModelBase
     public ServiceStartMode StartType => Service.StartType;
 
     [ReactiveCommand]
-    public void TogglePin()
+    public void TogglePinCommand()
     {
         IsPinned = !IsPinned;
         this.RaisePropertyChanged(nameof(PinActionText));
@@ -42,8 +46,20 @@ public partial class ServiceItemViewModel : ViewModelBase
     }
 
     [ReactiveCommand]
-    public void OpenService()
+    public void OpenServiceCommand()
     {
         _onOpen?.Invoke(this);
+    }
+
+    [ReactiveCommand]
+    public void StartCommand()
+    {
+        _onStart?.Invoke(this);
+    }
+
+    [ReactiveCommand]
+    public void StopCommand()
+    {
+        _onStop?.Invoke(this);
     }
 }
