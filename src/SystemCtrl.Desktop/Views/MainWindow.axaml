@@ -64,8 +64,8 @@
             <!-- TAB BAR -->
             <Grid Row="1"
                   Margin="0,16,0,0"
-                  HorizontalAlignment="Left">
-                <Border Background="{DynamicResource SystemControlBackgroundBaseLowBrush}"
+                  ColumnDefinitions="Auto, *">
+                <Border Grid.Column="0" Background="{DynamicResource SystemControlBackgroundBaseLowBrush}"
                         CornerRadius="10"
                         Padding="3">
                     <StackPanel Orientation="Horizontal" Spacing="2">
@@ -97,6 +97,17 @@
                         </Button>
                     </StackPanel>
                 </Border>
+
+                <Button Grid.Column="1"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Command="{Binding OpenSettingsCommand}">
+                    <Viewbox Height="18">
+                        <Path Data="{StaticResource SettingsIcon}"
+                              Stretch="Uniform"
+                              Fill="{StaticResource SystemBaseHighColor}"/>
+                    </Viewbox>
+                </Button>
             </Grid>
 
             <!-- SEARCH + ACTIONS BAR -->
@@ -127,14 +138,6 @@
                     <Button Command="{Binding RefreshCommand}">
                         <Viewbox Height="18">
                             <Path Data="{StaticResource RestartIcon}"
-                                  Stretch="Uniform"
-                                  Fill="{StaticResource SystemBaseHighColor}"/>
-                        </Viewbox>
-                    </Button>
-
-                    <Button Command="{Binding OpenSettingsCommand}">
-                        <Viewbox Height="18">
-                            <Path Data="{StaticResource SettingsIcon}"
                                   Stretch="Uniform"
                                   Fill="{StaticResource SystemBaseHighColor}"/>
                         </Viewbox>
