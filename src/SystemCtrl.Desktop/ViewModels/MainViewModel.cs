@@ -16,32 +16,82 @@ public partial class MainViewModel : ViewModelBase
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly IWindowsServiceManager _windowsServiceManager;
+    private readonly IWindowsTaskManager _windowsTaskManager;
     private List<WindowsServiceInfo> _allServices;
+    private List<WindowsTaskInfo> _allTasks;
 
-    public MainViewModel(IServiceProvider serviceProvider, IWindowsServiceManager windowsServiceManager)
+    public MainViewModel(
+        IServiceProvider serviceProvider,
+        IWindowsServiceManager windowsServiceManager,
+        IWindowsTaskManager windowsTaskManager)
     {
         _serviceProvider = serviceProvider;
         _windowsServiceManager = windowsServiceManager;
+        _windowsTaskManager = windowsTaskManager;
 
         _allServices = _windowsServiceManager.GetServices().ToList();
+        _allTasks = _windowsTaskManager.GetTasks().ToList();
+
         SlidePanel = new SlidePanelViewModel();
+        ActiveTab = 0;
 
         this.WhenAnyValue(x => x.SearchText)
-            .Subscribe(_ => FilterServices());
+            .Subscribe(_ => FilterCurrent());
+
+        this.WhenAnyValue(x => x.ActiveTab)
+            .Subscribe(_ =>
+            {
+                SearchText = string.Empty;
+                this.RaisePropertyChanged(nameof(SearchPlaceholder));
+                FilterCurrent();
+            });
 
         this.WhenAnyValue(x => x.SlidePanel.IsOpen)
             .Where(isOpen => !isOpen)
-            .Subscribe(_ => RefreshServices());
+            .Subscribe(_ => RefreshCurrent());
     }
 
-    [Reactive]
-    public partial ObservableCollection<ServiceItemViewModel> Services { get; set; }
+    [Reactive] public partial ObservableCollection<ServiceItemViewModel> Services { get; set; }
 
-    [Reactive]
-    public partial string SearchText { get; set; } = string.Empty;
+    [Reactive] public partial ObservableCollection<TaskItemViewModel> Tasks { get; set; }
 
-    [Reactive]
-    public partial SlidePanelViewModel SlidePanel { get; set; }
+    [Reactive] public partial string SearchText { get; set; } = string.Empty;
+
+    [Reactive] public partial int ActiveTab { get; set; }
+
+    [Reactive] public partial SlidePanelViewModel SlidePanel { get; set; }
+
+    public string SearchPlaceholder => ActiveTab == 0 ? "Search services..." : "Search tasks...";
+
+    private void FilterCurrent()
+    {
+        if (ActiveTab == 0)
+            FilterServices();
+        else
+            FilterTasks();
+    }
+
+    [ReactiveCommand]
+    public void SetActiveTab(string tab)
+    {
+        if (int.TryParse(tab, out var index))
+            ActiveTab = index;
+        this.RaisePropertyChanged(nameof(SearchPlaceholder));
+    }
+
+    [ReactiveCommand]
+    public void Refresh()
+    {
+        RefreshCurrent();
+    }
+
+    private void RefreshCurrent()
+    {
+        if (ActiveTab == 0)
+            RefreshServices();
+        else
+            RefreshTasks();
+    }
 
     private void FilterServices()
     {
@@ -54,42 +104,85 @@ public partial class MainViewModel : ViewModelBase
         if (!string.IsNullOrWhiteSpace(SearchText))
         {
             var query = SearchText.ToLowerInvariant();
-            filtered = _allServices.Where(s => 
-                s.DisplayName.ToLowerInvariant().Contains(query) || 
+            filtered = _allServices.Where(s =>
+                s.DisplayName.ToLowerInvariant().Contains(query) ||
                 s.ServiceName.ToLowerInvariant().Contains(query));
         }
 
-        var sorted = filtered.OrderByDescending(s => pinnedServices.Contains(s.ServiceName)).ThenBy(s => s.DisplayName);
-        
+        var sorted = filtered
+            .OrderByDescending(s => pinnedServices.Contains(s.ServiceName))
+            .ThenBy(s => s.DisplayName);
+
         var viewModels = sorted.Select(s => new ServiceItemViewModel(
-            s, 
-            pinnedServices.Contains(s.ServiceName), 
+            s,
+            pinnedServices.Contains(s.ServiceName),
             TogglePinAction,
-            OpenServiceAction
-        ));
+            OpenServiceAction));
 
         Services = new ObservableCollection<ServiceItemViewModel>(viewModels);
+    }
+
+    private void FilterTasks()
+    {
+        var settingsService = _serviceProvider.GetRequiredService<ISettingsService>();
+        var settings = settingsService.LoadSettings();
+        var pinnedTasks = settings.PinnedTasks;
+
+        IEnumerable<WindowsTaskInfo> filtered = _allTasks;
+
+        if (!string.IsNullOrWhiteSpace(SearchText))
+        {
+            var query = SearchText.ToLowerInvariant();
+            filtered = _allTasks.Where(t =>
+                t.TaskName.ToLowerInvariant().Contains(query) ||
+                t.TaskPath.ToLowerInvariant().Contains(query));
+        }
+
+        var sorted = filtered
+            .OrderByDescending(t => pinnedTasks.Contains(t.TaskPath))
+            .ThenBy(t => t.TaskName);
+
+        var viewModels = sorted.Select(t => new TaskItemViewModel(
+            t,
+            pinnedTasks.Contains(t.TaskPath),
+            TogglePinTaskAction,
+            OpenTaskAction));
+
+        Tasks = new ObservableCollection<TaskItemViewModel>(viewModels);
     }
 
     private void TogglePinAction(ServiceItemViewModel item)
     {
         var settingsService = _serviceProvider.GetRequiredService<ISettingsService>();
         var settings = settingsService.LoadSettings();
-        
+
         if (settings.PinnedServices == null!)
             settings.PinnedServices = [];
 
         if (settings.PinnedServices.Contains(item.Service.ServiceName))
-        {
             settings.PinnedServices.Remove(item.Service.ServiceName);
-        }
         else
-        {
             settings.PinnedServices.Add(item.Service.ServiceName);
-        }
-        
+
         settingsService.SaveSettings(settings);
         FilterServices();
+    }
+
+    private void TogglePinTaskAction(TaskItemViewModel item)
+    {
+        var settingsService = _serviceProvider.GetRequiredService<ISettingsService>();
+        var settings = settingsService.LoadSettings();
+
+        if (settings.PinnedTasks == null!)
+            settings.PinnedTasks = [];
+
+        if (settings.PinnedTasks.Contains(item.Task.TaskPath))
+            settings.PinnedTasks.Remove(item.Task.TaskPath);
+        else
+            settings.PinnedTasks.Add(item.Task.TaskPath);
+
+        settingsService.SaveSettings(settings);
+        FilterTasks();
     }
 
     private void OpenServiceAction(ServiceItemViewModel item)
@@ -97,6 +190,13 @@ public partial class MainViewModel : ViewModelBase
         var serviceDetailViewModel = _serviceProvider.GetRequiredService<ServiceDetailViewModel>();
         serviceDetailViewModel.Load(item.Service);
         SlidePanel.Open(item.Service.DisplayName, serviceDetailViewModel);
+    }
+
+    private void OpenTaskAction(TaskItemViewModel item)
+    {
+        var taskDetailViewModel = _serviceProvider.GetRequiredService<TaskDetailViewModel>();
+        taskDetailViewModel.Load(item.Task);
+        SlidePanel.Open(item.Task.TaskName, taskDetailViewModel);
     }
 
     [ReactiveCommand]
@@ -112,5 +212,12 @@ public partial class MainViewModel : ViewModelBase
     {
         _allServices = _windowsServiceManager.GetServices().ToList();
         FilterServices();
+    }
+
+    [ReactiveCommand]
+    public void RefreshTasks()
+    {
+        _allTasks = _windowsTaskManager.GetTasks().ToList();
+        FilterTasks();
     }
 }

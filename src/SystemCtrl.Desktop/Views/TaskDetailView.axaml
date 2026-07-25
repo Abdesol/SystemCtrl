@@ -1,0 +1,403 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SystemCtrl.Desktop.ViewModels"
+             xmlns:models="using:SystemCtrl.Core.Models"
+             xmlns:ts="clr-namespace:Microsoft.Win32.TaskScheduler;assembly=Microsoft.Win32.TaskScheduler"
+             xmlns:conv="using:SystemCtrl.Desktop.Converters"
+             x:Class="SystemCtrl.Desktop.Views.TaskDetailView"
+             x:DataType="vm:TaskDetailViewModel">
+
+    <UserControl.Resources>
+        <conv:CollectionEmptyConverter x:Key="CollectionEmptyConverter" />
+        <conv:CollectionNotEmptyConverter x:Key="CollectionNotEmptyConverter" />
+        <conv:EqualityConverter x:Key="EqualityConverter" />
+        <conv:NullOrEmptyToUnknownConverter x:Key="ToUnknownConverter" />
+    </UserControl.Resources>
+
+    <UserControl.Styles>
+        <Style Selector="Border.IsReady">
+            <Setter Property="Background" Value="{DynamicResource SuccessBackgroundBrush}" />
+            <Setter Property="TextElement.Foreground" Value="{DynamicResource SuccessForegroundBrush}" />
+        </Style>
+        <Style Selector="Border.IsRunning">
+            <Setter Property="Background" Value="{DynamicResource InfoBackgroundBrush}" />
+            <Setter Property="TextElement.Foreground" Value="{DynamicResource InfoForegroundBrush}" />
+        </Style>
+        <Style Selector="Border.IsDisabled">
+            <Setter Property="Background" Value="{DynamicResource DangerBackgroundBrush}" />
+            <Setter Property="TextElement.Foreground" Value="{DynamicResource DangerForegroundBrush}" />
+        </Style>
+        <Style Selector="Border.IsQueued">
+            <Setter Property="Background" Value="{DynamicResource WarningBackgroundBrush}" />
+            <Setter Property="TextElement.Foreground" Value="{DynamicResource WarningForegroundBrush}" />
+        </Style>
+        <Style Selector="Border.IsUnknown">
+            <Setter Property="Background" Value="{DynamicResource NeutralBackgroundBrush}" />
+            <Setter Property="TextElement.Foreground" Value="{DynamicResource NeutralForegroundBrush}" />
+        </Style>
+    </UserControl.Styles>
+
+    <Grid RowDefinitions="*, Auto">
+        <ScrollViewer Grid.Row="0"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Stretch">
+            <StackPanel Spacing="20"
+                        Margin="20,0,10,30"
+                        IsVisible="{Binding Task, Converter={x:Static ObjectConverters.IsNotNull}}">
+
+                <!-- TASK NAME & PATH -->
+                <StackPanel Spacing="4">
+                    <TextBlock Text="TASK NAME"
+                               FontSize="10"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource SystemBaseMediumColor}"
+                               LetterSpacing="1.2" />
+                    <TextBlock Text="{Binding Task.TaskName}"
+                               FontSize="13"
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+                </StackPanel>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="TASK PATH"
+                               FontSize="10"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource SystemBaseMediumColor}"
+                               LetterSpacing="1.2" />
+                    <TextBlock Text="{Binding Task.TaskPath}"
+                               FontSize="11"
+                               TextWrapping="Wrap"
+                               Opacity="0.6"
+                               Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+                </StackPanel>
+
+                <!-- STATUS -->
+                <StackPanel Spacing="8">
+                    <TextBlock Text="STATUS"
+                               FontSize="10"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource SystemBaseMediumColor}"
+                               LetterSpacing="1.2" />
+                    <Border CornerRadius="8"
+                            Classes.IsReady="{Binding Task.Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static ts:TaskState.Ready}}"
+                            Classes.IsRunning="{Binding Task.Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static ts:TaskState.Running}}"
+                            Classes.IsDisabled="{Binding Task.Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static ts:TaskState.Disabled}}"
+                            Classes.IsQueued="{Binding Task.Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static ts:TaskState.Queued}}"
+                            Classes.IsUnknown="{Binding Task.Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static ts:TaskState.Unknown}}"
+                            HorizontalAlignment="Left">
+                        <TextBlock Text="{Binding Task.Status}"
+                                   FontSize="12"
+                                   FontWeight="SemiBold"
+                                   Margin="10,5" />
+                    </Border>
+                </StackPanel>
+
+                <!-- DESCRIPTION -->
+                <StackPanel Spacing="4"
+                            IsVisible="{Binding Task.Description, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                    <TextBlock Text="DESCRIPTION"
+                               FontSize="10"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource SystemBaseMediumColor}"
+                               LetterSpacing="1.2" />
+                    <TextBlock Text="{Binding Task.Description}"
+                               FontSize="13"
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+                </StackPanel>
+
+                <!-- TRIGGER SUMMARY -->
+                <StackPanel Spacing="4">
+                    <TextBlock Text="SCHEDULE"
+                               FontSize="10"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource SystemBaseMediumColor}"
+                               LetterSpacing="1.2" />
+                    <TextBlock Text="{Binding Task.TriggerSummary, Converter={StaticResource ToUnknownConverter}}"
+                               FontSize="13"
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+                </StackPanel>
+
+                <!-- NEXT / LAST RUN -->
+                <Grid ColumnDefinitions="*, 16, *">
+                    <StackPanel Grid.Column="0" Spacing="4">
+                        <TextBlock Text="NEXT RUN"
+                                   FontSize="10"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource SystemBaseMediumColor}"
+                                   LetterSpacing="1.2" />
+                        <TextBlock Text="{Binding Task.NextRunTime, StringFormat='{}{0:g}', TargetNullValue='—'}"
+                                   FontSize="13"
+                                   TextWrapping="Wrap"
+                                   Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Spacing="4">
+                        <TextBlock Text="LAST RUN"
+                                   FontSize="10"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource SystemBaseMediumColor}"
+                                   LetterSpacing="1.2" />
+                        <TextBlock Text="{Binding Task.LastRunTime, StringFormat='{}{0:g}', TargetNullValue='—'}"
+                                   FontSize="13"
+                                   TextWrapping="Wrap"
+                                   Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+                    </StackPanel>
+                </Grid>
+
+                <!-- RUN AS USER / AUTHOR -->
+                <Grid ColumnDefinitions="*, 16, *">
+                    <StackPanel Grid.Column="0" Spacing="4">
+                        <TextBlock Text="AUTHOR"
+                                   FontSize="10"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource SystemBaseMediumColor}"
+                                   LetterSpacing="1.2" />
+                        <TextBlock Text="{Binding Task.Author, Converter={StaticResource ToUnknownConverter}}"
+                                   FontSize="13"
+                                   TextWrapping="Wrap"
+                                   Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Spacing="4">
+                        <TextBlock Text="RUN AS"
+                                   FontSize="10"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource SystemBaseMediumColor}"
+                                   LetterSpacing="1.2" />
+                        <TextBlock Text="{Binding Task.RunAsUser, Converter={StaticResource ToUnknownConverter}}"
+                                   FontSize="13"
+                                   TextWrapping="Wrap"
+                                   Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+                    </StackPanel>
+                </Grid>
+
+                <!-- DETAILED INFO -->
+                <Panel>
+                    <StackPanel IsVisible="{Binding IsLoadingDetails}"
+                                Spacing="8"
+                                HorizontalAlignment="Center"
+                                Margin="0,8">
+                        <ProgressBar IsIndeterminate="True"
+                                     Width="160"
+                                     Height="3"
+                                     CornerRadius="2" />
+                        <TextBlock Text="Loading details…"
+                                   FontSize="12"
+                                   HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource SystemBaseMediumColor}" />
+                    </StackPanel>
+
+                    <StackPanel Spacing="20"
+                                DataContext="{Binding DetailedInfo}"
+                                x:DataType="models:DetailedWindowsTaskInfo"
+                                IsVisible="{Binding Converter={x:Static ObjectConverters.IsNotNull}}">
+
+                        <!-- ACTIONS -->
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="ACTIONS"
+                                       FontSize="10"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource SystemBaseMediumColor}"
+                                       LetterSpacing="1.2" />
+                            <ItemsControl ItemsSource="{Binding Actions}"
+                                          IsVisible="{Binding Actions, Converter={StaticResource CollectionNotEmptyConverter}}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border CornerRadius="6"
+                                                Background="{DynamicResource NeutralBackgroundBrush}"
+                                                Margin="0,0,0,4">
+                                            <TextBlock Text="{Binding}"
+                                                       FontSize="11"
+                                                       Margin="8,4"
+                                                       TextWrapping="Wrap"
+                                                       Foreground="{DynamicResource NeutralForegroundBrush}" />
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <TextBlock Text="None"
+                                       FontSize="12"
+                                       Foreground="{DynamicResource SystemBaseMediumColor}"
+                                       IsVisible="{Binding Actions, Converter={StaticResource CollectionEmptyConverter}}" />
+                        </StackPanel>
+
+                        <!-- ALL TRIGGERS -->
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="TRIGGERS"
+                                       FontSize="10"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource SystemBaseMediumColor}"
+                                       LetterSpacing="1.2" />
+                            <ItemsControl ItemsSource="{Binding Triggers}"
+                                          IsVisible="{Binding Triggers, Converter={StaticResource CollectionNotEmptyConverter}}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border CornerRadius="6"
+                                                Background="{DynamicResource InfoBackgroundBrush}"
+                                                Margin="0,0,0,4">
+                                            <TextBlock Text="{Binding}"
+                                                       FontSize="12"
+                                                       Margin="8,4"
+                                                       TextWrapping="Wrap"
+                                                       Foreground="{DynamicResource InfoForegroundBrush}" />
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <TextBlock Text="None"
+                                       FontSize="12"
+                                       Foreground="{DynamicResource SystemBaseMediumColor}"
+                                       IsVisible="{Binding Triggers, Converter={StaticResource CollectionEmptyConverter}}" />
+                        </StackPanel>
+
+                        <!-- EXECUTION SETTINGS -->
+                        <Grid ColumnDefinitions="*, 16, *">
+                            <StackPanel Grid.Column="0" Spacing="4">
+                                <TextBlock Text="TIME LIMIT"
+                                           FontSize="10"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource SystemBaseMediumColor}"
+                                           LetterSpacing="1.2" />
+                                <TextBlock Text="{Binding ExecutionTimeLimit}"
+                                           FontSize="13"
+                                           TextWrapping="Wrap"
+                                           Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Spacing="4">
+                                <TextBlock Text="MULTI-INSTANCE"
+                                           FontSize="10"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource SystemBaseMediumColor}"
+                                           LetterSpacing="1.2" />
+                                <TextBlock Text="{Binding MultipleInstancesPolicy}"
+                                           FontSize="13"
+                                           TextWrapping="Wrap"
+                                           Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- COMPATIBILITY / HIDDEN -->
+                        <Grid ColumnDefinitions="*, 16, *">
+                            <StackPanel Grid.Column="0" Spacing="4">
+                                <TextBlock Text="COMPATIBILITY"
+                                           FontSize="10"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource SystemBaseMediumColor}"
+                                           LetterSpacing="1.2" />
+                                <TextBlock Text="{Binding CompatibilityLevel}"
+                                           FontSize="13"
+                                           Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Spacing="4">
+                                <TextBlock Text="HIDDEN"
+                                           FontSize="10"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource SystemBaseMediumColor}"
+                                           LetterSpacing="1.2" />
+                                <TextBlock Text="{Binding IsHidden}"
+                                           FontSize="13"
+                                           Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+                            </StackPanel>
+                        </Grid>
+
+                    </StackPanel>
+                </Panel>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ACTION BAR -->
+        <Border Grid.Row="1"
+                BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="20"
+                IsVisible="{Binding Task, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <Panel>
+                <StackPanel Spacing="10">
+                    <UniformGrid Columns="2" Rows="1" IsEnabled="{Binding CanExecuteTaskActions}">
+                        <UniformGrid.Styles>
+                            <Style Selector="Button">
+                                <Setter Property="CornerRadius" Value="10" />
+                            </Style>
+                        </UniformGrid.Styles>
+
+                        <Button Command="{Binding RunTaskCommand}"
+                                Margin="0,0,5,0"
+                                Height="32"
+                                Background="{DynamicResource SystemAccentColor}"
+                                Foreground="White"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <PathIcon Data="{StaticResource PlayIcon}" Width="10" Height="10" Foreground="White" />
+                                <TextBlock Text="Run Now" FontWeight="Medium" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+
+                        <Button Command="{Binding StopTaskCommand}"
+                                Margin="5,0,0,0"
+                                Height="32"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                BorderThickness="2"
+                                BorderBrush="{DynamicResource DangerBackgroundBrush}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <PathIcon Data="{StaticResource StopIcon}" Width="10" Height="10" />
+                                <TextBlock Text="Stop" FontWeight="Medium" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                    </UniformGrid>
+
+                    <UniformGrid Columns="2" Rows="1" Margin="0,5,0,0">
+                        <Button Command="{Binding EnableTaskCommand}"
+                                IsEnabled="{Binding !IsEnabled}"
+                                Margin="0,0,5,0"
+                                Height="32"
+                                Background="{DynamicResource SuccessBackgroundBrush}"
+                                Foreground="{DynamicResource SuccessForegroundBrush}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                CornerRadius="10">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <PathIcon Data="{StaticResource PlayIcon}" Width="10" Height="10"
+                                          Foreground="{DynamicResource SuccessForegroundBrush}" />
+                                <TextBlock Text="Enable Task" FontWeight="Medium" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource SuccessForegroundBrush}" />
+                            </StackPanel>
+                        </Button>
+
+                        <Button Command="{Binding DisableTaskCommand}"
+                                IsEnabled="{Binding IsEnabled}"
+                                Margin="5,0,0,0"
+                                Height="32"
+                                Background="{DynamicResource DangerBackgroundBrush}"
+                                Foreground="{DynamicResource DangerForegroundBrush}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                CornerRadius="10">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <PathIcon Data="{StaticResource BlockIcon}" Width="10" Height="10"
+                                          Foreground="{DynamicResource DangerForegroundBrush}" />
+                                <TextBlock Text="Disable Task" FontWeight="Medium" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource DangerForegroundBrush}" />
+                            </StackPanel>
+                        </Button>
+                    </UniformGrid>
+                </StackPanel>
+
+                <!-- Loading Overlay -->
+                <Border CornerRadius="10" Background="{DynamicResource SystemRegionBrush}" Opacity="0.8"
+                        IsVisible="{Binding IsExecutingAction}" />
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical" Spacing="10"
+                            IsVisible="{Binding IsExecutingAction}">
+                    <ProgressBar IsIndeterminate="True" Width="100" Height="4" CornerRadius="2"
+                                 Foreground="{DynamicResource SystemAccentColor}" />
+                    <TextBlock Text="Executing action..." Foreground="{DynamicResource SystemBaseHighColor}"
+                               FontSize="12" FontWeight="Medium" HorizontalAlignment="Center" />
+                </StackPanel>
+            </Panel>
+        </Border>
+    </Grid>
+</UserControl>

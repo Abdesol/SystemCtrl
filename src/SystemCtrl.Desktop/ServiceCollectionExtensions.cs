@@ -12,14 +12,16 @@ public static class ServiceCollectionExtensions
     {
         collection.AddTransient<MainViewModel>();
         collection.AddTransient<ServiceDetailViewModel>();
+        collection.AddTransient<TaskDetailViewModel>();
         collection.AddTransient<ErrorDialogViewModel>();
-        
+
         collection.AddScoped<IWindowsServiceManager, WindowsServiceManager>();
+        collection.AddScoped<IWindowsTaskManager, WindowsTaskManager>();
         collection.AddScoped<ISettingsService, SettingsService>();
         collection.AddTransient<SettingsViewModel>();
-        
+
         collection.AddSingleton<System.Net.Http.HttpClient>();
         collection.AddScoped<IServiceAnalyzer, ServiceAnalyzer>();
         collection.AddSingleton<IErrorDialogService, ErrorDialogService>();
     }
-}
+}
