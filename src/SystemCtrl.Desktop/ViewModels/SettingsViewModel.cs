@@ -47,11 +47,9 @@ public partial class SettingsViewModel : ViewModelBase
     [ReactiveCommand]
     public void SaveSettings()
     {
-        var settings = new AppSettings
-        {
-            GeminiApiKey = ApiKey,
-            GeminiModel = SelectedModel
-        };
+        var settings = _settingsService.LoadSettings();
+        settings.GeminiApiKey = ApiKey;
+        settings.GeminiModel = SelectedModel;
         _settingsService.SaveSettings(settings);
         OnSaved?.Invoke();
     }
