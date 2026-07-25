@@ -31,7 +31,7 @@ public partial class ServiceDetailViewModel : ViewModelBase
 
     [Reactive] public partial bool IsAutoStart { get; set; }
 
-    [Reactive] public partial string? AiSummary { get; set; }
+    [Reactive] public partial System.Collections.Generic.List<AiQna>? AiSummaryList { get; set; }
 
     [Reactive] public partial bool IsGeneratingSummary { get; set; }
 
@@ -49,13 +49,13 @@ public partial class ServiceDetailViewModel : ViewModelBase
         DetailedInfo = null;
         IsLoadingDetails = true;
 
-        AiSummary = null;
+        AiSummaryList = null;
         HasAiSummary = false;
         IsGeneratingSummary = false;
         IsAiSummaryExpanded = false;
         this.RaisePropertyChanged(nameof(ToggleAiSummaryText));
 
-        if (service != null)
+        if (service != null!)
         {
             IsAutoStart = service.StartType == System.ServiceProcess.ServiceStartMode.Automatic ||
                           service.StartType == System.ServiceProcess.ServiceStartMode.Boot ||
@@ -64,26 +64,29 @@ public partial class ServiceDetailViewModel : ViewModelBase
             var settings = _settingsService.LoadSettings();
             if (settings.AiSummaries.TryGetValue(service.ServiceName, out var existingSummary))
             {
-                AiSummary = existingSummary;
+                AiSummaryList = existingSummary;
                 HasAiSummary = true;
             }
-        }
 
-        Task.Run(() =>
+            _ = LoadDetailsAsync(service);
+        }
+    }
+
+    private async Task LoadDetailsAsync(WindowsServiceInfo service)
+    {
+        IsLoadingDetails = true;
+        DetailedInfo = await Task.Run(() =>
         {
             try
             {
-                return _windowsServiceManager.GetDetailedInfo(service.ServiceName);
+                return _windowsServiceManager.GetDetailedInfo(service!.ServiceName);
             }
             catch
             {
                 return null;
             }
-        }).ContinueWith(t =>
-        {
-            DetailedInfo = t.Result;
-            IsLoadingDetails = false;
-        }, TaskScheduler.FromCurrentSynchronizationContext());
+        });
+        IsLoadingDetails = false;
     }
 
     [ReactiveCommand]
@@ -153,7 +156,7 @@ public partial class ServiceDetailViewModel : ViewModelBase
         ];
         _ = Task.Run(async () =>
         {
-            int i = 0;
+            var i = 0;
             while (IsGeneratingSummary)
             {
                 LoadingSummaryText = loadingTexts[i % loadingTexts.Length];
@@ -162,16 +165,16 @@ public partial class ServiceDetailViewModel : ViewModelBase
             }
         });
 
-        var summary = await _serviceAnalyzer.AnalyzeServiceAsync(DetailedInfo);
+        var summaryList = await _serviceAnalyzer.AnalyzeServiceAsync(DetailedInfo);
 
-        AiSummary = summary;
+        AiSummaryList = summaryList;
         HasAiSummary = true;
         IsGeneratingSummary = false;
         IsAiSummaryExpanded = true;
         this.RaisePropertyChanged(nameof(ToggleAiSummaryText));
 
         var settings = _settingsService.LoadSettings();
-        settings.AiSummaries[Service.ServiceName] = summary;
+        settings.AiSummaries[Service.ServiceName] = summaryList;
         _settingsService.SaveSettings(settings);
     }
 }

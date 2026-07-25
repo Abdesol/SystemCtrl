@@ -47,7 +47,7 @@
                   ColumnDefinitions="*, Auto">
                 <Grid Column="0" HorizontalAlignment="Stretch">
                     <TextBox Text="{Binding SearchText}"
-                             Watermark="Search services..."
+                             PlaceholderText="Search services..."
                              CornerRadius="8"
                              BorderThickness="0"
                              Padding="10,8"
