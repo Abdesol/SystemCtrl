@@ -21,7 +21,7 @@ public static class ServiceCollectionExtensions
         collection.AddTransient<SettingsViewModel>();
 
         collection.AddSingleton<System.Net.Http.HttpClient>();
-        collection.AddScoped<IServiceAnalyzer, ServiceAnalyzer>();
+        collection.AddScoped<IAiAnalyzer, AiAnalyzer>();
         collection.AddSingleton<IErrorDialogService, ErrorDialogService>();
     }
 }

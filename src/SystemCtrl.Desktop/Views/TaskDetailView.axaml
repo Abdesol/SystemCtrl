@@ -12,6 +12,7 @@
         <conv:CollectionNotEmptyConverter x:Key="CollectionNotEmptyConverter" />
         <conv:EqualityConverter x:Key="EqualityConverter" />
         <conv:NullOrEmptyToUnknownConverter x:Key="ToUnknownConverter" />
+        <conv:BooleanAndConverter x:Key="BooleanAndConverter" />
     </UserControl.Resources>
 
     <UserControl.Styles>
@@ -46,6 +47,138 @@
             <StackPanel Spacing="20"
                         Margin="20,0,10,30"
                         IsVisible="{Binding Task, Converter={x:Static ObjectConverters.IsNotNull}}">
+
+                <!-- AI SUMMARY -->
+                <Border CornerRadius="12"
+                        BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}"
+                        BorderThickness="1"
+                        Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+                    <StackPanel Spacing="16"
+                                Margin="15,12"
+                                HorizontalAlignment="Stretch">
+                        <Grid ColumnDefinitions="*, Auto"
+                              Height="16" HorizontalAlignment="Stretch"
+                              IsVisible="{Binding HasAiSummary}">
+                            <ToggleButton
+                                Grid.Column="0"
+                                Margin="0,0,5,0"
+                                Classes="NoScale"
+                                IsChecked="{Binding IsAiSummaryExpanded}"
+                                IsVisible="{Binding HasAiSummary}"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                HorizontalContentAlignment="Stretch"
+                                VerticalContentAlignment="Stretch"
+                                Cursor="Hand">
+                                <Grid ColumnDefinitions="Auto, *">
+                                    <Panel Grid.Column="0">
+                                        <PathIcon Data="{StaticResource ChevronDownIcon}" Width="12" Height="12"
+                                                  Foreground="{DynamicResource SystemBaseMediumColor}"
+                                                  IsVisible="{Binding IsAiSummaryExpanded}" />
+                                        <PathIcon Data="{StaticResource ChevronRightIcon}" Width="12" Height="12"
+                                                  Foreground="{DynamicResource SystemBaseMediumColor}"
+                                                  IsVisible="{Binding !IsAiSummaryExpanded}" />
+                                    </Panel>
+
+                                    <Grid Column="1"
+                                          Margin="15,0,0,0"
+                                          HorizontalAlignment="Stretch"
+                                          ColumnDefinitions="Auto, *">
+                                        <PathIcon Grid.Column="0" Data="{StaticResource SparkleIcon}" Width="14"
+                                                  Height="14"
+                                                  Foreground="{DynamicResource SystemBaseMediumColor}" />
+                                        <TextBlock Grid.Column="1"
+                                                   Margin="10,0,0,0"
+                                                   Text="AI SUMMARY"
+                                                   FontSize="11"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource SystemBaseMediumColor}"
+                                                   LetterSpacing="1.2"
+                                                   VerticalAlignment="Center"
+                                                   HorizontalAlignment="Stretch"
+                                                   TextAlignment="Left" />
+                                    </Grid>
+                                </Grid>
+                            </ToggleButton>
+
+                            <Button Grid.Column="1"
+                                    Command="{Binding GenerateAiSummaryCommand}"
+                                    IsVisible="{Binding IsAiSummaryExpanded}"
+                                    CornerRadius="4"
+                                    ToolTip.Tip="Regenerate Summary">
+                                <PathIcon Data="{StaticResource ReloadIcon}" Width="12" Height="12"
+                                          Foreground="{DynamicResource SystemBaseMediumColor}" />
+                            </Button>
+                        </Grid>
+
+                        <ItemsControl ItemsSource="{Binding AiSummaryList}"
+                                      IsVisible="{Binding IsAiSummaryExpanded}"
+                                      HorizontalAlignment="Stretch">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Spacing="10" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Spacing="2">
+                                        <TextBlock Text="{Binding Question}"
+                                                   FontWeight="SemiBold"
+                                                   FontSize="13"
+                                                   Foreground="{DynamicResource SystemBaseHighColor}" />
+                                        <TextBlock Text="{Binding Answer}"
+                                                   TextWrapping="Wrap"
+                                                   FontSize="13"
+                                                   LineHeight="20"
+                                                   Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <StackPanel IsVisible="{Binding IsGeneratingSummary}" Spacing="5" Orientation="Vertical"
+                                    HorizontalAlignment="Stretch" Margin="0, 5">
+                            <ProgressBar IsIndeterminate="True" Height="2"
+                                         HorizontalAlignment="Center" />
+                            <TextBlock Text="{Binding LoadingSummaryText}" FontSize="13" HorizontalAlignment="Center"
+                                       Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+                        </StackPanel>
+
+                        <Grid>
+                            <Grid.IsVisible>
+                                <MultiBinding Converter="{StaticResource BooleanAndConverter}">
+                                    <Binding Path="!IsGeneratingSummary" />
+                                    <Binding Path="!HasAiSummary" />
+                                </MultiBinding>
+                            </Grid.IsVisible>
+                            <Button Classes="SmallScale"
+                                    Height="16"
+                                    Command="{Binding GenerateAiSummaryCommand}"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    HorizontalContentAlignment="Stretch"
+                                    VerticalContentAlignment="Stretch"
+                                    Cursor="Hand">
+                                <Grid HorizontalAlignment="Stretch"
+                                      ColumnDefinitions="Auto, *">
+                                    <PathIcon Grid.Column="0" Data="{StaticResource SparkleIcon}" Width="14"
+                                              Height="14"
+                                              Foreground="{DynamicResource SystemBaseMediumColor}" />
+                                    <TextBlock Grid.Column="1"
+                                               Margin="10,0,0,0"
+                                               Text="Summarize with AI"
+                                               FontSize="11"
+                                               FontWeight="SemiBold"
+                                               Foreground="{DynamicResource SystemBaseMediumColor}"
+                                               LetterSpacing="1.2"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Stretch"
+                                               TextAlignment="Left" />
+                                </Grid>
+                            </Button>
+                        </Grid>
+                    </StackPanel>
+                </Border>
 
                 <!-- TASK NAME & PATH -->
                 <StackPanel Spacing="4">

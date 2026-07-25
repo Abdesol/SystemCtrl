@@ -13,11 +13,19 @@ namespace SystemCtrl.Desktop.ViewModels;
 public partial class TaskDetailViewModel : ViewModelBase
 {
     private readonly IWindowsTaskManager _windowsTaskManager;
+    private readonly IAiAnalyzer _aiAnalyzer;
+    private readonly ISettingsService _settingsService;
     private readonly IErrorDialogService _errorDialog;
 
-    public TaskDetailViewModel(IWindowsTaskManager windowsTaskManager, IErrorDialogService errorDialog)
+    public TaskDetailViewModel(
+        IWindowsTaskManager windowsTaskManager, 
+        IAiAnalyzer aiAnalyzer,
+        ISettingsService settingsService,
+        IErrorDialogService errorDialog)
     {
         _windowsTaskManager = windowsTaskManager;
+        _aiAnalyzer = aiAnalyzer;
+        _settingsService = settingsService;
         _errorDialog = errorDialog;
 
         this.WhenAnyValue(
@@ -25,6 +33,9 @@ public partial class TaskDetailViewModel : ViewModelBase
                 x => x.IsExecutingAction,
                 (enabled, executing) => !executing)
             .Subscribe(can => CanExecuteTaskActions = can);
+
+        this.WhenAnyValue(x => x.IsAiSummaryExpanded)
+            .Subscribe(expanded => ToggleAiSummaryText = expanded ? "Hide" : "Show");
     }
 
     [Reactive] public partial WindowsTaskInfo? Task { get; set; }
@@ -38,6 +49,18 @@ public partial class TaskDetailViewModel : ViewModelBase
     [Reactive] public partial bool IsExecutingAction { get; set; }
 
     [Reactive] public partial bool CanExecuteTaskActions { get; set; }
+    
+    [Reactive] public partial System.Collections.Generic.List<AiQna>? AiSummaryList { get; set; }
+
+    [Reactive] public partial bool IsGeneratingSummary { get; set; }
+
+    [Reactive] public partial bool HasAiSummary { get; set; }
+
+    [Reactive] public partial bool IsAiSummaryExpanded { get; set; }
+
+    [Reactive] public partial string ToggleAiSummaryText { get; set; } = "Show";
+
+    [Reactive] public partial string LoadingSummaryText { get; set; } = "Generating insights...";
 
     public IObservable<bool> CanRunTask =>
         this.WhenAnyValue(x => x.Task, x => x.Task!.Status,
@@ -53,8 +76,23 @@ public partial class TaskDetailViewModel : ViewModelBase
         DetailedInfo = null;
         IsLoadingDetails = true;
         IsEnabled = task.Status != TaskState.Disabled;
+        
+        AiSummaryList = null;
+        HasAiSummary = false;
+        IsGeneratingSummary = false;
+        IsAiSummaryExpanded = false;
 
-        _ = LoadDetailsAsync(task);
+        if (task != null!)
+        {
+            var settings = _settingsService.LoadSettings();
+            if (settings.AiSummaries.TryGetValue(task.TaskName, out var existingSummary))
+            {
+                AiSummaryList = existingSummary;
+                HasAiSummary = true;
+            }
+
+            _ = LoadDetailsAsync(task);
+        }
     }
 
     private async System.Threading.Tasks.Task LoadDetailsAsync(WindowsTaskInfo task)
@@ -187,5 +225,51 @@ public partial class TaskDetailViewModel : ViewModelBase
             }
         }
         catch { /* ignored */ }
+    }
+    
+    [ReactiveCommand]
+    public void ToggleAiSummary()
+    {
+        IsAiSummaryExpanded = !IsAiSummaryExpanded;
+    }
+
+    [ReactiveCommand]
+    public async System.Threading.Tasks.Task GenerateAiSummary()
+    {
+        if (DetailedInfo == null || Task == null) return;
+
+        IsGeneratingSummary = true;
+        HasAiSummary = false;
+        IsAiSummaryExpanded = false;
+
+        string[] loadingTexts =
+        [
+            "Analyzing scheduled task...",
+            "Connecting to Gemini...",
+            "Synthesizing insights...",
+            "Generating insights..."
+        ];
+        
+        _ = System.Threading.Tasks.Task.Run(async () =>
+        {
+            var i = 0;
+            while (IsGeneratingSummary)
+            {
+                LoadingSummaryText = loadingTexts[i % loadingTexts.Length];
+                i++;
+                await System.Threading.Tasks.Task.Delay(TimeSpan.FromSeconds(2));
+            }
+        });
+
+        var settings = _settingsService.LoadSettings();
+        var summaryList = await _aiAnalyzer.AnalyzeTaskAsync(Task, DetailedInfo, settings);
+
+        AiSummaryList = summaryList;
+        HasAiSummary = true;
+        IsGeneratingSummary = false;
+        IsAiSummaryExpanded = true;
+
+        settings.AiSummaries[Task.TaskName] = summaryList;
+        _settingsService.SaveSettings(settings);
     }
 }

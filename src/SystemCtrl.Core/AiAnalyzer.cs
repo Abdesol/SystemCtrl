@@ -9,26 +9,13 @@ using SystemCtrl.Core.Models;
 
 namespace SystemCtrl.Core;
 
-public class ServiceAnalyzer(HttpClient httpClient) : IServiceAnalyzer
+public class AiAnalyzer(HttpClient httpClient) : IAiAnalyzer
 {
     private readonly HttpClient _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
 
-    public async Task<List<AiQna>> AnalyzeServiceAsync(DetailedWindowsServiceInfo serviceInfo, AppSettings settings)
+    public Task<List<AiQna>> AnalyzeServiceAsync(DetailedWindowsServiceInfo serviceInfo, AppSettings settings)
     {
         ArgumentNullException.ThrowIfNull(serviceInfo);
-        ArgumentNullException.ThrowIfNull(settings);
-        
-        if (string.IsNullOrWhiteSpace(settings.GeminiApiKey))
-        {
-            return
-            [
-                new AiQna
-                {
-                    Question = "Error",
-                    Answer = "API Key is missing. Please configure your Gemini API Key in the settings."
-                }
-            ];
-        }
 
         var prompt = $"Please analyze the following Windows Service. Answer the following 3 questions:\n" +
                      $"1. What does this service do?\n" +
@@ -43,6 +30,46 @@ public class ServiceAnalyzer(HttpClient httpClient) : IServiceAnalyzer
                      $"Is Signed: {serviceInfo.IsSigned}\n" +
                      $"Service Account: {serviceInfo.ServiceAccount}\n" +
                      $"Dependencies: {(serviceInfo.Dependencies.Length > 0 ? string.Join(", ", serviceInfo.Dependencies) : "None")}\n";
+
+        return AskGeminiAsync(prompt, settings);
+    }
+
+    public Task<List<AiQna>> AnalyzeTaskAsync(WindowsTaskInfo task, DetailedWindowsTaskInfo detailedInfo, AppSettings settings)
+    {
+        ArgumentNullException.ThrowIfNull(task);
+        ArgumentNullException.ThrowIfNull(detailedInfo);
+
+        var prompt = $"Please analyze the following Windows Scheduled Task. Answer the following 3 questions:\n" +
+                     $"1. What does this scheduled task do?\n" +
+                     $"2. Is it critical for system stability?\n" +
+                     $"3. Is it safe to disable?\n\n" +
+                     $"Return the response STRICTLY as a JSON array of objects, where each object has a 'Question' and 'Answer' property. " +
+                     $"Do NOT use any markdown formatting (no bold, no asterisks, no code blocks). Keep the answers short and concise.\n\n" +
+                     $"Task Name: {task.TaskName}\n" +
+                     $"Task Path: {task.TaskPath}\n" +
+                     $"Description: {task.Description}\n" +
+                     $"Author: {task.Author}\n" +
+                     $"Actions: {(detailedInfo.Actions.Length > 0 ? string.Join(", ", detailedInfo.Actions) : "None")}\n" +
+                     $"Triggers: {(detailedInfo.Triggers.Length > 0 ? string.Join(", ", detailedInfo.Triggers) : "None")}\n";
+
+        return AskGeminiAsync(prompt, settings);
+    }
+
+    private async Task<List<AiQna>> AskGeminiAsync(string prompt, AppSettings settings)
+    {
+        ArgumentNullException.ThrowIfNull(settings);
+        
+        if (string.IsNullOrWhiteSpace(settings.GeminiApiKey))
+        {
+            return
+            [
+                new AiQna
+                {
+                    Question = "Error",
+                    Answer = "API Key is missing. Please configure your Gemini API Key in the settings."
+                }
+            ];
+        }
 
         var requestBody = new
         {
@@ -72,7 +99,7 @@ public class ServiceAnalyzer(HttpClient httpClient) : IServiceAnalyzer
             if (!response.IsSuccessStatusCode)
             {
                 var error = await response.Content.ReadAsStringAsync();
-                return new List<AiQna> { new AiQna { Question = "Error", Answer = $"Error from AI service: {response.StatusCode} - {response.ReasonPhrase}\n{error}" } };
+                return [new AiQna { Question = "Error", Answer = $"Error from AI service: {response.StatusCode} - {response.ReasonPhrase}\n{error}" }];
             }
             
             var jsonResponse = await response.Content.ReadAsStringAsync();
@@ -114,7 +141,7 @@ public class ServiceAnalyzer(HttpClient httpClient) : IServiceAnalyzer
         }
         catch (Exception ex)
         {
-            return [new AiQna() { Question = "Error", Answer = $"Failed to analyze service. Error: {ex.Message}" }];
+            return [new AiQna() { Question = "Error", Answer = $"Failed to analyze. Error: {ex.Message}" }];
         }
     }
 }

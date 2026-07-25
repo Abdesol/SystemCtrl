@@ -13,13 +13,13 @@ namespace SystemCtrl.Desktop.ViewModels;
 public partial class ServiceDetailViewModel : ViewModelBase
 {
     private readonly IWindowsServiceManager _windowsServiceManager;
-    private readonly IServiceAnalyzer _serviceAnalyzer;
+    private readonly IAiAnalyzer _serviceAnalyzer;
     private readonly ISettingsService _settingsService;
     private readonly IErrorDialogService _errorDialog;
 
     public ServiceDetailViewModel(
         IWindowsServiceManager windowsServiceManager,
-        IServiceAnalyzer serviceAnalyzer,
+        IAiAnalyzer serviceAnalyzer,
         ISettingsService settingsService,
         IErrorDialogService errorDialog)
     {
