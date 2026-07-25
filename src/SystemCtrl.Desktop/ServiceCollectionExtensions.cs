@@ -16,5 +16,8 @@ public static class ServiceCollectionExtensions
         collection.AddScoped<IWindowsServiceManager, WindowsServiceManager>();
         collection.AddScoped<ISettingsService, SettingsService>();
         collection.AddTransient<SettingsViewModel>();
+        
+        collection.AddSingleton<System.Net.Http.HttpClient>();
+        collection.AddScoped<IServiceAnalyzer, ServiceAnalyzer>();
     }
 }
