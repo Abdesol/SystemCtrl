@@ -5,7 +5,7 @@ using ReactiveUI;
 using ReactiveUI.SourceGenerators;
 using SystemCtrl.Core.Interfaces;
 using SystemCtrl.Core.Models;
-
+using System.Reactive.Linq;
 using System.Linq;
 using System.Collections.Generic;
 
@@ -27,6 +27,10 @@ public partial class MainViewModel : ViewModelBase
 
         this.WhenAnyValue(x => x.SearchText)
             .Subscribe(_ => FilterServices());
+
+        this.WhenAnyValue(x => x.SlidePanel.IsOpen)
+            .Where(isOpen => !isOpen)
+            .Subscribe(_ => RefreshServices());
     }
 
     [Reactive]

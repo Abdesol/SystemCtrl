@@ -1,16 +1,19 @@
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
+
 namespace SystemCtrl.Core.Models;
 
-public class DetailedWindowsServiceInfo
+public partial class DetailedWindowsServiceInfo : ReactiveObject
 {
-    public string ServiceName { get; set; } = string.Empty;
+    [Reactive] public partial string ServiceName { get; set; } = string.Empty;
 
-    public string ExecutablePath { get; set; } = string.Empty;
+    [Reactive] public partial string ExecutablePath { get; set; } = string.Empty;
 
-    public string ExecutableName { get; set; } = string.Empty;
+    [Reactive] public partial string ExecutableName { get; set; } = string.Empty;
 
-    public string FileVersion { get; set; } = string.Empty;
+    [Reactive] public partial string FileVersion { get; set; } = string.Empty;
 
-    public long? FileSizeBytes { get; set; }
+    [Reactive] public partial long? FileSizeBytes { get; set; }
 
     public string FileSizeFormatted => FileSizeBytes switch
     {
@@ -20,13 +23,13 @@ public class DetailedWindowsServiceInfo
         _ => $"{FileSizeBytes / (1024.0 * 1024):N2} MB"
     };
 
-    public string Publisher { get; set; } = string.Empty;
+    [Reactive] public partial string Publisher { get; set; } = string.Empty;
 
-    public bool IsSigned { get; set; }
+    [Reactive] public partial bool IsSigned { get; set; }
 
-    public string ServiceAccount { get; set; } = string.Empty;
+    [Reactive] public partial string ServiceAccount { get; set; } = string.Empty;
 
-    public string[] Dependencies { get; set; } = [];
+    [Reactive] public partial string[] Dependencies { get; set; } = [];
 
-    public int? ProcessId { get; set; }
+    [Reactive] public partial int? ProcessId { get; set; }
 }

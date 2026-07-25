@@ -1,18 +1,20 @@
 using System.ServiceProcess;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
 
 namespace SystemCtrl.Core.Models;
 
-public class WindowsServiceInfo
+public partial class WindowsServiceInfo : ReactiveObject
 {
-    public string DisplayName { get; set; } = string.Empty;
+    [Reactive] public partial string DisplayName { get; set; } = string.Empty;
     
-    public string ServiceName { get; set; } = string.Empty;
+    [Reactive] public partial string ServiceName { get; set; } = string.Empty;
     
-    public string Description { get; set; } = string.Empty;
+    [Reactive] public partial string Description { get; set; } = string.Empty;
 
-    public ServiceControllerStatus Status { get; set; } 
+    [Reactive] public partial ServiceControllerStatus Status { get; set; } 
 
-    public ServiceStartMode StartType { get; set; }
+    [Reactive] public partial ServiceStartMode StartType { get; set; }
     
-    public DetailedWindowsServiceInfo? DetailedInfo { get; set; }
+    [Reactive] public partial DetailedWindowsServiceInfo? DetailedInfo { get; set; }
 }

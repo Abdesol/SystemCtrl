@@ -89,45 +89,122 @@ public partial class ServiceDetailViewModel : ViewModelBase
         IsLoadingDetails = false;
     }
 
-    [ReactiveCommand]
-    public void StartService()
+    [Reactive] public partial bool IsExecutingAction { get; set; }
+
+    public IObservable<bool> CanStartService => 
+        this.WhenAnyValue(x => x.Service, x => x.Service!.Status, 
+            (svc, status) => svc != null && status == System.ServiceProcess.ServiceControllerStatus.Stopped);
+
+    public IObservable<bool> CanStopService => 
+        this.WhenAnyValue(x => x.Service, x => x.Service!.Status, 
+            (svc, status) => svc != null && (status == System.ServiceProcess.ServiceControllerStatus.Running || status == System.ServiceProcess.ServiceControllerStatus.Paused));
+
+    [ReactiveCommand(CanExecute = nameof(CanStartService))]
+    public async Task StartService()
     {
         if (Service == null) return;
-        _windowsServiceManager.Start(Service.ServiceName);
+        IsExecutingAction = true;
+        try
+        {
+            await Task.Run(() => _windowsServiceManager.Start(Service.ServiceName));
+            await Task.Delay(1000); // Give it a moment to update state
+            RefreshServiceState();
+        }
+        catch { /* Ignore or handle */ }
+        finally
+        {
+            IsExecutingAction = false;
+        }
+    }
+
+    [ReactiveCommand(CanExecute = nameof(CanStopService))]
+    public async Task StopService()
+    {
+        if (Service == null) return;
+        IsExecutingAction = true;
+        try
+        {
+            await Task.Run(() => _windowsServiceManager.Stop(Service.ServiceName));
+            await Task.Delay(1000); // Give it a moment to update state
+            RefreshServiceState();
+        }
+        catch { /* Ignore or handle */ }
+        finally
+        {
+            IsExecutingAction = false;
+        }
+    }
+
+    public IObservable<bool> CanRestartService => CanStopService;
+
+    [ReactiveCommand(CanExecute = nameof(CanRestartService))]
+    public async Task RestartService()
+    {
+        if (Service == null) return;
+        IsExecutingAction = true;
+        try
+        {
+            await Task.Run(() => _windowsServiceManager.Restart(Service.ServiceName));
+            await Task.Delay(1000); // Give it a moment to update state
+            RefreshServiceState();
+        }
+        catch { /* Ignore or handle */ }
+        finally
+        {
+            IsExecutingAction = false;
+        }
     }
 
     [ReactiveCommand]
-    public void StopService()
+    public async Task DisableAutoStart()
     {
         if (Service == null) return;
-        _windowsServiceManager.Stop(Service.ServiceName);
+        IsExecutingAction = true;
+        try
+        {
+            await Task.Run(() => _windowsServiceManager.SetStartType(Service.ServiceName, System.ServiceProcess.ServiceStartMode.Disabled));
+            IsAutoStart = false;
+            Service.StartType = System.ServiceProcess.ServiceStartMode.Disabled;
+        }
+        catch { /* Ignore or handle */ }
+        finally
+        {
+            IsExecutingAction = false;
+        }
     }
 
     [ReactiveCommand]
-    public void RestartService()
+    public async Task EnableAutoStart()
     {
         if (Service == null) return;
-        _windowsServiceManager.Restart(Service.ServiceName);
+        IsExecutingAction = true;
+        try
+        {
+            await Task.Run(() => _windowsServiceManager.SetStartType(Service.ServiceName, System.ServiceProcess.ServiceStartMode.Automatic));
+            IsAutoStart = true;
+            Service.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
+        }
+        catch { /* Ignore or handle */ }
+        finally
+        {
+            IsExecutingAction = false;
+        }
     }
 
-    [ReactiveCommand]
-    public void DisableAutoStart()
+    private void RefreshServiceState()
     {
         if (Service == null) return;
-        _windowsServiceManager.SetStartType(Service.ServiceName, System.ServiceProcess.ServiceStartMode.Disabled);
-        IsAutoStart = false;
-        Service.StartType = System.ServiceProcess.ServiceStartMode.Disabled;
-        this.RaisePropertyChanged(nameof(Service));
-    }
-
-    [ReactiveCommand]
-    public void EnableAutoStart()
-    {
-        if (Service == null) return;
-        _windowsServiceManager.SetStartType(Service.ServiceName, System.ServiceProcess.ServiceStartMode.Automatic);
-        IsAutoStart = true;
-        Service.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
-        this.RaisePropertyChanged(nameof(Service));
+        try
+        {
+            // Just refresh the detailed info or status
+            var updated = System.Linq.Enumerable.FirstOrDefault(_windowsServiceManager.GetServices(true), s => s.ServiceName == Service.ServiceName);
+            if (updated != null)
+            {
+                Service.Status = updated.Status;
+                Service.StartType = updated.StartType;
+            }
+        }
+        catch { }
     }
 
     [ReactiveCommand]

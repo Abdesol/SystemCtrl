@@ -117,7 +117,7 @@
                             </ToggleButton>
 
                             <Button Grid.Column="1"
-                                    Command="{Binding GenerateAiSummary}"
+                                    Command="{Binding GenerateAiSummaryCommand}"
                                     IsVisible="{Binding IsAiSummaryExpanded}"
                                     CornerRadius="4"
                                     ToolTip.Tip="Regenerate Summary">
@@ -168,7 +168,7 @@
                             </Grid.IsVisible>
                             <Button Classes="SmallScale"
                                     Height="16"
-                                    Command="{Binding GenerateAiSummary}"
+                                    Command="{Binding GenerateAiSummaryCommand}"
                                     HorizontalAlignment="Stretch"
                                     VerticalAlignment="Stretch"
                                     HorizontalContentAlignment="Stretch"
@@ -399,13 +399,14 @@
                 BorderThickness="0,1,0,0"
                 Padding="20"
                 IsVisible="{Binding Service, Converter={x:Static ObjectConverters.IsNotNull}}">
-            <UniformGrid Columns="2" Rows="2">
+            <Panel>
+                <UniformGrid Columns="2" Rows="2" IsEnabled="{Binding !IsExecutingAction}">
                 <UniformGrid.Styles>
                     <Style Selector="Button">
                         <Setter Property="CornerRadius" Value="10" />
                     </Style>
                 </UniformGrid.Styles>
-                <Button Command="{Binding StartService}"
+                <Button Command="{Binding StartServiceCommand}"
                         Margin="0,0,5,5"
                         Height="32"
                         Background="{DynamicResource SystemAccentColor}"
@@ -418,7 +419,7 @@
                     </StackPanel>
                 </Button>
 
-                <Button Command="{Binding StopService}"
+                <Button Command="{Binding StopServiceCommand}"
                         Margin="5,0,0,5"
                         Height="32"
                         HorizontalAlignment="Stretch"
@@ -431,7 +432,7 @@
                     </StackPanel>
                 </Button>
 
-                <Button Command="{Binding RestartService}"
+                <Button Command="{Binding RestartServiceCommand}"
                         Margin="0,5,5,0"
                         Height="32"
                         HorizontalAlignment="Stretch"
@@ -445,7 +446,7 @@
                 </Button>
 
                 <Panel Margin="5,5,0,0">
-                    <Button Command="{Binding DisableAutoStart}"
+                    <Button Command="{Binding DisableAutoStartCommand}"
                             Height="32"
                             Background="{DynamicResource DangerBackgroundBrush}"
                             Foreground="{DynamicResource DangerForegroundBrush}"
@@ -459,7 +460,7 @@
                                        Foreground="{DynamicResource DangerForegroundBrush}" />
                         </StackPanel>
                     </Button>
-                    <Button Command="{Binding EnableAutoStart}"
+                    <Button Command="{Binding EnableAutoStartCommand}"
                             Height="32"
                             Background="{DynamicResource SuccessBackgroundBrush}"
                             Foreground="{DynamicResource SuccessForegroundBrush}"
@@ -475,6 +476,14 @@
                     </Button>
                 </Panel>
             </UniformGrid>
+            
+            <!-- Loading Overlay -->
+            <Border CornerRadius="10" Background="{DynamicResource SystemRegionBrush}" Opacity="0.8" IsVisible="{Binding IsExecutingAction}" />
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical" Spacing="10" IsVisible="{Binding IsExecutingAction}">
+                <ProgressBar IsIndeterminate="True" Width="100" Height="4" CornerRadius="2" Foreground="{DynamicResource SystemAccentColor}" />
+                <TextBlock Text="Executing action..." Foreground="{DynamicResource SystemBaseHighColor}" FontSize="12" FontWeight="Medium" HorizontalAlignment="Center" />
+            </StackPanel>
+            </Panel>
         </Border>
     </Grid>
 </UserControl>
