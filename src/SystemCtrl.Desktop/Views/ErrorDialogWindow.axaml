@@ -9,6 +9,7 @@
         WindowStartupLocation="CenterOwner"
         CanResize="False"
         ShowInTaskbar="False"
+        WindowDecorations="BorderOnly"
         ExtendClientAreaToDecorationsHint="True"
         Background="{DynamicResource SystemRegionBrush}">
 
@@ -38,13 +39,9 @@
 
     <Panel Margin="{Binding $parent[Window].OffScreenMargin}">
         <Grid RowDefinitions="Auto, *, Auto">
-
-            <!-- Header -->
             <Border Grid.Row="0"
-                    Background="{DynamicResource DangerBackgroundBrush}"
                     Padding="20,16">
                 <Grid ColumnDefinitions="Auto, *, Auto">
-                    <!-- Icon -->
                     <Border Grid.Column="0"
                             Width="36" Height="36"
                             CornerRadius="18"
@@ -57,8 +54,6 @@
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center" />
                     </Border>
-
-                    <!-- Title + message -->
                     <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
                         <TextBlock x:Name="TitleText"
                                    FontSize="15"
@@ -87,6 +82,7 @@
                                          FontFamily="Cascadia Code, Consolas, Courier New, monospace"
                                          FontSize="11"
                                          Margin="12"
+                                         Padding="3"
                                          TextWrapping="Wrap"
                                          Foreground="{DynamicResource SystemBaseMediumHighColor}"
                                          LineHeight="18" />
@@ -99,7 +95,8 @@
                 <Button Grid.Column="1"
                         x:Name="CopyButton"
                         Classes="copy-btn"
-                        Click="OnCopyClicked">
+                        Click="OnCopyClicked"
+                        Width="160">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <PathIcon x:Name="CopyIcon"
                                   Data="{StaticResource CopyIcon}"

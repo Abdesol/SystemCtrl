@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System.Management;
 using System.Security.Cryptography.X509Certificates;
-using System.Security.Principal;
 using System.ServiceProcess;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
@@ -27,7 +26,7 @@ public partial class WindowsServiceManager : IWindowsServiceManager
             });
     }
     
-    public DetailedWindowsServiceInfo? GetDetailedInfo(string serviceName)
+    public DetailedWindowsServiceInfo GetDetailedInfo(string serviceName)
     {
         using var service = new ServiceController(serviceName);
 
@@ -183,30 +182,34 @@ public partial class WindowsServiceManager : IWindowsServiceManager
         return match.Success ? match.Groups[1].Value : string.Empty;
     }
 
-    private bool IsAdministrator()
+    private static bool IsAccessDenied(Exception? ex)
     {
-        using (WindowsIdentity identity = WindowsIdentity.GetCurrent())
+        return ex switch
         {
-            WindowsPrincipal principal = new WindowsPrincipal(identity);
-            return principal.IsInRole(WindowsBuiltInRole.Administrator);
-        }
+            null => false,
+            System.ComponentModel.Win32Exception { NativeErrorCode: 5 } => true,
+            _ => IsAccessDenied(ex.InnerException)
+        };
     }
 
     public void Start(string serviceName)
     {
         using var service = new ServiceController(serviceName);
 
-        if (service.Status != ServiceControllerStatus.Running)
+        if (service.Status == ServiceControllerStatus.Running) return;
+        
+        try
         {
-            if (IsAdministrator())
+            service.Start();
+            try { service.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(30)); }
+            catch
             {
-                service.Start();
-                try { service.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(30)); } catch { }
+                // ignored
             }
-            else
-            {
-                ExecuteElevated("powershell.exe", $"-Command \"Start-Service -Name '{serviceName}' -ErrorAction Stop\"");
-            }
+        }
+        catch (Exception ex) when (IsAccessDenied(ex))
+        {
+            ExecuteElevated("powershell.exe", $"-Command \"Start-Service -Name '{serviceName}' -ErrorAction Stop\"");
         }
     }
 
@@ -214,31 +217,38 @@ public partial class WindowsServiceManager : IWindowsServiceManager
     {
         using var service = new ServiceController(serviceName);
 
-        if (service.Status != ServiceControllerStatus.Stopped)
+        if (service.Status == ServiceControllerStatus.Stopped) return;
+        
+        try
         {
-            if (IsAdministrator())
+            service.Stop();
+            try { service.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(30)); }
+            catch
             {
-                service.Stop();
-                try { service.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(30)); } catch { }
+                // ignored
             }
-            else
-            {
-                ExecuteElevated("powershell.exe", $"-Command \"Stop-Service -Name '{serviceName}' -Force -ErrorAction Stop\"");
-            }
+        }
+        catch (Exception ex) when (IsAccessDenied(ex))
+        {
+            ExecuteElevated("powershell.exe", $"-Command \"Stop-Service -Name '{serviceName}' -Force -ErrorAction Stop\"");
         }
     }
 
     public void Restart(string serviceName)
     {
-        if (IsAdministrator())
+        try
         {
             Stop(serviceName);
             using var service = new ServiceController(serviceName);
             service.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(30));
             service.Start();
-            try { service.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(30)); } catch { }
+            try { service.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(30)); }
+            catch
+            {
+                // ignored
+            }
         }
-        else
+        catch (Exception ex) when (IsAccessDenied(ex))
         {
             ExecuteElevated("powershell.exe", $"-Command \"Restart-Service -Name '{serviceName}' -Force -ErrorAction Stop\"");
         }
@@ -246,7 +256,7 @@ public partial class WindowsServiceManager : IWindowsServiceManager
 
     public void SetStartType(string serviceName, ServiceStartMode startMode)
     {
-        string startTypeStr = startMode switch
+        var startTypeStr = startMode switch
         {
             ServiceStartMode.Automatic => "auto",
             ServiceStartMode.Manual => "demand",
@@ -256,18 +266,28 @@ public partial class WindowsServiceManager : IWindowsServiceManager
             _ => "demand"
         };
 
-        if (IsAdministrator())
+        var pi = new ProcessStartInfo("sc.exe", $"config \"{serviceName}\" start= {startTypeStr}") 
+        { 
+            CreateNoWindow = true,
+            UseShellExecute = false,
+            RedirectStandardError = true
+        };
+        
+        using var process = Process.Start(pi);
+        process?.WaitForExit();
+        
+        if (process is { ExitCode: 5 })
         {
-             var pi = new ProcessStartInfo("sc.exe", $"config \"{serviceName}\" start= {startTypeStr}") { CreateNoWindow = true };
-             Process.Start(pi)?.WaitForExit();
+            ExecuteElevated("sc.exe", $"config \"{serviceName}\" start= {startTypeStr}");
         }
-        else
+        else if (process != null && process.ExitCode != 0)
         {
-             ExecuteElevated("sc.exe", $"config \"{serviceName}\" start= {startTypeStr}");
+            var err = process.StandardError.ReadToEnd();
+            throw new Exception($"Failed to change start type: {err}");
         }
     }
 
-    private bool IsSystemService(ServiceController service)
+    private static bool IsSystemService(ServiceController service)
     {
         var systemKeywords = new[]
         {
@@ -316,7 +336,7 @@ public partial class WindowsServiceManager : IWindowsServiceManager
             StringComparison.OrdinalIgnoreCase);
     }
     
-    private string GetPublisher(string path)
+    private static string GetPublisher(string path)
     {
         if (!File.Exists(path))
             return string.Empty;
@@ -326,7 +346,7 @@ public partial class WindowsServiceManager : IWindowsServiceManager
         return versionInfo.CompanyName ?? string.Empty;
     }
 
-    private string GetFileVersion(string path)
+    private static string GetFileVersion(string path)
     {
         if (!File.Exists(path))
             return string.Empty;
@@ -336,7 +356,7 @@ public partial class WindowsServiceManager : IWindowsServiceManager
         return versionInfo.FileVersion ?? string.Empty;
     }
 
-    private long? GetFileSizeBytes(string path)
+    private static long? GetFileSizeBytes(string path)
     {
         if (!File.Exists(path))
             return null;
@@ -345,7 +365,7 @@ public partial class WindowsServiceManager : IWindowsServiceManager
     }
 
     
-    private bool IsSigned(string path)
+    private static bool IsSigned(string path)
     {
         if (!File.Exists(path))
             return false;
@@ -361,7 +381,7 @@ public partial class WindowsServiceManager : IWindowsServiceManager
         }
     }
     
-    private int? GetProcessId(ServiceController service)
+    private static int? GetProcessId(ServiceController service)
     {
         using var searcher = new ManagementObjectSearcher(
             $"SELECT ProcessId FROM Win32_Service WHERE Name='{service.ServiceName}'");
@@ -372,8 +392,8 @@ public partial class WindowsServiceManager : IWindowsServiceManager
             ? (int)pid
             : null;
     }
-    
-    public static string? GetServiceDescription(string serviceName)
+
+    private static string? GetServiceDescription(string serviceName)
     {
         using var key = Registry.LocalMachine.OpenSubKey(
             $@"SYSTEM\CurrentControlSet\Services\{serviceName}");
