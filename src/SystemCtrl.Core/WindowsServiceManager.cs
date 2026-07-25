@@ -3,13 +3,14 @@ using System.Management;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Principal;
 using System.ServiceProcess;
+using System.Text.RegularExpressions;
 using Microsoft.Win32;
 using SystemCtrl.Core.Interfaces;
 using SystemCtrl.Core.Models;
 
 namespace SystemCtrl.Core;
 
-public class WindowsServiceManager : IWindowsServiceManager
+public partial class WindowsServiceManager : IWindowsServiceManager
 {
     public IEnumerable<WindowsServiceInfo> GetServices(bool includeSystemServices = false)
     {
@@ -62,10 +63,73 @@ public class WindowsServiceManager : IWindowsServiceManager
 
     private void ExecuteElevated(string fileName, string arguments)
     {
+        var tempOutput = Path.GetTempFileName();
+        var tempScript = Path.ChangeExtension(Path.GetTempFileName(), ".ps1");
+
+        string wrappedArgs;
+        if (fileName.Equals("powershell.exe", StringComparison.OrdinalIgnoreCase))
+        {
+            var innerCommand = arguments;
+            if (innerCommand.StartsWith("-Command \""))
+            {
+                innerCommand = innerCommand.Substring(10, innerCommand.Length - 11);
+            }
+
+            string svcName = ExtractServiceName(arguments);
+
+            var script = string.Join("\n",
+                "$ErrorActionPreference = 'Stop'",
+                "try {",
+                "    " + innerCommand,
+                "} catch {",
+                "    $err = '=== Exception ===' + [Environment]::NewLine + $_.Exception.ToString()",
+                "",
+                "    # Walk inner exceptions",
+                "    $inner = $_.Exception.InnerException",
+                "    $depth = 0",
+                "    while ($inner -ne $null -and $depth -lt 5) {",
+                "        $err += [Environment]::NewLine + ('=== Inner Exception (level ' + ($depth+1) + ') ===') + [Environment]::NewLine + $inner.ToString()",
+                "        $inner = $inner.InnerException",
+                "        $depth++",
+                "    }",
+                "",
+                "    # Recent Windows Event Log entries for this service",
+                "    try {",
+                $"        $svcName = '{svcName}'",
+                "        $since = (Get-Date).AddSeconds(-60)",
+                "        $events = Get-EventLog -LogName Application -Newest 20 -After $since -ErrorAction SilentlyContinue |",
+                "            Where-Object { $_.Source -like \"*$svcName*\" -or $_.Message -like \"*$svcName*\" } |",
+                "            ForEach-Object { \"[$($_.TimeGenerated)] [$($_.EntryType)] $($_.Source): \" + $_.Message.Substring(0, [Math]::Min($_.Message.Length, 800)) }",
+                "        if ($events) {",
+                "            $err += [Environment]::NewLine + [Environment]::NewLine + '=== Windows Application Event Log ===' + [Environment]::NewLine + ($events -join [Environment]::NewLine)",
+                "        }",
+                "        $sysEvents = Get-EventLog -LogName System -Newest 10 -After $since -ErrorAction SilentlyContinue |",
+                "            Where-Object { $_.Source -like '*Service Control Manager*' -and $_.Message -like \"*$svcName*\" } |",
+                "            ForEach-Object { \"[$($_.TimeGenerated)] [$($_.EntryType)] $($_.Source): \" + $_.Message.Substring(0, [Math]::Min($_.Message.Length, 800)) }",
+                "        if ($sysEvents) {",
+                "            $err += [Environment]::NewLine + [Environment]::NewLine + '=== Windows System Event Log ===' + [Environment]::NewLine + ($sysEvents -join [Environment]::NewLine)",
+                "        }",
+                "    } catch {}",
+                "",
+                $"    $err | Out-File -FilePath '{tempOutput}' -Encoding UTF8",
+                "    exit 1",
+                "}"
+            );
+
+            File.WriteAllText(tempScript, script, System.Text.Encoding.UTF8);
+            wrappedArgs = $"-NoProfile -ExecutionPolicy Bypass -File \"{tempScript}\"";
+        }
+        else
+        {
+            wrappedArgs = $"/c {fileName} {arguments} > \"{tempOutput}\" 2>&1";
+            fileName = "cmd.exe";
+            tempScript = string.Empty;
+        }
+
         var processInfo = new ProcessStartInfo
         {
             FileName = fileName,
-            Arguments = arguments,
+            Arguments = wrappedArgs,
             UseShellExecute = true,
             Verb = "runas",
             WindowStyle = ProcessWindowStyle.Hidden
@@ -75,11 +139,48 @@ public class WindowsServiceManager : IWindowsServiceManager
         {
             using var process = Process.Start(processInfo);
             process?.WaitForExit();
+
+            if (process == null || process.ExitCode == 0) return;
+            var output = string.Empty;
+            if (File.Exists(tempOutput))
+            {
+                output = File.ReadAllText(tempOutput).Trim();
+            }
+                
+            var shortMessage = "Elevated command failed.";
+            if (output.Contains("System.ComponentModel.Win32Exception"))
+            {
+                shortMessage = "Command failed with Win32 error (Service might be disabled).";
+            }
+                
+            throw new Exceptions.ElevatedCommandException(shortMessage, $"{fileName} {arguments}", output);
         }
         catch (System.ComponentModel.Win32Exception)
         {
-            // User cancelled the UAC prompt
+            throw new Exception("User cancelled the UAC prompt.");
         }
+        finally
+        {
+            if (File.Exists(tempOutput))
+                try { File.Delete(tempOutput); }
+                catch
+                {
+                    // ignored
+                }
+
+            if (!string.IsNullOrEmpty(tempScript) && File.Exists(tempScript))
+                try { File.Delete(tempScript); }
+                catch
+                {
+                    // ignored
+                }
+        }
+    }
+    
+    private static string ExtractServiceName(string arguments)
+    {
+        var match = ServiceNameRegex().Match(arguments);
+        return match.Success ? match.Groups[1].Value : string.Empty;
     }
 
     private bool IsAdministrator()
@@ -100,10 +201,11 @@ public class WindowsServiceManager : IWindowsServiceManager
             if (IsAdministrator())
             {
                 service.Start();
+                try { service.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(30)); } catch { }
             }
             else
             {
-                ExecuteElevated("sc.exe", $"start \"{serviceName}\"");
+                ExecuteElevated("powershell.exe", $"-Command \"Start-Service -Name '{serviceName}' -ErrorAction Stop\"");
             }
         }
     }
@@ -117,10 +219,11 @@ public class WindowsServiceManager : IWindowsServiceManager
             if (IsAdministrator())
             {
                 service.Stop();
+                try { service.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(30)); } catch { }
             }
             else
             {
-                ExecuteElevated("sc.exe", $"stop \"{serviceName}\"");
+                ExecuteElevated("powershell.exe", $"-Command \"Stop-Service -Name '{serviceName}' -Force -ErrorAction Stop\"");
             }
         }
     }
@@ -131,12 +234,13 @@ public class WindowsServiceManager : IWindowsServiceManager
         {
             Stop(serviceName);
             using var service = new ServiceController(serviceName);
-            service.WaitForStatus(ServiceControllerStatus.Stopped);
+            service.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(30));
             service.Start();
+            try { service.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(30)); } catch { }
         }
         else
         {
-            ExecuteElevated("powershell.exe", $"-Command \"Restart-Service -Name '{serviceName}' -Force\"");
+            ExecuteElevated("powershell.exe", $"-Command \"Restart-Service -Name '{serviceName}' -Force -ErrorAction Stop\"");
         }
     }
 
@@ -276,4 +380,7 @@ public class WindowsServiceManager : IWindowsServiceManager
 
         return key?.GetValue("Description")?.ToString();
     }
+
+    [GeneratedRegex("""-Name\s+['"]([^'"]+)['"]""", RegexOptions.IgnoreCase, "en-US")]
+    private static partial Regex ServiceNameRegex();
 }

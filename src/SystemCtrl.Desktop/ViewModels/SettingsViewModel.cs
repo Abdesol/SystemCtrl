@@ -3,6 +3,7 @@ using ReactiveUI;
 using ReactiveUI.SourceGenerators;
 using SystemCtrl.Core.Interfaces;
 using SystemCtrl.Core.Models;
+using SystemCtrl.Desktop.Services;
 
 namespace SystemCtrl.Desktop.ViewModels;
 

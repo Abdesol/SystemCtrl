@@ -12,8 +12,8 @@ public class SettingsService : ISettingsService
 
     public SettingsService()
     {
-        string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        string appFolder = Path.Combine(appDataPath, "SystemCtrl");
+        var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        var appFolder = Path.Combine(appDataPath, "SystemCtrl");
         if (!Directory.Exists(appFolder))
         {
             Directory.CreateDirectory(appFolder);

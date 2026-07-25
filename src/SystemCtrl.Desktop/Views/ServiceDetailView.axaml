@@ -162,8 +162,8 @@
                         <Grid>
                             <Grid.IsVisible>
                                 <MultiBinding Converter="{StaticResource BooleanAndConverter}">
-                                    <Binding Path="!IsGeneratingSummary"/>
-                                    <Binding Path="!HasAiSummary"/>
+                                    <Binding Path="!IsGeneratingSummary" />
+                                    <Binding Path="!HasAiSummary" />
                                 </MultiBinding>
                             </Grid.IsVisible>
                             <Button Classes="SmallScale"
@@ -301,9 +301,10 @@
                                        FontWeight="SemiBold"
                                        Foreground="{DynamicResource SystemBaseMediumColor}"
                                        LetterSpacing="1.2" />
-                            <TextBlock Text="{Binding DetailedInfo.Publisher, Converter={StaticResource ToUnknownConverter}}"
-                                       FontSize="13"
-                                       Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+                            <TextBlock
+                                Text="{Binding DetailedInfo.Publisher, Converter={StaticResource ToUnknownConverter}}"
+                                FontSize="13"
+                                Foreground="{DynamicResource SystemBaseMediumHighColor}" />
                         </StackPanel>
 
                         <!-- FILE VERSION & SIZE -->
@@ -400,89 +401,132 @@
                 Padding="20"
                 IsVisible="{Binding Service, Converter={x:Static ObjectConverters.IsNotNull}}">
             <Panel>
-                <UniformGrid Columns="2" Rows="2" IsEnabled="{Binding !IsExecutingAction}">
-                <UniformGrid.Styles>
-                    <Style Selector="Button">
-                        <Setter Property="CornerRadius" Value="10" />
-                    </Style>
-                </UniformGrid.Styles>
-                <Button Command="{Binding StartServiceCommand}"
-                        Margin="0,0,5,5"
-                        Height="32"
-                        Background="{DynamicResource SystemAccentColor}"
-                        Foreground="White"
-                        HorizontalAlignment="Stretch"
-                        HorizontalContentAlignment="Center">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <PathIcon Data="{StaticResource PlayIcon}" Width="10" Height="10" Foreground="White" />
-                        <TextBlock Text="Start" FontWeight="Medium" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>
+                <StackPanel Spacing="10">
+                    <!-- Standard action buttons -->
+                    <UniformGrid Columns="2" Rows="2" IsEnabled="{Binding CanExecuteServiceActions}">
+                        <UniformGrid.Styles>
+                            <Style Selector="Button">
+                                <Setter Property="CornerRadius" Value="10" />
+                            </Style>
+                        </UniformGrid.Styles>
+                        <Button Command="{Binding StartServiceCommand}"
+                                Margin="0,0,5,5"
+                                Height="32"
+                                Background="{DynamicResource SystemAccentColor}"
+                                Foreground="White"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <PathIcon Data="{StaticResource PlayIcon}" Width="10" Height="10" Foreground="White" />
+                                <TextBlock Text="Start" FontWeight="Medium" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
 
-                <Button Command="{Binding StopServiceCommand}"
-                        Margin="5,0,0,5"
-                        Height="32"
-                        HorizontalAlignment="Stretch"
-                        HorizontalContentAlignment="Center"
-                        BorderThickness="2"
-                        BorderBrush="{DynamicResource DangerBackgroundBrush}">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <PathIcon Data="{StaticResource StopIcon}" Width="10" Height="10" />
-                        <TextBlock Text="Stop" FontWeight="Medium" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>
+                        <Button Command="{Binding StopServiceCommand}"
+                                Margin="5,0,0,5"
+                                Height="32"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                BorderThickness="2"
+                                BorderBrush="{DynamicResource DangerBackgroundBrush}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <PathIcon Data="{StaticResource StopIcon}" Width="10" Height="10" />
+                                <TextBlock Text="Stop" FontWeight="Medium" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
 
-                <Button Command="{Binding RestartServiceCommand}"
-                        Margin="0,5,5,0"
-                        Height="32"
-                        HorizontalAlignment="Stretch"
-                        HorizontalContentAlignment="Center"
-                        BorderThickness="2"
-                        BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <PathIcon Data="{StaticResource RestartIcon}" Width="10" Height="10" />
-                        <TextBlock Text="Restart" FontWeight="Medium" VerticalAlignment="Center" />
-                    </StackPanel>
-                </Button>
+                        <Button Command="{Binding RestartServiceCommand}"
+                                Margin="0,5,5,0"
+                                Height="32"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                BorderThickness="2"
+                                BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <PathIcon Data="{StaticResource RestartIcon}" Width="10" Height="10" />
+                                <TextBlock Text="Restart" FontWeight="Medium" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
 
-                <Panel Margin="5,5,0,0">
-                    <Button Command="{Binding DisableAutoStartCommand}"
-                            Height="32"
-                            Background="{DynamicResource DangerBackgroundBrush}"
-                            Foreground="{DynamicResource DangerForegroundBrush}"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Center"
-                            IsVisible="{Binding IsAutoStart}">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <PathIcon Data="{StaticResource BlockIcon}" Width="10" Height="10"
-                                      Foreground="{DynamicResource DangerForegroundBrush}" />
-                            <TextBlock Text="Disable Auto-start" FontWeight="Medium" VerticalAlignment="Center"
-                                       Foreground="{DynamicResource DangerForegroundBrush}" />
-                        </StackPanel>
-                    </Button>
-                    <Button Command="{Binding EnableAutoStartCommand}"
-                            Height="32"
-                            Background="{DynamicResource SuccessBackgroundBrush}"
-                            Foreground="{DynamicResource SuccessForegroundBrush}"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Center"
-                            IsVisible="{Binding !IsAutoStart}">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <PathIcon Data="{StaticResource PlayIcon}" Width="10" Height="10"
-                                      Foreground="{DynamicResource SuccessForegroundBrush}" />
-                            <TextBlock Text="Enable Auto-start" FontWeight="Medium" VerticalAlignment="Center"
-                                       Foreground="{DynamicResource SuccessForegroundBrush}" />
-                        </StackPanel>
-                    </Button>
-                </Panel>
-            </UniformGrid>
-            
-            <!-- Loading Overlay -->
-            <Border CornerRadius="10" Background="{DynamicResource SystemRegionBrush}" Opacity="0.8" IsVisible="{Binding IsExecutingAction}" />
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical" Spacing="10" IsVisible="{Binding IsExecutingAction}">
-                <ProgressBar IsIndeterminate="True" Width="100" Height="4" CornerRadius="2" Foreground="{DynamicResource SystemAccentColor}" />
-                <TextBlock Text="Executing action..." Foreground="{DynamicResource SystemBaseHighColor}" FontSize="12" FontWeight="Medium" HorizontalAlignment="Center" />
-            </StackPanel>
+                        <Panel Margin="5,5,0,0">
+                            <Button Command="{Binding DisableAutoStartCommand}"
+                                    Height="32"
+                                    Background="{DynamicResource DangerBackgroundBrush}"
+                                    Foreground="{DynamicResource DangerForegroundBrush}"
+                                    HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Center"
+                                    IsVisible="{Binding IsAutoStart}">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <PathIcon Data="{StaticResource BlockIcon}" Width="10" Height="10"
+                                              Foreground="{DynamicResource DangerForegroundBrush}" />
+                                    <TextBlock Text="Disable Auto-start" FontWeight="Medium" VerticalAlignment="Center"
+                                               Foreground="{DynamicResource DangerForegroundBrush}" />
+                                </StackPanel>
+                            </Button>
+                            <Button Command="{Binding EnableAutoStartCommand}"
+                                    Height="32"
+                                    Background="{DynamicResource SuccessBackgroundBrush}"
+                                    Foreground="{DynamicResource SuccessForegroundBrush}"
+                                    HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Center"
+                                    IsVisible="{Binding !IsAutoStart}">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <PathIcon Data="{StaticResource PlayIcon}" Width="10" Height="10"
+                                              Foreground="{DynamicResource SuccessForegroundBrush}" />
+                                    <TextBlock Text="Enable Auto-start" FontWeight="Medium" VerticalAlignment="Center"
+                                               Foreground="{DynamicResource SuccessForegroundBrush}" />
+                                </StackPanel>
+                            </Button>
+                        </Panel>
+                    </UniformGrid>
+
+                    <UniformGrid Columns="2" Rows="1" Margin="0,5,0,0">
+                        <Button Command="{Binding EnableServiceCommand}"
+                                IsEnabled="{Binding CanEnableService}"
+                                Margin="5,0,0,0"
+                                Height="32"
+                                Background="{DynamicResource SuccessBackgroundBrush}"
+                                Foreground="{DynamicResource SuccessForegroundBrush}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                CornerRadius="10">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <PathIcon Data="{StaticResource PlayIcon}" Width="10" Height="10"
+                                          Foreground="{DynamicResource SuccessForegroundBrush}" />
+                                <TextBlock Text="Enable Service" FontWeight="Medium" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource SuccessForegroundBrush}" />
+                            </StackPanel>
+                        </Button>
+                        
+                        <Button Command="{Binding DisableServiceCommand}"
+                                IsEnabled="{Binding CanDisableService}"
+                                Margin="0,0,5,0"
+                                Height="32"
+                                Background="{DynamicResource DangerBackgroundBrush}"
+                                Foreground="{DynamicResource DangerForegroundBrush}"
+                                HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Center"
+                                CornerRadius="10">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <PathIcon Data="{StaticResource BlockIcon}" Width="10" Height="10"
+                                          Foreground="{DynamicResource DangerForegroundBrush}" />
+                                <TextBlock Text="Disable Service" FontWeight="Medium" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource DangerForegroundBrush}" />
+                            </StackPanel>
+                        </Button>
+                    </UniformGrid>
+                </StackPanel>
+
+                <!-- Loading Overlay -->
+                <Border CornerRadius="10" Background="{DynamicResource SystemRegionBrush}" Opacity="0.8"
+                        IsVisible="{Binding IsExecutingAction}" />
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical" Spacing="10"
+                            IsVisible="{Binding IsExecutingAction}">
+                    <ProgressBar IsIndeterminate="True" Width="100" Height="4" CornerRadius="2"
+                                 Foreground="{DynamicResource SystemAccentColor}" />
+                    <TextBlock Text="Executing action..." Foreground="{DynamicResource SystemBaseHighColor}"
+                               FontSize="12" FontWeight="Medium" HorizontalAlignment="Center" />
+                </StackPanel>
             </Panel>
         </Border>
     </Grid>

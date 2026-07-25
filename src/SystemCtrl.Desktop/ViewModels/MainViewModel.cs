@@ -8,6 +8,7 @@ using SystemCtrl.Core.Models;
 using System.Reactive.Linq;
 using System.Linq;
 using System.Collections.Generic;
+using SystemCtrl.Desktop.Services;
 
 namespace SystemCtrl.Desktop.ViewModels;
 
@@ -46,7 +47,7 @@ public partial class MainViewModel : ViewModelBase
     {
         var settingsService = _serviceProvider.GetRequiredService<ISettingsService>();
         var settings = settingsService.LoadSettings();
-        var pinnedServices = settings.PinnedServices ?? new List<string>();
+        var pinnedServices = settings.PinnedServices;
 
         IEnumerable<WindowsServiceInfo> filtered = _allServices;
 
@@ -75,8 +76,8 @@ public partial class MainViewModel : ViewModelBase
         var settingsService = _serviceProvider.GetRequiredService<ISettingsService>();
         var settings = settingsService.LoadSettings();
         
-        if (settings.PinnedServices == null)
-            settings.PinnedServices = new List<string>();
+        if (settings.PinnedServices == null!)
+            settings.PinnedServices = [];
 
         if (settings.PinnedServices.Contains(item.Service.ServiceName))
         {

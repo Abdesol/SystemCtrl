@@ -1,9 +1,12 @@
 using System;
+using System.ServiceProcess;
 using System.Threading.Tasks;
 using SystemCtrl.Core.Interfaces;
 using SystemCtrl.Core.Models;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
+using SystemCtrl.Core.Exceptions;
+using SystemCtrl.Desktop.Services;
 
 namespace SystemCtrl.Desktop.ViewModels;
 
@@ -12,17 +15,46 @@ public partial class ServiceDetailViewModel : ViewModelBase
     private readonly IWindowsServiceManager _windowsServiceManager;
     private readonly IServiceAnalyzer _serviceAnalyzer;
     private readonly ISettingsService _settingsService;
+    private readonly IErrorDialogService _errorDialog;
 
     public ServiceDetailViewModel(
         IWindowsServiceManager windowsServiceManager,
         IServiceAnalyzer serviceAnalyzer,
-        ISettingsService settingsService)
+        ISettingsService settingsService,
+        IErrorDialogService errorDialog)
     {
         _windowsServiceManager = windowsServiceManager;
         _serviceAnalyzer = serviceAnalyzer;
         _settingsService = settingsService;
-    }
+        _errorDialog = errorDialog;
 
+        this.WhenAnyValue(x => x.IsAiSummaryExpanded)
+            .Subscribe(expanded => ToggleAiSummaryText = expanded ? "Hide" : "Show");
+
+        this.WhenAnyValue(
+                x => x.IsDisabled,
+                x => x.IsExecutingAction,
+                (isDisabled, isExecuting) => !isDisabled && !isExecuting)
+            .Subscribe(canExecute => CanExecuteServiceActions = canExecute);
+
+        this.WhenAnyValue(
+                x => x.IsDisabled,
+                x => x.IsExecutingAction,
+                (isDisabled, isExecuting) => isDisabled && !isExecuting)
+            .Subscribe(canEnable => CanEnableService = canEnable);
+
+        this.WhenAnyValue(
+                x => x.IsDisabled,
+                x => x.IsExecutingAction,
+                (isDisabled, isExecuting) => !isDisabled && !isExecuting)
+            .Subscribe(canDisable => CanDisableService = canDisable);
+    }
+    
+    [Reactive] public partial bool CanExecuteServiceActions { get; set; }
+    
+    [Reactive] public partial bool CanEnableService { get; set; }
+    
+    [Reactive] public partial bool CanDisableService { get; set; }
     [Reactive] public partial WindowsServiceInfo? Service { get; set; }
 
     [Reactive] public partial DetailedWindowsServiceInfo? DetailedInfo { get; set; }
@@ -30,6 +62,8 @@ public partial class ServiceDetailViewModel : ViewModelBase
     [Reactive] public partial bool IsLoadingDetails { get; set; }
 
     [Reactive] public partial bool IsAutoStart { get; set; }
+
+    [Reactive] public partial bool IsDisabled { get; set; }
 
     [Reactive] public partial System.Collections.Generic.List<AiQna>? AiSummaryList { get; set; }
 
@@ -39,7 +73,7 @@ public partial class ServiceDetailViewModel : ViewModelBase
 
     [Reactive] public partial bool IsAiSummaryExpanded { get; set; }
 
-    public string ToggleAiSummaryText => IsAiSummaryExpanded ? "Hide" : "Show";
+    [Reactive] public partial string ToggleAiSummaryText { get; set; } = "Show";
 
     [Reactive] public partial string LoadingSummaryText { get; set; } = "Generating insights...";
 
@@ -53,13 +87,14 @@ public partial class ServiceDetailViewModel : ViewModelBase
         HasAiSummary = false;
         IsGeneratingSummary = false;
         IsAiSummaryExpanded = false;
-        this.RaisePropertyChanged(nameof(ToggleAiSummaryText));
 
         if (service != null!)
         {
-            IsAutoStart = service.StartType == System.ServiceProcess.ServiceStartMode.Automatic ||
-                          service.StartType == System.ServiceProcess.ServiceStartMode.Boot ||
-                          service.StartType == System.ServiceProcess.ServiceStartMode.System;
+            IsAutoStart = service.StartType == ServiceStartMode.Automatic ||
+                          service.StartType == ServiceStartMode.Boot ||
+                          service.StartType == ServiceStartMode.System;
+
+            IsDisabled = service.StartType == ServiceStartMode.Disabled;
 
             var settings = _settingsService.LoadSettings();
             if (settings.AiSummaries.TryGetValue(service.ServiceName, out var existingSummary))
@@ -91,13 +126,14 @@ public partial class ServiceDetailViewModel : ViewModelBase
 
     [Reactive] public partial bool IsExecutingAction { get; set; }
 
-    public IObservable<bool> CanStartService => 
-        this.WhenAnyValue(x => x.Service, x => x.Service!.Status, 
-            (svc, status) => svc != null && status == System.ServiceProcess.ServiceControllerStatus.Stopped);
+    public IObservable<bool> CanStartService =>
+        this.WhenAnyValue(x => x.Service, x => x.Service!.Status,
+            (svc, status) => svc != null && status == ServiceControllerStatus.Stopped);
 
-    public IObservable<bool> CanStopService => 
-        this.WhenAnyValue(x => x.Service, x => x.Service!.Status, 
-            (svc, status) => svc != null && (status == System.ServiceProcess.ServiceControllerStatus.Running || status == System.ServiceProcess.ServiceControllerStatus.Paused));
+    public IObservable<bool> CanStopService =>
+        this.WhenAnyValue(x => x.Service, x => x.Service!.Status,
+            (svc, status) => svc != null && (status == ServiceControllerStatus.Running ||
+                                             status == ServiceControllerStatus.Paused));
 
     [ReactiveCommand(CanExecute = nameof(CanStartService))]
     public async Task StartService()
@@ -107,10 +143,23 @@ public partial class ServiceDetailViewModel : ViewModelBase
         try
         {
             await Task.Run(() => _windowsServiceManager.Start(Service.ServiceName));
-            await Task.Delay(1000); // Give it a moment to update state
+            await Task.Delay(1000);
             RefreshServiceState();
         }
-        catch { /* Ignore or handle */ }
+        catch (ElevatedCommandException ex)
+        {
+            await _errorDialog.ShowAsync(
+                $"Failed to start '{Service.DisplayName}'",
+                ex.Message,
+                ex.ToString());
+        }
+        catch (Exception ex)
+        {
+            await _errorDialog.ShowAsync(
+                $"Failed to start '{Service.DisplayName}'",
+                ex.Message,
+                ex.ToString());
+        }
         finally
         {
             IsExecutingAction = false;
@@ -125,10 +174,23 @@ public partial class ServiceDetailViewModel : ViewModelBase
         try
         {
             await Task.Run(() => _windowsServiceManager.Stop(Service.ServiceName));
-            await Task.Delay(1000); // Give it a moment to update state
+            await Task.Delay(1000);
             RefreshServiceState();
         }
-        catch { /* Ignore or handle */ }
+        catch (ElevatedCommandException ex)
+        {
+            await _errorDialog.ShowAsync(
+                $"Failed to stop '{Service.DisplayName}'",
+                ex.Message,
+                ex.ToString());
+        }
+        catch (Exception ex)
+        {
+            await _errorDialog.ShowAsync(
+                $"Failed to stop '{Service.DisplayName}'",
+                ex.Message,
+                ex.ToString());
+        }
         finally
         {
             IsExecutingAction = false;
@@ -145,10 +207,23 @@ public partial class ServiceDetailViewModel : ViewModelBase
         try
         {
             await Task.Run(() => _windowsServiceManager.Restart(Service.ServiceName));
-            await Task.Delay(1000); // Give it a moment to update state
+            await Task.Delay(1000);
             RefreshServiceState();
         }
-        catch { /* Ignore or handle */ }
+        catch (ElevatedCommandException ex)
+        {
+            await _errorDialog.ShowAsync(
+                $"Failed to restart '{Service.DisplayName}'",
+                ex.Message,
+                ex.ToString());
+        }
+        catch (Exception ex)
+        {
+            await _errorDialog.ShowAsync(
+                $"Failed to restart '{Service.DisplayName}'",
+                ex.Message,
+                ex.ToString());
+        }
         finally
         {
             IsExecutingAction = false;
@@ -162,11 +237,25 @@ public partial class ServiceDetailViewModel : ViewModelBase
         IsExecutingAction = true;
         try
         {
-            await Task.Run(() => _windowsServiceManager.SetStartType(Service.ServiceName, System.ServiceProcess.ServiceStartMode.Disabled));
+            await Task.Run(() =>
+                _windowsServiceManager.SetStartType(Service.ServiceName, ServiceStartMode.Manual));
             IsAutoStart = false;
-            Service.StartType = System.ServiceProcess.ServiceStartMode.Disabled;
+            Service.StartType = ServiceStartMode.Manual;
         }
-        catch { /* Ignore or handle */ }
+        catch (ElevatedCommandException ex)
+        {
+            await _errorDialog.ShowAsync(
+                $"Failed to disable auto-start for '{Service.DisplayName}'",
+                ex.Message,
+                ex.ToString());
+        }
+        catch (Exception ex)
+        {
+            await _errorDialog.ShowAsync(
+                $"Failed to disable auto-start for '{Service.DisplayName}'",
+                ex.Message,
+                ex.ToString());
+        }
         finally
         {
             IsExecutingAction = false;
@@ -180,11 +269,92 @@ public partial class ServiceDetailViewModel : ViewModelBase
         IsExecutingAction = true;
         try
         {
-            await Task.Run(() => _windowsServiceManager.SetStartType(Service.ServiceName, System.ServiceProcess.ServiceStartMode.Automatic));
+            await Task.Run(() =>
+                _windowsServiceManager.SetStartType(Service.ServiceName,
+                    ServiceStartMode.Automatic));
             IsAutoStart = true;
-            Service.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
+            Service.StartType = ServiceStartMode.Automatic;
         }
-        catch { /* Ignore or handle */ }
+        catch (ElevatedCommandException ex)
+        {
+            await _errorDialog.ShowAsync(
+                $"Failed to enable auto-start for '{Service.DisplayName}'",
+                ex.Message,
+                ex.ToString());
+        }
+        catch (Exception ex)
+        {
+            await _errorDialog.ShowAsync(
+                $"Failed to enable auto-start for '{Service.DisplayName}'",
+                ex.Message,
+                ex.ToString());
+        }
+        finally
+        {
+            IsExecutingAction = false;
+        }
+    }
+
+    [ReactiveCommand]
+    public async Task EnableService()
+    {
+        if (Service == null) return;
+        IsExecutingAction = true;
+        try
+        {
+            await Task.Run(() =>
+                _windowsServiceManager.SetStartType(Service.ServiceName, ServiceStartMode.Manual));
+            IsDisabled = false;
+            Service.StartType = ServiceStartMode.Manual;
+            RefreshServiceState();
+        }
+        catch (ElevatedCommandException ex)
+        {
+            await _errorDialog.ShowAsync(
+                $"Failed to enable service '{Service.DisplayName}'",
+                ex.Message,
+                ex.ToString());
+        }
+        catch (Exception ex)
+        {
+            await _errorDialog.ShowAsync(
+                $"Failed to enable service '{Service.DisplayName}'",
+                ex.Message,
+                ex.ToString());
+        }
+        finally
+        {
+            IsExecutingAction = false;
+        }
+    }
+
+    [ReactiveCommand]
+    public async Task DisableService()
+    {
+        if (Service == null) return;
+        IsExecutingAction = true;
+        try
+        {
+            await Task.Run(() =>
+                _windowsServiceManager.SetStartType(Service.ServiceName, ServiceStartMode.Disabled));
+            IsDisabled = true;
+            Service.StartType = ServiceStartMode.Disabled;
+            RefreshServiceState();
+        }
+        catch (ElevatedCommandException ex)
+        {
+            await _errorDialog.ShowAsync(
+                $"Failed to disable service '{Service.DisplayName}'",
+                ex.Message,
+                ex.ToString());
+        }
+        catch (Exception ex)
+        {
+            await _errorDialog.ShowAsync(
+                $"Failed to disable service '{Service.DisplayName}'",
+                ex.Message,
+                ex.ToString());
+        }
         finally
         {
             IsExecutingAction = false;
@@ -196,22 +366,30 @@ public partial class ServiceDetailViewModel : ViewModelBase
         if (Service == null) return;
         try
         {
-            // Just refresh the detailed info or status
-            var updated = System.Linq.Enumerable.FirstOrDefault(_windowsServiceManager.GetServices(true), s => s.ServiceName == Service.ServiceName);
+            var updated = System.Linq.Enumerable.FirstOrDefault(_windowsServiceManager.GetServices(true),
+                s => s.ServiceName == Service.ServiceName);
+            
             if (updated != null)
             {
                 Service.Status = updated.Status;
                 Service.StartType = updated.StartType;
+
+                IsAutoStart = Service.StartType == ServiceStartMode.Automatic ||
+                              Service.StartType == ServiceStartMode.Boot ||
+                              Service.StartType == ServiceStartMode.System;
+                IsDisabled = Service.StartType == ServiceStartMode.Disabled;
             }
         }
-        catch { }
+        catch
+        {
+            // ignored
+        }
     }
 
     [ReactiveCommand]
     public void ToggleAiSummary()
     {
         IsAiSummaryExpanded = !IsAiSummaryExpanded;
-        this.RaisePropertyChanged(nameof(ToggleAiSummaryText));
     }
 
     [ReactiveCommand]
@@ -222,12 +400,11 @@ public partial class ServiceDetailViewModel : ViewModelBase
         IsGeneratingSummary = true;
         HasAiSummary = false;
         IsAiSummaryExpanded = false;
-        this.RaisePropertyChanged(nameof(ToggleAiSummaryText));
 
         string[] loadingTexts =
         [
-            "Analyzing service behavior...", 
-            "Connecting to Gemini...", 
+            "Analyzing service behavior...",
+            "Connecting to Gemini...",
             "Synthesizing insights...",
             "Generating insights..."
         ];
@@ -242,15 +419,14 @@ public partial class ServiceDetailViewModel : ViewModelBase
             }
         });
 
-        var summaryList = await _serviceAnalyzer.AnalyzeServiceAsync(DetailedInfo);
+        var settings = _settingsService.LoadSettings();
+        var summaryList = await _serviceAnalyzer.AnalyzeServiceAsync(DetailedInfo, settings);
 
         AiSummaryList = summaryList;
         HasAiSummary = true;
         IsGeneratingSummary = false;
         IsAiSummaryExpanded = true;
-        this.RaisePropertyChanged(nameof(ToggleAiSummaryText));
 
-        var settings = _settingsService.LoadSettings();
         settings.AiSummaries[Service.ServiceName] = summaryList;
         _settingsService.SaveSettings(settings);
     }

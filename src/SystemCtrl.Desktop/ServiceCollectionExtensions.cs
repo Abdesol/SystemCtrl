@@ -19,5 +19,6 @@ public static class ServiceCollectionExtensions
         
         collection.AddSingleton<System.Net.Http.HttpClient>();
         collection.AddScoped<IServiceAnalyzer, ServiceAnalyzer>();
+        collection.AddSingleton<IErrorDialogService, ErrorDialogService>();
     }
 }

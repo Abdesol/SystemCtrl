@@ -1,0 +1,117 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="SystemCtrl.Desktop.Views.ErrorDialogWindow"
+        Title="Error"
+        Width="520"
+        MinHeight="300"
+        MaxHeight="600"
+        SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False"
+        ShowInTaskbar="False"
+        ExtendClientAreaToDecorationsHint="True"
+        Background="{DynamicResource SystemRegionBrush}">
+
+    <Window.Styles>
+        <Style Selector="Button.copy-btn">
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundBaseLowBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource SystemBaseHighColor}" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="12,6" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="Medium" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+        <Style Selector="Button.copy-btn:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundBaseMediumLowBrush}" />
+        </Style>
+        <Style Selector="Button.close-btn">
+            <Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="20,8" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+    </Window.Styles>
+
+    <Panel Margin="{Binding $parent[Window].OffScreenMargin}">
+        <Grid RowDefinitions="Auto, *, Auto">
+
+            <!-- Header -->
+            <Border Grid.Row="0"
+                    Background="{DynamicResource DangerBackgroundBrush}"
+                    Padding="20,16">
+                <Grid ColumnDefinitions="Auto, *, Auto">
+                    <!-- Icon -->
+                    <Border Grid.Column="0"
+                            Width="36" Height="36"
+                            CornerRadius="18"
+                            Background="{DynamicResource DangerForegroundBrush}"
+                            Margin="0,0,14,0">
+                        <TextBlock Text="!"
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   Foreground="White"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                    </Border>
+
+                    <!-- Title + message -->
+                    <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="TitleText"
+                                   FontSize="15"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource DangerForegroundBrush}"
+                                   TextWrapping="Wrap" />
+                        <TextBlock x:Name="MessageText"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource DangerForegroundBrush}"
+                                   Opacity="0.8"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="1"
+                    Margin="16,12,16,0"
+                    CornerRadius="8"
+                    BorderThickness="1"
+                    BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}"
+                    Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Auto"
+                              MaxHeight="320">
+                    <SelectableTextBlock x:Name="DetailText"
+                                         FontFamily="Cascadia Code, Consolas, Courier New, monospace"
+                                         FontSize="11"
+                                         Margin="12"
+                                         TextWrapping="Wrap"
+                                         Foreground="{DynamicResource SystemBaseMediumHighColor}"
+                                         LineHeight="18" />
+                </ScrollViewer>
+            </Border>
+
+            <Grid Grid.Row="2"
+                  ColumnDefinitions="*, Auto, 8, Auto"
+                  Margin="16,12,16,16">
+                <Button Grid.Column="1"
+                        x:Name="CopyButton"
+                        Classes="copy-btn"
+                        Click="OnCopyClicked">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <PathIcon x:Name="CopyIcon"
+                                  Data="{StaticResource CopyIcon}"
+                                  Width="13" Height="13" />
+                        <TextBlock x:Name="CopyButtonText" Text="Copy to Clipboard" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <Button Grid.Column="3"
+                        Classes="close-btn"
+                        Click="OnCloseClicked"
+                        Content="Close" />
+            </Grid>
+        </Grid>
+    </Panel>
+</Window>

@@ -1,6 +1,6 @@
 using SystemCtrl.Core.Models;
 
-namespace SystemCtrl.Core.Interfaces;
+namespace SystemCtrl.Desktop.Services;
 
 public interface ISettingsService
 {

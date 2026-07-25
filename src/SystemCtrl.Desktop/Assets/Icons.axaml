@@ -8,6 +8,7 @@
         <Geometry x:Key="CloseIcon">M1169 1024l879 -879l-145 -145l-879 879l-879 -879l-145 145l879 879l-879 879l145 145l879 -879l879 879l145 -145z</Geometry>
         <Geometry x:Key="MinimizeIcon">M2048 1229v-205h-2048v205h2048z</Geometry>
         <Geometry x:Key="MaximizeIcon">M2048 1638h-410v410h-1638v-1638h410v-410h1638v1638zm-614-1024h-1229v1229h1229v-1229zm409-409h-1229v205h1024v1024h205v-1229z</Geometry>
+        <Geometry x:Key="CopyIcon">M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z</Geometry>
         <Geometry x:Key="InfoIcon">M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z</Geometry>
         <Geometry x:Key="PlayIcon">M8 5v14l11-7z</Geometry>
         <Geometry x:Key="StopIcon">M6 6h12v12H6z</Geometry>
