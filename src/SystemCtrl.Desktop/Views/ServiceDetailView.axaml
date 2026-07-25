@@ -276,21 +276,23 @@
 
                     <!-- Detailed fields -->
                     <StackPanel Spacing="20"
-                                IsVisible="{Binding DetailedInfo, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                DataContext="{Binding DetailedInfo}"
+                                x:DataType="models:DetailedWindowsServiceInfo"
+                                IsVisible="{Binding Converter={x:Static ObjectConverters.IsNotNull}}">
 
                         <!-- EXECUTABLE -->
                         <StackPanel Spacing="4"
-                                    IsVisible="{Binding DetailedInfo.ExecutablePath, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                                    IsVisible="{Binding ExecutablePath, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
                             <TextBlock Text="EXECUTABLE"
                                        FontSize="10"
                                        FontWeight="SemiBold"
                                        Foreground="{DynamicResource SystemBaseMediumColor}"
                                        LetterSpacing="1.2" />
-                            <TextBlock Text="{Binding DetailedInfo.ExecutablePath}"
+                            <TextBlock Text="{Binding ExecutablePath}"
                                        FontSize="11"
                                        TextWrapping="Wrap"
                                        Opacity="0.6"
-                                       IsVisible="{Binding DetailedInfo.ExecutablePath, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                       IsVisible="{Binding ExecutablePath, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                                        Foreground="{DynamicResource SystemBaseMediumHighColor}" />
                         </StackPanel>
 
@@ -302,7 +304,7 @@
                                        Foreground="{DynamicResource SystemBaseMediumColor}"
                                        LetterSpacing="1.2" />
                             <TextBlock
-                                Text="{Binding DetailedInfo.Publisher, Converter={StaticResource ToUnknownConverter}}"
+                                Text="{Binding Publisher, Converter={StaticResource ToUnknownConverter}}"
                                 FontSize="13"
                                 Foreground="{DynamicResource SystemBaseMediumHighColor}" />
                         </StackPanel>
@@ -316,7 +318,7 @@
                                            Foreground="{DynamicResource SystemBaseMediumColor}"
                                            LetterSpacing="1.2" />
                                 <TextBlock
-                                    Text="{Binding DetailedInfo.FileVersion, Converter={StaticResource ToUnknownConverter}}"
+                                    Text="{Binding FileVersion, Converter={StaticResource ToUnknownConverter}}"
                                     FontSize="13"
                                     TextWrapping="Wrap"
                                     Foreground="{DynamicResource SystemBaseMediumHighColor}" />
@@ -328,7 +330,7 @@
                                            Foreground="{DynamicResource SystemBaseMediumColor}"
                                            LetterSpacing="1.2" />
                                 <TextBlock
-                                    Text="{Binding DetailedInfo.FileSizeFormatted, Converter={StaticResource ToUnknownConverter}}"
+                                    Text="{Binding FileSizeFormatted, Converter={StaticResource ToUnknownConverter}}"
                                     FontSize="13"
                                     Foreground="{DynamicResource SystemBaseMediumHighColor}" />
                             </StackPanel>
@@ -342,7 +344,7 @@
                                        Foreground="{DynamicResource SystemBaseMediumColor}"
                                        LetterSpacing="1.2" />
                             <TextBlock
-                                Text="{Binding DetailedInfo.ServiceAccount, Converter={StaticResource ToUnknownConverter}}"
+                                Text="{Binding ServiceAccount, Converter={StaticResource ToUnknownConverter}}"
                                 FontSize="13"
                                 TextWrapping="Wrap"
                                 Foreground="{DynamicResource SystemBaseMediumHighColor}" />
@@ -350,13 +352,13 @@
 
                         <!-- PROCESS ID -->
                         <StackPanel Spacing="4"
-                                    IsVisible="{Binding DetailedInfo.ProcessId, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                    IsVisible="{Binding ProcessId, Converter={x:Static ObjectConverters.IsNotNull}}">
                             <TextBlock Text="PROCESS ID"
                                        FontSize="10"
                                        FontWeight="SemiBold"
                                        Foreground="{DynamicResource SystemBaseMediumColor}"
                                        LetterSpacing="1.2" />
-                            <TextBlock Text="{Binding DetailedInfo.ProcessId}"
+                            <TextBlock Text="{Binding ProcessId}"
                                        FontSize="13"
                                        Foreground="{DynamicResource SystemBaseMediumHighColor}" />
                         </StackPanel>
@@ -368,8 +370,8 @@
                                        FontWeight="SemiBold"
                                        Foreground="{DynamicResource SystemBaseMediumColor}"
                                        LetterSpacing="1.2" />
-                            <ItemsControl ItemsSource="{Binding DetailedInfo.Dependencies}"
-                                          IsVisible="{Binding DetailedInfo.Dependencies, Converter={StaticResource CollectionNotEmptyConverter}}">
+                            <ItemsControl ItemsSource="{Binding Dependencies}"
+                                          IsVisible="{Binding Dependencies, Converter={StaticResource CollectionNotEmptyConverter}}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border CornerRadius="6"
@@ -386,7 +388,7 @@
                             <TextBlock Text="None"
                                        FontSize="12"
                                        Foreground="{DynamicResource SystemBaseMediumColor}"
-                                       IsVisible="{Binding DetailedInfo.Dependencies, Converter={StaticResource CollectionEmptyConverter}}" />
+                                       IsVisible="{Binding Dependencies, Converter={StaticResource CollectionEmptyConverter}}" />
                         </StackPanel>
 
                     </StackPanel>
