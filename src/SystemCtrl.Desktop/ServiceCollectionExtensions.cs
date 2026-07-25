@@ -12,6 +12,7 @@ public static class ServiceCollectionExtensions
     {
         collection.AddTransient<MainViewModel>();
         collection.AddTransient<ServiceDetailViewModel>();
+        collection.AddTransient<ErrorDialogViewModel>();
         
         collection.AddScoped<IWindowsServiceManager, WindowsServiceManager>();
         collection.AddScoped<ISettingsService, SettingsService>();
