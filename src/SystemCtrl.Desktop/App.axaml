@@ -11,6 +11,8 @@
     <Application.Styles>
         <StyleInclude Source="avares://SystemCtrl.Desktop/Assets/Icons.axaml" />
         <StyleInclude Source="avares://SystemCtrl.Desktop/Styles/Colors.axaml" />
+        
+        <StyleInclude Source="avares://SystemCtrl.Desktop/Styles/Basic.axaml" />
 
         <StyleInclude Source="avares://SystemCtrl.Desktop/Styles/Controls/Button.axaml" />
         <StyleInclude Source="avares://SystemCtrl.Desktop/Styles/Controls/TextBox.axaml" />

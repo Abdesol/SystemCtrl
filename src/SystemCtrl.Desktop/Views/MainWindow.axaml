@@ -69,12 +69,12 @@
                         CornerRadius="10"
                         Padding="3">
                     <StackPanel Orientation="Horizontal" Spacing="2">
-                        <Button Classes="TabButton SmallScale"
+                        <Button Classes="TabButton VerySmallScale"
                                 Classes.Active="{Binding ActiveTab, Converter={StaticResource EqualityConverter}, ConverterParameter=0}"
                                 Command="{Binding SetActiveTabCommand}"
                                 CommandParameter="0">
                             <StackPanel Orientation="Horizontal" Spacing="7">
-                                <Viewbox Height="14">
+                                <Viewbox Height="12">
                                     <Path Data="{StaticResource ServicesIcon}"
                                           Fill="{Binding $parent[Button].Foreground}"
                                           Stretch="Uniform" />
@@ -82,7 +82,7 @@
                                 <TextBlock Text="Services" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
-                        <Button Classes="TabButton SmallScale"
+                        <Button Classes="TabButton VerySmallScale"
                                 Classes.Active="{Binding ActiveTab, Converter={StaticResource EqualityConverter}, ConverterParameter=1}"
                                 Command="{Binding SetActiveTabCommand}"
                                 CommandParameter="1">

@@ -154,7 +154,7 @@
                                     <Binding Path="!HasAiSummary" />
                                 </MultiBinding>
                             </Grid.IsVisible>
-                            <Button Classes="SmallScale"
+                            <Button Classes="VerySmallScale"
                                     Height="16"
                                     Command="{Binding GenerateAiSummaryCommand}"
                                     HorizontalAlignment="Stretch"
