@@ -325,10 +325,10 @@
                                    Foreground="{DynamicResource SystemBaseMediumColor}" />
                     </StackPanel>
 
-                    <StackPanel Spacing="20"
-                                DataContext="{Binding DetailedInfo}"
-                                x:DataType="models:DetailedWindowsTaskInfo"
-                                IsVisible="{Binding Converter={x:Static ObjectConverters.IsNotNull}}">
+                    <Panel DataContext="{Binding DetailedInfo}">
+                        <StackPanel Spacing="20"
+                                    x:DataType="models:DetailedWindowsTaskInfo"
+                                    IsVisible="{Binding Converter={x:Static ObjectConverters.IsNotNull}}">
 
                         <!-- ACTIONS -->
                         <StackPanel Spacing="8">
@@ -438,7 +438,8 @@
                             </StackPanel>
                         </Grid>
 
-                    </StackPanel>
+                        </StackPanel>
+                    </Panel>
                 </Panel>
 
             </StackPanel>

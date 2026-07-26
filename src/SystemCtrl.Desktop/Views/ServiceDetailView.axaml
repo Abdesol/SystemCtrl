@@ -277,10 +277,10 @@
                     </StackPanel>
 
                     <!-- Detailed fields -->
-                    <StackPanel Spacing="20"
-                                DataContext="{Binding DetailedInfo}"
-                                x:DataType="models:DetailedWindowsServiceInfo"
-                                IsVisible="{Binding Converter={x:Static ObjectConverters.IsNotNull}}">
+                    <Panel DataContext="{Binding DetailedInfo}">
+                        <StackPanel Spacing="20"
+                                    x:DataType="models:DetailedWindowsServiceInfo"
+                                    IsVisible="{Binding Converter={x:Static ObjectConverters.IsNotNull}}">
 
                         <!-- EXECUTABLE -->
                         <StackPanel Spacing="4"
@@ -393,7 +393,8 @@
                                        IsVisible="{Binding Dependencies, Converter={StaticResource CollectionEmptyConverter}}" />
                         </StackPanel>
 
-                    </StackPanel>
+                        </StackPanel>
+                    </Panel>
                 </Panel>
 
             </StackPanel>
