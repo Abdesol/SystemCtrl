@@ -40,7 +40,7 @@ jobs:
           tag_name: latest-build
           name: "latest"
           body: "This is the most recent automated build of SystemCtrl. Choose the Installer for a normal installation, or the standalone Executable for a portable version."
-          prerelease: true
+          prerelease: false
           make_latest: true
           files: |
             SystemCtrl.exe
