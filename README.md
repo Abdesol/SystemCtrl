@@ -1,10 +1,8 @@
 # SystemCtrl
 
-These days, it's rarely malware or viruses that slow down our PCs and eat up our resources. It's the legitimate apps we install. Apps we might only use once a week often register background services and scheduled tasks that quietly run on startup, keeping our devices busy for no reason.
+These days, it is rarely malware or viruses that slow down our devices. It is the legitimate apps we install. Apps we barely use often register background services and scheduled tasks. Disabling them from the Task Manager's Startup Apps tab is not enough. The Services and Task Scheduler apps on Windows are also hard to navigate.
 
-SystemCtrl lets you take back control by showing you exactly which services and tasks are running on your machine. It helps you see what they are doing and gives you a simple interface to stop or disable the ones you don't need.
-
-SystemCtrl is a fast Windows Desktop application built with C# and Avalonia UI. It provides a clean interface for managing Windows Services and background Tasks with high performance and minimal overhead.
+SystemCtrl is a Windows desktop app built with C# and Avalonia for managing Windows Services and background tasks. It gives you a unified interface to see what's running and understand what it does. No unnecessary info, just what you need to stop or disable the things you don't want, with minimal overhead.
 
 ## Features
 - **Manage Windows Services**: View, start, stop, and filter system services.
