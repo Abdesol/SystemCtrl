@@ -327,14 +327,14 @@
             </Grid>
 
             <Panel Grid.Row="3" Margin="0,15,0,0">
-                <ScrollViewer
-                    Classes="DefaultPadding"
-                    IsVisible="{Binding ActiveTab, Converter={StaticResource EqualityConverter}, ConverterParameter=0}"
-                    HorizontalAlignment="Stretch"
-                    VerticalAlignment="Stretch"
-                    HorizontalScrollBarVisibility="Disabled"
-                    VerticalScrollBarVisibility="Auto"
-                    Margin="0,0,-15,0">
+                <Grid IsVisible="{Binding ActiveTab, Converter={StaticResource EqualityConverter}, ConverterParameter=0}">
+                    <ScrollViewer
+                        Classes="DefaultPadding"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        HorizontalScrollBarVisibility="Disabled"
+                        VerticalScrollBarVisibility="Auto"
+                        Margin="0,0,-15,0">
                     <ItemsControl ItemsSource="{Binding Services}"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Top">
@@ -510,10 +510,26 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </ScrollViewer>
+                
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                            IsVisible="{Binding Services.Count, Converter={StaticResource EqualityConverter}, ConverterParameter=0}"
+                            Spacing="16">
+                    <Viewbox Height="48" Opacity="0.5">
+                        <Path Data="{StaticResource ServicesIcon}"
+                              Fill="{DynamicResource SystemBaseMediumColor}"
+                              Stretch="Uniform" />
+                    </Viewbox>
+                    <TextBlock Text="No service found"
+                               Foreground="{DynamicResource SystemBaseMediumColor}"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               TextAlignment="Center" />
+                </StackPanel>
+            </Grid>
 
+            <Grid IsVisible="{Binding ActiveTab, Converter={StaticResource EqualityConverter}, ConverterParameter=1}">
                 <ScrollViewer
                     Classes="DefaultPadding"
-                    IsVisible="{Binding ActiveTab, Converter={StaticResource EqualityConverter}, ConverterParameter=1}"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
                     HorizontalScrollBarVisibility="Disabled"
@@ -662,6 +678,22 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </ScrollViewer>
+                
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                            IsVisible="{Binding Tasks.Count, Converter={StaticResource EqualityConverter}, ConverterParameter=0}"
+                            Spacing="16">
+                    <Viewbox Height="48" Opacity="0.5">
+                        <Path Data="{StaticResource SchedulerIcon}"
+                              Fill="{DynamicResource SystemBaseMediumColor}"
+                              Stretch="Uniform" />
+                    </Viewbox>
+                    <TextBlock Text="No task found"
+                               Foreground="{DynamicResource SystemBaseMediumColor}"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               TextAlignment="Center" />
+                </StackPanel>
+            </Grid>
 
             </Panel>
         </Grid>
