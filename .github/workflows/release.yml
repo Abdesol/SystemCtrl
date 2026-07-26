@@ -30,14 +30,20 @@ jobs:
         run: |
           Copy-Item "src\SystemCtrl.Desktop\bin\Release\net10.0-windows\win-x64\publish\SystemCtrl.exe" "SystemCtrl.exe"
 
+      - name: Build Installer (Inno Setup)
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
+
       - name: Update Latest Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest-build
           name: "Latest Build"
-          body: "This is the most recent automated build of SystemCtrl. The executable is completely self-contained and ready to run!"
+          body: "This is the most recent automated build of SystemCtrl. Choose the Installer for a normal installation, or the standalone Executable for a portable version."
           prerelease: true
           make_latest: true
-          files: SystemCtrl.exe
+          files: |
+            SystemCtrl.exe
+            Output/SystemCtrl-Setup.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
