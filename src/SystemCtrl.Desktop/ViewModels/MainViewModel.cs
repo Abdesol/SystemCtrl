@@ -25,6 +25,8 @@ public partial class MainViewModel : ViewModelBase
     private readonly IErrorDialogService _errorDialog;
     private List<WindowsServiceInfo> _allServices;
     private List<WindowsTaskInfo> _allTasks;
+    private List<ServiceItemViewModel> _allServiceViewModels;
+    private List<TaskItemViewModel> _allTaskViewModels;
 
     public MainViewModel(
         IServiceProvider serviceProvider,
@@ -39,6 +41,8 @@ public partial class MainViewModel : ViewModelBase
 
         _allServices = [];
         _allTasks = [];
+        _allServiceViewModels = [];
+        _allTaskViewModels = [];
 
         SlidePanel = new SlidePanelViewModel();
         ActiveTab = 0;
@@ -100,6 +104,27 @@ public partial class MainViewModel : ViewModelBase
 
         _allServices = services;
         _allTasks = tasks;
+        
+        var settingsService = _serviceProvider.GetRequiredService<ISettingsService>();
+        var settings = settingsService.LoadSettings();
+        var pinnedServices = settings.PinnedServices ?? [];
+        var pinnedTasks = settings.PinnedTasks ?? [];
+
+        _allServiceViewModels = _allServices.Select(s => new ServiceItemViewModel(
+            s,
+            pinnedServices.Contains(s.ServiceName),
+            TogglePinAction,
+            OpenServiceAction,
+            StartServiceAction,
+            StopServiceAction)).ToList();
+            
+        _allTaskViewModels = _allTasks.Select(t => new TaskItemViewModel(
+            t,
+            pinnedTasks.Contains(t.TaskPath),
+            TogglePinTaskAction,
+            OpenTaskAction,
+            StartTaskAction,
+            StopTaskAction)).ToList();
 
         await Dispatcher.UIThread.InvokeAsync(FilterCurrent);
     }
@@ -223,9 +248,9 @@ public partial class MainViewModel : ViewModelBase
     {
         var settingsService = _serviceProvider.GetRequiredService<ISettingsService>();
         var settings = settingsService.LoadSettings();
-        var pinnedServices = settings.PinnedServices;
+        var pinnedServices = settings.PinnedServices ?? [];
 
-        IEnumerable<WindowsServiceInfo> filtered = _allServices;
+        IEnumerable<ServiceItemViewModel> filtered = _allServiceViewModels;
 
         if (!string.IsNullOrWhiteSpace(SearchText))
         {
@@ -252,60 +277,54 @@ public partial class MainViewModel : ViewModelBase
                 (FilterServiceDisabled && s.StartType == ServiceStartMode.Disabled));
         }
 
+        foreach (var vm in _allServiceViewModels)
+        {
+            vm.IsPinned = pinnedServices.Contains(vm.ServiceName);
+        }
+
         var sorted = filtered
-            .OrderByDescending(s => pinnedServices.Contains(s.ServiceName))
+            .OrderByDescending(s => s.IsPinned)
             .ThenBy(s => s.DisplayName);
 
-        var viewModels = sorted.Select(s => new ServiceItemViewModel(
-            s,
-            pinnedServices.Contains(s.ServiceName),
-            TogglePinAction,
-            OpenServiceAction,
-            StartServiceAction,
-            StopServiceAction));
-
-        Services = new ObservableCollection<ServiceItemViewModel>(viewModels);
+        Services = new ObservableCollection<ServiceItemViewModel>(sorted);
     }
 
     private void FilterTasks()
     {
         var settingsService = _serviceProvider.GetRequiredService<ISettingsService>();
         var settings = settingsService.LoadSettings();
-        var pinnedTasks = settings.PinnedTasks;
+        var pinnedTasks = settings.PinnedTasks ?? [];
 
-        IEnumerable<WindowsTaskInfo> filtered = _allTasks;
+        IEnumerable<TaskItemViewModel> filtered = _allTaskViewModels;
 
         if (!string.IsNullOrWhiteSpace(SearchText))
         {
             var query = SearchText.ToLowerInvariant();
             filtered = filtered.Where(t =>
-                t.TaskName.Contains(query, StringComparison.InvariantCultureIgnoreCase) ||
-                t.TaskPath.Contains(query, StringComparison.InvariantCultureIgnoreCase));
+                t.Task.TaskName.Contains(query, StringComparison.InvariantCultureIgnoreCase) ||
+                t.Task.TaskPath.Contains(query, StringComparison.InvariantCultureIgnoreCase));
         }
 
         var hasStatusFilter = FilterTaskReady || FilterTaskRunning || FilterTaskDisabled || FilterTaskQueued;
         if (hasStatusFilter)
         {
             filtered = filtered.Where(t =>
-                (FilterTaskReady && t.Status == TaskState.Ready) ||
-                (FilterTaskRunning && t.Status == TaskState.Running) ||
-                (FilterTaskDisabled && t.Status == TaskState.Disabled) ||
-                (FilterTaskQueued && t.Status == TaskState.Queued));
+                (FilterTaskReady && t.Task.Status == TaskState.Ready) ||
+                (FilterTaskRunning && t.Task.Status == TaskState.Running) ||
+                (FilterTaskDisabled && t.Task.Status == TaskState.Disabled) ||
+                (FilterTaskQueued && t.Task.Status == TaskState.Queued));
+        }
+
+        foreach (var vm in _allTaskViewModels)
+        {
+            vm.IsPinned = pinnedTasks.Contains(vm.Task.TaskPath);
         }
 
         var sorted = filtered
-            .OrderByDescending(t => pinnedTasks.Contains(t.TaskPath))
-            .ThenBy(t => t.TaskName);
+            .OrderByDescending(t => t.IsPinned)
+            .ThenBy(t => t.DisplayName);
 
-        var viewModels = sorted.Select(t => new TaskItemViewModel(
-            t,
-            pinnedTasks.Contains(t.TaskPath),
-            TogglePinTaskAction,
-            OpenTaskAction,
-            StartTaskAction,
-            StopTaskAction));
-
-        Tasks = new ObservableCollection<TaskItemViewModel>(viewModels);
+        Tasks = new ObservableCollection<TaskItemViewModel>(sorted);
     }
 
     private void TogglePinAction(ServiceItemViewModel item)
@@ -322,6 +341,8 @@ public partial class MainViewModel : ViewModelBase
             settings.PinnedServices.Add(item.Service.ServiceName);
 
         settingsService.SaveSettings(settings);
+        
+        item.IsPinned = settings.PinnedServices.Contains(item.Service.ServiceName);
         FilterServices();
     }
 
@@ -339,6 +360,8 @@ public partial class MainViewModel : ViewModelBase
             settings.PinnedTasks.Add(item.Task.TaskPath);
 
         settingsService.SaveSettings(settings);
+        
+        item.IsPinned = settings.PinnedTasks.Contains(item.Task.TaskPath);
         FilterTasks();
     }
 
@@ -424,6 +447,19 @@ public partial class MainViewModel : ViewModelBase
     {
         var services = await Task.Run(() => _windowsServiceManager.GetServices().ToList());
         _allServices = services;
+        
+        var settingsService = _serviceProvider.GetRequiredService<ISettingsService>();
+        var settings = settingsService.LoadSettings();
+        var pinnedServices = settings.PinnedServices ?? [];
+        
+        _allServiceViewModels = services.Select(s => new ServiceItemViewModel(
+            s,
+            pinnedServices.Contains(s.ServiceName),
+            TogglePinAction,
+            OpenServiceAction,
+            StartServiceAction,
+            StopServiceAction)).ToList();
+            
         FilterServices();
     }
 
@@ -431,6 +467,19 @@ public partial class MainViewModel : ViewModelBase
     {
         var tasks = await Task.Run(() => _windowsTaskManager.GetTasks().ToList());
         _allTasks = tasks;
+        
+        var settingsService = _serviceProvider.GetRequiredService<ISettingsService>();
+        var settings = settingsService.LoadSettings();
+        var pinnedTasks = settings.PinnedTasks ?? [];
+        
+        _allTaskViewModels = tasks.Select(t => new TaskItemViewModel(
+            t,
+            pinnedTasks.Contains(t.TaskPath),
+            TogglePinTaskAction,
+            OpenTaskAction,
+            StartTaskAction,
+            StopTaskAction)).ToList();
+            
         FilterTasks();
     }
 }
