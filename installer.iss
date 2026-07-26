@@ -14,7 +14,7 @@ UninstallDisplayIcon={app}\SystemCtrl.exe
 DisableProgramGroupPage=yes
 
 [Files]
-Source: "SystemCtrl.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "installer_publish\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\SystemCtrl"; Filename: "{app}\SystemCtrl.exe"

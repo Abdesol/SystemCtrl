@@ -14,6 +14,8 @@ SystemCtrl is a fast Windows Desktop application built with C# and Avalonia UI. 
 
 ## Installation
 
+> **Note**: SystemCtrl is currently only available for Windows.
+
 You can download the latest version of SystemCtrl from the [Releases](https://github.com/Abdesol/SystemCtrl/releases) page.
 
 1. **Installer**: Download `SystemCtrl-Setup.exe` to install it normally (adds a Start Menu shortcut and uninstaller).
