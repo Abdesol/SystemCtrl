@@ -80,9 +80,11 @@
                     BorderThickness="1"
                     BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}"
                     Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
-                <ScrollViewer VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Auto"
-                              MaxHeight="320">
+                <ScrollViewer
+                    Classes="DefaultPadding"
+                    VerticalScrollBarVisibility="Auto"
+                    HorizontalScrollBarVisibility="Auto"
+                    MaxHeight="320">
                     <SelectableTextBlock x:Name="DetailText"
                                          Text="{Binding Detail}"
                                          FontFamily="Cascadia Code, Consolas, Courier New, monospace"

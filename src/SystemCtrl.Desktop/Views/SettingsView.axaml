@@ -8,9 +8,11 @@
              x:DataType="vm:SettingsViewModel">
     <Grid RowDefinitions="*, Auto"
           Margin="20,0,20,10">
-        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto"
-                      Margin="0,0,-20,0"
-                      Padding="0,0,20,0">
+        <ScrollViewer
+            Classes="DefaultPadding"
+            Grid.Row="0" VerticalScrollBarVisibility="Auto"
+            Margin="0,0,-20,0"
+            Padding="0,0,20,0">
             <StackPanel Spacing="25">
                 <StackPanel Spacing="10">
                     <TextBlock Text="GEMINI AI"

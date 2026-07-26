@@ -14,6 +14,7 @@
 
         <StyleInclude Source="avares://SystemCtrl.Desktop/Styles/Controls/Button.axaml" />
         <StyleInclude Source="avares://SystemCtrl.Desktop/Styles/Controls/TextBox.axaml" />
+        <StyleInclude Source="avares://SystemCtrl.Desktop/Styles/Controls/ComboBox.axaml" />
         <StyleInclude Source="avares://SystemCtrl.Desktop/Styles/Controls/ToggleButton.axaml" />
         <StyleInclude Source="avares://SystemCtrl.Desktop/Styles/Controls/ScrollViewer.axaml" />
         <StyleInclude Source="avares://SystemCtrl.Desktop/Styles/Controls/WindowDrawnDecorations.axaml" />

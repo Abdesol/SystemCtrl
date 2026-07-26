@@ -1,22 +1,24 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Style Selector="TextBox">
+    <Style Selector="ComboBox">
         <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="CornerRadius" Value="8" />
-        <Setter Property="HorizontalAlignment" Value="Stretch" />
-        <Setter Property="VerticalAlignment" Value="Center" />
-        <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
     </Style>
 
-    <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
+    <Style Selector="ComboBox:pointerover /template/ Border#Background">
         <Setter Property="Background" Value="{TemplateBinding Background}" />
         <Setter Property="BorderBrush" Value="{DynamicResource FocusStrokeBrush}" />
         <Setter Property="BorderThickness" Value="1" />
     </Style>
 
-    <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+    <Style Selector="ComboBox:pressed /template/ Border#Background">
+        <Setter Property="Background" Value="{TemplateBinding Background}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource FocusStrokeBrush}" />
+        <Setter Property="BorderThickness" Value="1.5" />
+    </Style>
+
+    <Style Selector="ComboBox:dropdownopen /template/ Border#Background">
         <Setter Property="Background" Value="{TemplateBinding Background}" />
         <Setter Property="BorderBrush" Value="{DynamicResource FocusStrokeBrush}" />
         <Setter Property="BorderThickness" Value="1.5" />

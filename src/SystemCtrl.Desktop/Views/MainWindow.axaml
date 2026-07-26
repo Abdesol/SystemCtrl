@@ -145,11 +145,9 @@
                 </StackPanel>
             </Grid>
 
-            <!-- LIST AREA -->
             <Panel Grid.Row="3" Margin="0,15,0,0">
-
-                <!-- SERVICES LIST -->
                 <ScrollViewer
+                    Classes="DefaultPadding"
                     IsVisible="{Binding ActiveTab, Converter={StaticResource EqualityConverter}, ConverterParameter=0}"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
@@ -332,8 +330,8 @@
                     </ItemsControl>
                 </ScrollViewer>
 
-                <!-- TASKS LIST -->
                 <ScrollViewer
+                    Classes="DefaultPadding"
                     IsVisible="{Binding ActiveTab, Converter={StaticResource EqualityConverter}, ConverterParameter=1}"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"

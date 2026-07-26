@@ -39,11 +39,13 @@
     </UserControl.Styles>
 
     <Grid RowDefinitions="*, Auto">
-        <ScrollViewer Grid.Row="0"
-                      VerticalScrollBarVisibility="Auto"
-                      HorizontalScrollBarVisibility="Disabled"
-                      HorizontalAlignment="Stretch"
-                      VerticalAlignment="Stretch">
+        <ScrollViewer
+            Classes="DefaultPadding"
+            Grid.Row="0"
+            VerticalScrollBarVisibility="Auto"
+            HorizontalScrollBarVisibility="Disabled"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch">
             <StackPanel Spacing="20"
                         Margin="20,0,10,30"
                         IsVisible="{Binding Task, Converter={x:Static ObjectConverters.IsNotNull}}">
