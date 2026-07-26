@@ -38,7 +38,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest-build
-          name: "Latest Build"
+          name: "latest"
           body: "This is the most recent automated build of SystemCtrl. Choose the Installer for a normal installation, or the standalone Executable for a portable version."
           prerelease: true
           make_latest: true
