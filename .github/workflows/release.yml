@@ -1,0 +1,43 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build SystemCtrl (Windows)
+    runs-on: windows-latest
+    
+    permissions:
+      contents: write
+      
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Publish SystemCtrl
+        run: dotnet publish "src\SystemCtrl.Desktop\SystemCtrl.Desktop.csproj" -c Release -r win-x64
+
+      - name: Prepare Artifact
+        run: |
+          Copy-Item "src\SystemCtrl.Desktop\bin\Release\net10.0-windows\win-x64\publish\SystemCtrl.exe" "SystemCtrl.exe"
+
+      - name: Update Latest Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest-build
+          name: "Latest Build"
+          body: "This is the most recent automated build of SystemCtrl. The executable is completely self-contained and ready to run!"
+          prerelease: true
+          make_latest: true
+          files: SystemCtrl.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
