@@ -3,6 +3,7 @@
         xmlns:vm="using:SystemCtrl.Desktop.ViewModels"
         x:DataType="vm:ErrorDialogViewModel"
         x:Class="SystemCtrl.Desktop.Views.ErrorDialogWindow"
+        Icon="/Assets/logo.ico"
         Title="Error"
         Width="520"
         MinHeight="300"
