@@ -400,6 +400,10 @@ public partial class ServiceDetailViewModel : ViewModelBase
     {
         if (DetailedInfo == null || Service == null) return;
 
+        var previousSummary = AiSummaryList;
+        var hadPreviousSummary = HasAiSummary;
+        var wasExpanded = IsAiSummaryExpanded;
+
         IsGeneratingSummary = true;
         HasAiSummary = false;
         IsAiSummaryExpanded = false;
@@ -423,14 +427,27 @@ public partial class ServiceDetailViewModel : ViewModelBase
         });
 
         var settings = _settingsService.LoadSettings();
-        var summaryList = await _serviceAnalyzer.AnalyzeServiceAsync(DetailedInfo, settings);
+        try
+        {
+            var summaryList = await _serviceAnalyzer.AnalyzeServiceAsync(DetailedInfo, settings);
 
-        AiSummaryList = summaryList;
-        HasAiSummary = true;
-        IsGeneratingSummary = false;
-        IsAiSummaryExpanded = true;
+            AiSummaryList = summaryList;
+            HasAiSummary = true;
+            IsAiSummaryExpanded = true;
 
-        settings.AiSummaries[Service.ServiceName] = summaryList;
-        _settingsService.SaveSettings(settings);
+            settings.AiSummaries[Service.ServiceName] = summaryList;
+            _settingsService.SaveSettings(settings);
+        }
+        catch (Exception ex)
+        {
+            await _errorDialog.ShowAsync("AI Analysis Failed", "", ex.Message);
+            AiSummaryList = previousSummary;
+            HasAiSummary = hadPreviousSummary;
+            IsAiSummaryExpanded = wasExpanded;
+        }
+        finally
+        {
+            IsGeneratingSummary = false;
+        }
     }
 }

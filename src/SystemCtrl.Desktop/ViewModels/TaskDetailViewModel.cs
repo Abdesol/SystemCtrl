@@ -18,7 +18,7 @@ public partial class TaskDetailViewModel : ViewModelBase
     private readonly IErrorDialogService _errorDialog;
 
     public TaskDetailViewModel(
-        IWindowsTaskManager windowsTaskManager, 
+        IWindowsTaskManager windowsTaskManager,
         IAiAnalyzer aiAnalyzer,
         ISettingsService settingsService,
         IErrorDialogService errorDialog)
@@ -49,7 +49,7 @@ public partial class TaskDetailViewModel : ViewModelBase
     [Reactive] public partial bool IsExecutingAction { get; set; }
 
     [Reactive] public partial bool CanExecuteTaskActions { get; set; }
-    
+
     [Reactive] public partial System.Collections.Generic.List<AiQna>? AiSummaryList { get; set; }
 
     [Reactive] public partial bool IsGeneratingSummary { get; set; }
@@ -78,7 +78,7 @@ public partial class TaskDetailViewModel : ViewModelBase
         DetailedInfo = null;
         IsLoadingDetails = true;
         IsEnabled = task.Status != TaskState.Disabled;
-        
+
         AiSummaryList = null;
         HasAiSummary = false;
         IsGeneratingSummary = false;
@@ -103,8 +103,14 @@ public partial class TaskDetailViewModel : ViewModelBase
         IsLoadingDetails = true;
         DetailedInfo = await System.Threading.Tasks.Task.Run(() =>
         {
-            try { return _windowsTaskManager.GetDetailedInfo(task.TaskPath); }
-            catch { return null; }
+            try
+            {
+                return _windowsTaskManager.GetDetailedInfo(task.TaskPath);
+            }
+            catch
+            {
+                return null;
+            }
         });
         IsLoadingDetails = false;
     }
@@ -227,9 +233,12 @@ public partial class TaskDetailViewModel : ViewModelBase
                 IsEnabled = Task.Status != TaskState.Disabled;
             }
         }
-        catch { /* ignored */ }
+        catch
+        {
+            /* ignored */
+        }
     }
-    
+
     [ReactiveCommand]
     public void ToggleAiSummary()
     {
@@ -240,6 +249,10 @@ public partial class TaskDetailViewModel : ViewModelBase
     public async System.Threading.Tasks.Task GenerateAiSummary()
     {
         if (DetailedInfo == null || Task == null) return;
+
+        var previousSummary = AiSummaryList;
+        var hadPreviousSummary = HasAiSummary;
+        var wasExpanded = IsAiSummaryExpanded;
 
         IsGeneratingSummary = true;
         HasAiSummary = false;
@@ -252,7 +265,7 @@ public partial class TaskDetailViewModel : ViewModelBase
             "Synthesizing insights...",
             "Generating insights..."
         ];
-        
+
         _ = System.Threading.Tasks.Task.Run(async () =>
         {
             var i = 0;
@@ -265,14 +278,27 @@ public partial class TaskDetailViewModel : ViewModelBase
         });
 
         var settings = _settingsService.LoadSettings();
-        var summaryList = await _aiAnalyzer.AnalyzeTaskAsync(Task, DetailedInfo, settings);
+        try
+        {
+            var summaryList = await _aiAnalyzer.AnalyzeTaskAsync(Task, DetailedInfo, settings);
 
-        AiSummaryList = summaryList;
-        HasAiSummary = true;
-        IsGeneratingSummary = false;
-        IsAiSummaryExpanded = true;
+            AiSummaryList = summaryList;
+            HasAiSummary = true;
+            IsAiSummaryExpanded = true;
 
-        settings.AiSummaries[Task.TaskName] = summaryList;
-        _settingsService.SaveSettings(settings);
+            settings.AiSummaries[Task.TaskName] = summaryList;
+            _settingsService.SaveSettings(settings);
+        }
+        catch (Exception ex)
+        {
+            await _errorDialog.ShowAsync("AI Analysis Failed", "", ex.Message);
+            AiSummaryList = previousSummary;
+            HasAiSummary = hadPreviousSummary;
+            IsAiSummaryExpanded = wasExpanded;
+        }
+        finally
+        {
+            IsGeneratingSummary = false;
+        }
     }
 }
