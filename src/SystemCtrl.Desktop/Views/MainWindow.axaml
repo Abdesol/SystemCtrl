@@ -146,7 +146,7 @@
                         
                         <Popup IsOpen="{Binding IsFilterPopupOpen, Mode=TwoWay}"
                                IsLightDismissEnabled="True"
-                               Placement="Bottom"
+                               Placement="BottomEdgeAlignedRight"
                                PlacementTarget="{Binding ElementName=FilterButton}">
                             <Border Background="{StaticResource CardBackgroundBrush}"
                                     CornerRadius="8"
