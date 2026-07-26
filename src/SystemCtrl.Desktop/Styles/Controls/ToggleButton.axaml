@@ -35,11 +35,7 @@
         <Setter Property="Foreground" Value="{TemplateBinding Foreground}" />
         <Setter Property="BorderBrush" Value="{TemplateBinding BorderBrush}" />
         <Setter Property="CornerRadius" Value="{TemplateBinding CornerRadius}" />
-        <Setter Property="RenderTransform">
-            <Setter.Value>
-                <ScaleTransform ScaleX="1.015" ScaleY="1.015" />
-            </Setter.Value>
-        </Setter>
+        <Setter Property="RenderTransform" Value="scale(1.015)" />
     </Style>
     <Style Selector="ToggleButton:disabled /template/ ContentPresenter">
         <Setter Property="Background" Value="{TemplateBinding Background}" />
@@ -50,29 +46,22 @@
     </Style>
 
     <Style Selector="ToggleButton.NoScale">
+        <Setter Property="RenderTransform" Value="scale(1)" />
+
         <Style Selector="^:not(:pointerover) /template/ ContentPresenter">
-            <Setter Property="RenderTransform">
-                <Setter.Value>
-                    <ScaleTransform ScaleX="1" ScaleY="1" />
-                </Setter.Value>
-            </Setter>
+            <Setter Property="RenderTransform" Value="scale(1)" />
         </Style>
 
         <Style Selector="^:pointerover /template/ ContentPresenter">
-            <Setter Property="RenderTransform">
-                <Setter.Value>
-                    <ScaleTransform ScaleX="1" ScaleY="1" />
-                </Setter.Value>
-            </Setter>
+            <Setter Property="RenderTransform" Value="scale(1)" />
         </Style>
 
-        <Style
-            Selector="^:checked /template/ ContentPresenter">
-            <Setter Property="RenderTransform">
-                <Setter.Value>
-                    <ScaleTransform ScaleX="1" ScaleY="1" />
-                </Setter.Value>
-            </Setter>
+        <Style Selector="^:pressed /template/ ContentPresenter">
+            <Setter Property="RenderTransform" Value="scale(1)" />
+        </Style>
+
+        <Style Selector="^:checked /template/ ContentPresenter">
+            <Setter Property="RenderTransform" Value="scale(1)" />
         </Style>
     </Style>
 </Styles>
