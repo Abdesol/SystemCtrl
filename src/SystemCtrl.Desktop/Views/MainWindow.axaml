@@ -134,7 +134,187 @@
                         </TextBox.InnerLeftContent>
                     </TextBox>
                 </Grid>
-                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="15" VerticalAlignment="Center">
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <Panel>
+                        <Button Name="FilterButton" Command="{Binding ToggleFilterPopupCommand}">
+                            <Viewbox Height="15">
+                                <Path Data="{StaticResource FilterIcon}"
+                                      Stretch="Uniform"
+                                      Fill="{StaticResource SystemBaseHighColor}" />
+                            </Viewbox>
+                        </Button>
+                        
+                        <Popup IsOpen="{Binding IsFilterPopupOpen, Mode=TwoWay}"
+                               IsLightDismissEnabled="True"
+                               Placement="Bottom"
+                               PlacementTarget="{Binding ElementName=FilterButton}">
+                            <Border Background="{StaticResource CardBackgroundBrush}"
+                                    CornerRadius="8"
+                                    BorderBrush="{StaticResource SeparatorBrush}"
+                                    BorderThickness="1"
+                                    Padding="10"
+                                    MinWidth="220"
+                                    VerticalAlignment="Top"
+                                    HorizontalAlignment="Stretch">
+                                <Border.Styles>
+                                    <Style Selector="ToggleButton.FilterChip">
+                                        <Setter Property="Background"
+                                                Value="{DynamicResource SystemControlBackgroundBaseLowBrush}" />
+                                        <Setter Property="Foreground" Value="{DynamicResource SystemBaseMediumColor}" />
+                                        <Setter Property="CornerRadius" Value="6" />
+                                        <Setter Property="Padding" Value="10,5" />
+                                        <Setter Property="FontSize" Value="12" />
+                                        <Setter Property="FontWeight" Value="Medium" />
+                                        <Setter Property="Cursor" Value="Hand" />
+                                        <Setter Property="BorderThickness" Value="1" />
+                                        <Setter Property="BorderBrush" Value="Transparent" />
+                                        <Setter Property="RenderTransform" Value="scale(1)" />
+                                    </Style>
+                                    <Style Selector="ToggleButton.FilterChip /template/ ContentPresenter">
+                                        <Setter Property="RenderTransform" Value="scale(1)" />
+                                        <Setter Property="Transitions">
+                                            <Transitions>
+                                                <TransformOperationsTransition Property="RenderTransform"
+                                                                               Duration="0:0:0.12" />
+                                                <BrushTransition Property="Background" Duration="0:0:0.12" />
+                                            </Transitions>
+                                        </Setter>
+                                    </Style>
+                                    <Style Selector="ToggleButton.FilterChip:pointerover /template/ ContentPresenter">
+                                        <Setter Property="Background"
+                                                Value="{DynamicResource ButtonBackgroundPointerOverBrush}" />
+                                        <Setter Property="RenderTransform" Value="scale(1)" />
+                                    </Style>
+                                    <Style Selector="ToggleButton.FilterChip:pressed /template/ ContentPresenter">
+                                        <Setter Property="Background"
+                                                Value="{DynamicResource ButtonBackgroundPressedBrush}" />
+                                        <Setter Property="RenderTransform" Value="scale(0.97)" />
+                                    </Style>
+                                    <Style Selector="ToggleButton.FilterChip:checked">
+                                        <Setter Property="Foreground" Value="{DynamicResource SystemBaseHighColor}" />
+                                    </Style>
+                                    <Style Selector="ToggleButton.FilterChip:checked /template/ ContentPresenter">
+                                        <Setter Property="Background"
+                                                Value="{DynamicResource ButtonBackgroundPressedBrush}" />
+                                        <Setter Property="BorderBrush" Value="{DynamicResource SystemBaseMediumColor}" />
+                                        <Setter Property="RenderTransform" Value="scale(1)" />
+                                    </Style>
+                                    <Style
+                                        Selector="ToggleButton.FilterChip:checked:pointerover /template/ ContentPresenter">
+                                        <Setter Property="Background"
+                                                Value="{DynamicResource ButtonBackgroundPointerOverBrush}" />
+                                        <Setter Property="RenderTransform" Value="scale(1)" />
+                                    </Style>
+                                    <Style
+                                        Selector="ToggleButton.FilterChip:checked:pressed /template/ ContentPresenter">
+                                        <Setter Property="RenderTransform" Value="scale(0.97)" />
+                                    </Style>
+
+                                    <Style Selector="TextBlock.FilterSectionHeader">
+                                        <Setter Property="FontSize" Value="11" />
+                                        <Setter Property="FontWeight" Value="SemiBold" />
+                                        <Setter Property="Foreground" Value="{DynamicResource SystemBaseMediumColor}" />
+                                        <Setter Property="Margin" Value="0,0,0,6" />
+                                    </Style>
+                                </Border.Styles>
+
+                                <Grid RowDefinitions="Auto, Auto, *">
+                                    <Grid Grid.Row="0" Height="24" ColumnDefinitions="*, Auto">
+                                        <TextBlock Grid.Column="0"
+                                                   Text="Filters"
+                                                   FontSize="14"
+                                                   FontWeight="SemiBold"
+                                                   HorizontalAlignment="Stretch"
+                                                   TextAlignment="Left"
+                                                   VerticalAlignment="Center" />
+                                        <Button Grid.Column="1"
+                                                Content="Clear all"
+                                                FontSize="11"
+                                                Foreground="{StaticResource InfoForegroundBrush}"
+                                                Background="Transparent"
+                                                CornerRadius="4"
+                                                VerticalAlignment="Center"
+                                                IsVisible="{Binding HasActiveFilters}"
+                                                Command="{Binding ClearFiltersCommand}" />
+                                    </Grid>
+
+                                    <Border Grid.Row="1" Height="1"
+                                            Background="{StaticResource SeparatorBrush}"
+                                            HorizontalAlignment="Stretch"
+                                            Margin="-2,10,-2,10" />
+
+                                    <!-- SERVICES FILTERS -->
+                                    <StackPanel Grid.Row="2" Spacing="10"
+                                                IsVisible="{Binding ActiveTab, Converter={StaticResource EqualityConverter}, ConverterParameter=0}">
+                                        <StackPanel Spacing="6">
+                                            <TextBlock Classes="FilterSectionHeader" Text="Status" />
+                                            <WrapPanel Orientation="Horizontal">
+                                                <WrapPanel.Styles>
+                                                    <Style Selector="ToggleButton">
+                                                        <Setter Property="Margin" Value="0,0,6,6" />
+                                                    </Style>
+                                                </WrapPanel.Styles>
+                                                <ToggleButton Classes="FilterChip NoScale"
+                                                              IsChecked="{Binding FilterServiceRunning}"
+                                                              Content="Running" />
+                                                <ToggleButton Classes="FilterChip NoScale"
+                                                              IsChecked="{Binding FilterServiceStopped}"
+                                                              Content="Stopped" />
+                                            </WrapPanel>
+                                        </StackPanel>
+                                        <StackPanel Spacing="6">
+                                            <TextBlock Classes="FilterSectionHeader" Text="Start Type" />
+                                            <WrapPanel Orientation="Horizontal">
+                                                <WrapPanel.Styles>
+                                                    <Style Selector="ToggleButton">
+                                                        <Setter Property="Margin" Value="0,0,6,6" />
+                                                    </Style>
+                                                </WrapPanel.Styles>
+                                                <ToggleButton Classes="FilterChip NoScale"
+                                                              IsChecked="{Binding FilterServiceAutomatic}"
+                                                              Content="Automatic" />
+                                                <ToggleButton Classes="FilterChip NoScale"
+                                                              IsChecked="{Binding FilterServiceManual}"
+                                                              Content="Manual" />
+                                                <ToggleButton Classes="FilterChip NoScale"
+                                                              IsChecked="{Binding FilterServiceDisabled}"
+                                                              Content="Disabled" />
+                                            </WrapPanel>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <!-- TASKS FILTERS -->
+                                    <StackPanel Grid.Row="2" Spacing="10"
+                                                IsVisible="{Binding ActiveTab, Converter={StaticResource EqualityConverter}, ConverterParameter=1}">
+                                        <!-- Status section -->
+                                        <StackPanel Spacing="6">
+                                            <TextBlock Classes="FilterSectionHeader" Text="Status" />
+                                            <WrapPanel Orientation="Horizontal">
+                                                <WrapPanel.Styles>
+                                                    <Style Selector="ToggleButton">
+                                                        <Setter Property="Margin" Value="0,0,6,6" />
+                                                    </Style>
+                                                </WrapPanel.Styles>
+                                                <ToggleButton Classes="FilterChip NoScale"
+                                                              IsChecked="{Binding FilterTaskReady}"
+                                                              Content="Ready" />
+                                                <ToggleButton Classes="FilterChip NoScale"
+                                                              IsChecked="{Binding FilterTaskRunning}"
+                                                              Content="Running" />
+                                                <ToggleButton Classes="FilterChip NoScale"
+                                                              IsChecked="{Binding FilterTaskDisabled}"
+                                                              Content="Disabled" />
+                                                <ToggleButton Classes="FilterChip NoScale"
+                                                              IsChecked="{Binding FilterTaskQueued}"
+                                                              Content="Queued" />
+                                            </WrapPanel>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </Popup>
+                    </Panel>
+
                     <Button Command="{Binding RefreshCommand}">
                         <Viewbox Height="18">
                             <Path Data="{StaticResource RestartIcon}"
