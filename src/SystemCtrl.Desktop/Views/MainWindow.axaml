@@ -29,7 +29,7 @@
     <Panel Margin="{Binding $parent[Window].OffScreenMargin}"
            VerticalAlignment="Stretch"
            HorizontalAlignment="Stretch">
-        
+
         <Panel.Styles>
             <Style Selector="Button.TabButton">
                 <Setter Property="CornerRadius" Value="8" />
@@ -92,7 +92,7 @@
                                           Fill="{Binding $parent[Button].Foreground}"
                                           Stretch="Uniform" />
                                 </Viewbox>
-                                <TextBlock Text="Task Scheduler" VerticalAlignment="Center" />
+                                <TextBlock Text="Task Schedulers" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
                     </StackPanel>
@@ -105,7 +105,7 @@
                     <Viewbox Height="18">
                         <Path Data="{StaticResource SettingsIcon}"
                               Stretch="Uniform"
-                              Fill="{StaticResource SystemBaseHighColor}"/>
+                              Fill="{StaticResource SystemBaseHighColor}" />
                     </Viewbox>
                 </Button>
             </Grid>
@@ -129,7 +129,7 @@
                             <Viewbox Height="16" Margin="12,0,8,0">
                                 <Path Data="{StaticResource SearchIcon}"
                                       Fill="{DynamicResource SystemBaseMediumColor}"
-                                      Stretch="Uniform"/>
+                                      Stretch="Uniform" />
                             </Viewbox>
                         </TextBox.InnerLeftContent>
                     </TextBox>
@@ -139,7 +139,7 @@
                         <Viewbox Height="18">
                             <Path Data="{StaticResource RestartIcon}"
                                   Stretch="Uniform"
-                                  Fill="{StaticResource SystemBaseHighColor}"/>
+                                  Fill="{StaticResource SystemBaseHighColor}" />
                         </Viewbox>
                     </Button>
                 </StackPanel>
@@ -149,12 +149,13 @@
             <Panel Grid.Row="3" Margin="0,15,0,0">
 
                 <!-- SERVICES LIST -->
-                <ScrollViewer IsVisible="{Binding ActiveTab, Converter={StaticResource EqualityConverter}, ConverterParameter=0}"
-                              HorizontalAlignment="Stretch"
-                              VerticalAlignment="Stretch"
-                              HorizontalScrollBarVisibility="Disabled"
-                              VerticalScrollBarVisibility="Auto"
-                              Margin="0,0,-15,0">
+                <ScrollViewer
+                    IsVisible="{Binding ActiveTab, Converter={StaticResource EqualityConverter}, ConverterParameter=0}"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    HorizontalScrollBarVisibility="Disabled"
+                    VerticalScrollBarVisibility="Auto"
+                    Margin="0,0,-15,0">
                     <ItemsControl ItemsSource="{Binding Services}"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Top">
@@ -173,9 +174,10 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Button
-                                    Classes="SmallScale"
+                                    Classes="VerySmallScale CardBorderedEffect"
                                     Height="125"
-                                    Background="Transparent"
+                                    Background="{StaticResource CardBackgroundBrush}"
+                                    CornerRadius="10"
                                     HorizontalAlignment="Stretch"
                                     HorizontalContentAlignment="Stretch"
                                     VerticalContentAlignment="Stretch"
@@ -199,118 +201,131 @@
                                                       Command="{Binding TogglePinCommand}" />
                                         </ContextMenu>
                                     </Button.ContextMenu>
-                                    <Border CornerRadius="10"
-                                            HorizontalAlignment="Stretch"
-                                            VerticalAlignment="Stretch"
-                                            Background="{StaticResource CardBackgroundBrush}">
-                                        <Grid RowDefinitions="Auto, Auto, *, Auto"
-                                              Margin="15">
-                                            <TextBlock Grid.Row="0"
-                                                       Text="{Binding DisplayName}"
+                                    <Grid RowDefinitions="Auto, Auto, *, Auto"
+                                          Margin="15">
+                                        <TextBlock Grid.Row="0"
+                                                   Text="{Binding DisplayName}"
+                                                   HorizontalAlignment="Stretch"
+                                                   TextAlignment="Left"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   FontWeight="Medium"
+                                                   FontSize="15"
+                                                   Margin="0,0,24,0" />
+                                        <Path Grid.Row="0"
+                                              Data="{StaticResource PinIcon}"
+                                              Fill="{DynamicResource SystemBaseHighColor}"
+                                              Height="16" Width="16"
+                                              HorizontalAlignment="Right"
+                                              VerticalAlignment="Top"
+                                              Stretch="Uniform"
+                                              IsVisible="{Binding IsPinned}" />
+                                        <TextBlock Grid.Row="1"
+                                                   Text="{Binding ServiceName}"
+                                                   HorizontalAlignment="Stretch"
+                                                   TextAlignment="Left"
+                                                   FontWeight="Light"
+                                                   Foreground="{DynamicResource SystemBaseMediumColor}"
+                                                   FontSize="10" />
+                                        <Grid Row="2"
+                                              HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Stretch"
+                                              Margin="0,8,0,0">
+                                            <TextBlock Text="{Binding Description}"
                                                        HorizontalAlignment="Stretch"
+                                                       VerticalAlignment="Stretch"
+                                                       TextWrapping="WrapWithOverflow"
+                                                       TextTrimming="WordEllipsis"
                                                        TextAlignment="Left"
-                                                       TextTrimming="CharacterEllipsis"
-                                                       FontWeight="Medium"
-                                                       FontSize="15"
-                                                       Margin="0,0,24,0" />
-                                            <Path Grid.Row="0"
-                                                  Data="{StaticResource PinIcon}"
-                                                  Fill="{DynamicResource SystemBaseHighColor}"
-                                                  Height="16" Width="16"
-                                                  HorizontalAlignment="Right"
-                                                  VerticalAlignment="Top"
-                                                  Stretch="Uniform"
-                                                  IsVisible="{Binding IsPinned}" />
-                                            <TextBlock Grid.Row="1"
-                                                       Text="{Binding ServiceName}"
-                                                       HorizontalAlignment="Stretch"
-                                                       TextAlignment="Left"
-                                                       FontWeight="Light"
                                                        Foreground="{DynamicResource SystemBaseMediumColor}"
-                                                       FontSize="10" />
-                                            <Grid Row="2"
-                                                  HorizontalAlignment="Stretch"
-                                                  VerticalAlignment="Stretch"
-                                                  Margin="0,8,0,0">
-                                                <TextBlock Text="{Binding Description}"
-                                                           HorizontalAlignment="Stretch"
-                                                           VerticalAlignment="Stretch"
-                                                           TextWrapping="WrapWithOverflow"
-                                                           TextTrimming="WordEllipsis"
-                                                           TextAlignment="Left"
-                                                           Foreground="{DynamicResource SystemBaseMediumColor}"
-                                                           FontSize="13" />
-                                            </Grid>
-                                            <StackPanel Grid.Row="3"
-                                                        Spacing="6"
-                                                        Orientation="Horizontal"
-                                                        Margin="0,8,0,0"
-                                                        HorizontalAlignment="Stretch">
-                                                <StackPanel.Styles>
-                                                    <Style Selector="Border.IsStopped">
-                                                        <Setter Property="Background" Value="{DynamicResource DangerBackgroundBrush}" />
-                                                        <Setter Property="TextElement.Foreground" Value="{DynamicResource DangerForegroundBrush}" />
-                                                    </Style>
-                                                    <Style Selector="Border.IsRunning">
-                                                        <Setter Property="Background" Value="{DynamicResource SuccessBackgroundBrush}" />
-                                                        <Setter Property="TextElement.Foreground" Value="{DynamicResource SuccessForegroundBrush}" />
-                                                    </Style>
-                                                    <Style Selector="Border.IsStartPending, Border.IsContinuePending">
-                                                        <Setter Property="Background" Value="{DynamicResource InfoBackgroundBrush}" />
-                                                        <Setter Property="TextElement.Foreground" Value="{DynamicResource InfoForegroundBrush}" />
-                                                    </Style>
-                                                    <Style Selector="Border.IsStopPending, Border.IsPausePending">
-                                                        <Setter Property="Background" Value="{DynamicResource WarningBackgroundBrush}" />
-                                                        <Setter Property="TextElement.Foreground" Value="{DynamicResource WarningForegroundBrush}" />
-                                                    </Style>
-                                                    <Style Selector="Border.IsPaused">
-                                                        <Setter Property="Background" Value="{DynamicResource CautionBackgroundBrush}" />
-                                                        <Setter Property="TextElement.Foreground" Value="{DynamicResource CautionForegroundBrush}" />
-                                                    </Style>
-                                                    <Style Selector="Border.IsAutomatic">
-                                                        <Setter Property="Background" Value="{DynamicResource SuccessBackgroundBrush}" />
-                                                        <Setter Property="TextElement.Foreground" Value="{DynamicResource SuccessForegroundBrush}" />
-                                                    </Style>
-                                                    <Style Selector="Border.IsManual">
-                                                        <Setter Property="Background" Value="{DynamicResource NeutralBackgroundBrush}" />
-                                                        <Setter Property="TextElement.Foreground" Value="{DynamicResource NeutralForegroundBrush}" />
-                                                    </Style>
-                                                    <Style Selector="Border.IsDisabled">
-                                                        <Setter Property="Background" Value="{DynamicResource DangerBackgroundBrush}" />
-                                                        <Setter Property="TextElement.Foreground" Value="{DynamicResource DangerForegroundBrush}" />
-                                                    </Style>
-                                                    <Style Selector="Border.IsBoot, Border.IsSystem">
-                                                        <Setter Property="Background" Value="{DynamicResource SpecialBackgroundBrush}" />
-                                                        <Setter Property="TextElement.Foreground" Value="{DynamicResource SpecialForegroundBrush}" />
-                                                    </Style>
-                                                </StackPanel.Styles>
-
-                                                <Border CornerRadius="8"
-                                                        Classes.IsStopped="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.Stopped}}"
-                                                        Classes.IsStartPending="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.StartPending}}"
-                                                        Classes.IsStopPending="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.StopPending}}"
-                                                        Classes.IsRunning="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.Running}}"
-                                                        Classes.IsContinuePending="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.ContinuePending}}"
-                                                        Classes.IsPausePending="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.PausePending}}"
-                                                        Classes.IsPaused="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.Paused}}">
-                                                    <TextBlock Text="{Binding Status}" FontSize="11"
-                                                               FontWeight="SemiBold"
-                                                               Margin="7,4" />
-                                                </Border>
-
-                                                <Border CornerRadius="8"
-                                                        Classes.IsBoot="{Binding StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.Boot}}"
-                                                        Classes.IsSystem="{Binding StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.System}}"
-                                                        Classes.IsAutomatic="{Binding StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.Automatic}}"
-                                                        Classes.IsManual="{Binding StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.Manual}}"
-                                                        Classes.IsDisabled="{Binding StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.Disabled}}">
-                                                    <TextBlock Text="{Binding StartType}" FontSize="11"
-                                                               FontWeight="SemiBold"
-                                                               Margin="7,4" />
-                                                </Border>
-                                            </StackPanel>
+                                                       FontSize="13" />
                                         </Grid>
-                                    </Border>
+                                        <StackPanel Grid.Row="3"
+                                                    Spacing="6"
+                                                    Orientation="Horizontal"
+                                                    Margin="0,8,0,0"
+                                                    HorizontalAlignment="Stretch">
+                                            <StackPanel.Styles>
+                                                <Style Selector="Border.IsStopped">
+                                                    <Setter Property="Background"
+                                                            Value="{DynamicResource DangerBackgroundBrush}" />
+                                                    <Setter Property="TextElement.Foreground"
+                                                            Value="{DynamicResource DangerForegroundBrush}" />
+                                                </Style>
+                                                <Style Selector="Border.IsRunning">
+                                                    <Setter Property="Background"
+                                                            Value="{DynamicResource SuccessBackgroundBrush}" />
+                                                    <Setter Property="TextElement.Foreground"
+                                                            Value="{DynamicResource SuccessForegroundBrush}" />
+                                                </Style>
+                                                <Style Selector="Border.IsStartPending, Border.IsContinuePending">
+                                                    <Setter Property="Background"
+                                                            Value="{DynamicResource InfoBackgroundBrush}" />
+                                                    <Setter Property="TextElement.Foreground"
+                                                            Value="{DynamicResource InfoForegroundBrush}" />
+                                                </Style>
+                                                <Style Selector="Border.IsStopPending, Border.IsPausePending">
+                                                    <Setter Property="Background"
+                                                            Value="{DynamicResource WarningBackgroundBrush}" />
+                                                    <Setter Property="TextElement.Foreground"
+                                                            Value="{DynamicResource WarningForegroundBrush}" />
+                                                </Style>
+                                                <Style Selector="Border.IsPaused">
+                                                    <Setter Property="Background"
+                                                            Value="{DynamicResource CautionBackgroundBrush}" />
+                                                    <Setter Property="TextElement.Foreground"
+                                                            Value="{DynamicResource CautionForegroundBrush}" />
+                                                </Style>
+                                                <Style Selector="Border.IsAutomatic">
+                                                    <Setter Property="Background"
+                                                            Value="{DynamicResource SuccessBackgroundBrush}" />
+                                                    <Setter Property="TextElement.Foreground"
+                                                            Value="{DynamicResource SuccessForegroundBrush}" />
+                                                </Style>
+                                                <Style Selector="Border.IsManual">
+                                                    <Setter Property="Background"
+                                                            Value="{DynamicResource NeutralBackgroundBrush}" />
+                                                    <Setter Property="TextElement.Foreground"
+                                                            Value="{DynamicResource NeutralForegroundBrush}" />
+                                                </Style>
+                                                <Style Selector="Border.IsDisabled">
+                                                    <Setter Property="Background"
+                                                            Value="{DynamicResource DangerBackgroundBrush}" />
+                                                    <Setter Property="TextElement.Foreground"
+                                                            Value="{DynamicResource DangerForegroundBrush}" />
+                                                </Style>
+                                                <Style Selector="Border.IsBoot, Border.IsSystem">
+                                                    <Setter Property="Background"
+                                                            Value="{DynamicResource SpecialBackgroundBrush}" />
+                                                    <Setter Property="TextElement.Foreground"
+                                                            Value="{DynamicResource SpecialForegroundBrush}" />
+                                                </Style>
+                                            </StackPanel.Styles>
+
+                                            <Border CornerRadius="8"
+                                                    Classes.IsStopped="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.Stopped}}"
+                                                    Classes.IsStartPending="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.StartPending}}"
+                                                    Classes.IsStopPending="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.StopPending}}"
+                                                    Classes.IsRunning="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.Running}}"
+                                                    Classes.IsContinuePending="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.ContinuePending}}"
+                                                    Classes.IsPausePending="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.PausePending}}"
+                                                    Classes.IsPaused="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.Paused}}">
+                                                <TextBlock Text="{Binding Status}" FontSize="11"
+                                                           FontWeight="SemiBold"
+                                                           Margin="7,4" />
+                                            </Border>
+
+                                            <Border CornerRadius="8"
+                                                    Classes.IsBoot="{Binding StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.Boot}}"
+                                                    Classes.IsSystem="{Binding StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.System}}"
+                                                    Classes.IsAutomatic="{Binding StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.Automatic}}"
+                                                    Classes.IsManual="{Binding StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.Manual}}"
+                                                    Classes.IsDisabled="{Binding StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.Disabled}}">
+                                                <TextBlock Text="{Binding StartType}" FontSize="11"
+                                                           FontWeight="SemiBold"
+                                                           Margin="7,4" />
+                                            </Border>
+                                        </StackPanel>
+                                    </Grid>
                                 </Button>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
@@ -318,12 +333,13 @@
                 </ScrollViewer>
 
                 <!-- TASKS LIST -->
-                <ScrollViewer IsVisible="{Binding ActiveTab, Converter={StaticResource EqualityConverter}, ConverterParameter=1}"
-                              HorizontalAlignment="Stretch"
-                              VerticalAlignment="Stretch"
-                              HorizontalScrollBarVisibility="Disabled"
-                              VerticalScrollBarVisibility="Auto"
-                              Margin="0,0,-15,0">
+                <ScrollViewer
+                    IsVisible="{Binding ActiveTab, Converter={StaticResource EqualityConverter}, ConverterParameter=1}"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    HorizontalScrollBarVisibility="Disabled"
+                    VerticalScrollBarVisibility="Auto"
+                    Margin="0,0,-15,0">
                     <ItemsControl ItemsSource="{Binding Tasks}"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Top">
@@ -342,9 +358,10 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Button
-                                    Classes="SmallScale"
+                                    Classes="VerySmallScale CardBorderedEffect"
                                     Height="140"
-                                    Background="Transparent"
+                                    Background="{StaticResource CardBackgroundBrush}"
+                                    CornerRadius="10"
                                     HorizontalAlignment="Stretch"
                                     HorizontalContentAlignment="Stretch"
                                     VerticalContentAlignment="Stretch"
@@ -362,100 +379,105 @@
                                                       Command="{Binding TogglePinCommand}" />
                                         </ContextMenu>
                                     </Button.ContextMenu>
-                                    <Border CornerRadius="10"
-                                            HorizontalAlignment="Stretch"
-                                            VerticalAlignment="Stretch"
-                                            Background="{StaticResource CardBackgroundBrush}">
-                                        <Border.Styles>
+                                    <Grid RowDefinitions="Auto, Auto, *, Auto"
+                                          Margin="15">
+                                        <Grid.Styles>
                                             <Style Selector="Border.IsReady">
-                                                <Setter Property="Background" Value="{DynamicResource SuccessBackgroundBrush}" />
-                                                <Setter Property="TextElement.Foreground" Value="{DynamicResource SuccessForegroundBrush}" />
+                                                <Setter Property="Background"
+                                                        Value="{DynamicResource SuccessBackgroundBrush}" />
+                                                <Setter Property="TextElement.Foreground"
+                                                        Value="{DynamicResource SuccessForegroundBrush}" />
                                             </Style>
                                             <Style Selector="Border.IsRunning">
-                                                <Setter Property="Background" Value="{DynamicResource InfoBackgroundBrush}" />
-                                                <Setter Property="TextElement.Foreground" Value="{DynamicResource InfoForegroundBrush}" />
+                                                <Setter Property="Background"
+                                                        Value="{DynamicResource InfoBackgroundBrush}" />
+                                                <Setter Property="TextElement.Foreground"
+                                                        Value="{DynamicResource InfoForegroundBrush}" />
                                             </Style>
                                             <Style Selector="Border.IsDisabled">
-                                                <Setter Property="Background" Value="{DynamicResource DangerBackgroundBrush}" />
-                                                <Setter Property="TextElement.Foreground" Value="{DynamicResource DangerForegroundBrush}" />
+                                                <Setter Property="Background"
+                                                        Value="{DynamicResource DangerBackgroundBrush}" />
+                                                <Setter Property="TextElement.Foreground"
+                                                        Value="{DynamicResource DangerForegroundBrush}" />
                                             </Style>
                                             <Style Selector="Border.IsQueued">
-                                                <Setter Property="Background" Value="{DynamicResource WarningBackgroundBrush}" />
-                                                <Setter Property="TextElement.Foreground" Value="{DynamicResource WarningForegroundBrush}" />
+                                                <Setter Property="Background"
+                                                        Value="{DynamicResource WarningBackgroundBrush}" />
+                                                <Setter Property="TextElement.Foreground"
+                                                        Value="{DynamicResource WarningForegroundBrush}" />
                                             </Style>
                                             <Style Selector="Border.IsUnknown">
-                                                <Setter Property="Background" Value="{DynamicResource NeutralBackgroundBrush}" />
-                                                <Setter Property="TextElement.Foreground" Value="{DynamicResource NeutralForegroundBrush}" />
+                                                <Setter Property="Background"
+                                                        Value="{DynamicResource NeutralBackgroundBrush}" />
+                                                <Setter Property="TextElement.Foreground"
+                                                        Value="{DynamicResource NeutralForegroundBrush}" />
                                             </Style>
-                                        </Border.Styles>
-                                        <Grid RowDefinitions="Auto, Auto, *, Auto"
-                                              Margin="15">
-                                            <TextBlock Grid.Row="0"
-                                                       Text="{Binding DisplayName}"
+                                        </Grid.Styles>
+                                        <TextBlock Grid.Row="0"
+                                                   Text="{Binding DisplayName}"
+                                                   HorizontalAlignment="Stretch"
+                                                   TextAlignment="Left"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   FontWeight="Medium"
+                                                   FontSize="15"
+                                                   Margin="0,0,24,0" />
+                                        <Path Grid.Row="0"
+                                              Data="{StaticResource PinIcon}"
+                                              Fill="{DynamicResource SystemBaseHighColor}"
+                                              Height="16" Width="16"
+                                              HorizontalAlignment="Right"
+                                              VerticalAlignment="Top"
+                                              Stretch="Uniform"
+                                              IsVisible="{Binding IsPinned}" />
+                                        <TextBlock Grid.Row="1"
+                                                   Text="{Binding TriggerSummary}"
+                                                   HorizontalAlignment="Stretch"
+                                                   TextAlignment="Left"
+                                                   FontWeight="Light"
+                                                   Foreground="{DynamicResource SystemBaseMediumColor}"
+                                                   FontSize="10" />
+                                        <StackPanel Grid.Row="2"
+                                                    Orientation="Vertical"
+                                                    Spacing="2"
+                                                    Margin="0,6,0,0"
+                                                    VerticalAlignment="Top">
+                                            <TextBlock Text="{Binding Description}"
                                                        HorizontalAlignment="Stretch"
+                                                       TextWrapping="WrapWithOverflow"
+                                                       TextTrimming="WordEllipsis"
                                                        TextAlignment="Left"
-                                                       TextTrimming="CharacterEllipsis"
-                                                       FontWeight="Medium"
-                                                       FontSize="15"
-                                                       Margin="0,0,24,0" />
-                                            <Path Grid.Row="0"
-                                                  Data="{StaticResource PinIcon}"
-                                                  Fill="{DynamicResource SystemBaseHighColor}"
-                                                  Height="16" Width="16"
-                                                  HorizontalAlignment="Right"
-                                                  VerticalAlignment="Top"
-                                                  Stretch="Uniform"
-                                                  IsVisible="{Binding IsPinned}" />
-                                            <TextBlock Grid.Row="1"
-                                                       Text="{Binding TriggerSummary}"
-                                                       HorizontalAlignment="Stretch"
-                                                       TextAlignment="Left"
-                                                       FontWeight="Light"
                                                        Foreground="{DynamicResource SystemBaseMediumColor}"
-                                                       FontSize="10" />
-                                            <StackPanel Grid.Row="2"
-                                                        Orientation="Vertical"
-                                                        Spacing="2"
-                                                        Margin="0,6,0,0"
-                                                        VerticalAlignment="Top">
-                                                <TextBlock Text="{Binding Description}"
-                                                           HorizontalAlignment="Stretch"
-                                                           TextWrapping="WrapWithOverflow"
-                                                           TextTrimming="WordEllipsis"
-                                                           TextAlignment="Left"
-                                                           Foreground="{DynamicResource SystemBaseMediumColor}"
-                                                           FontSize="12"
-                                                           MaxHeight="32" />
-                                                <StackPanel Orientation="Horizontal" Spacing="4"
-                                                            IsVisible="{Binding NextRunTime, Converter={x:Static ObjectConverters.IsNotNull}}">
-                                                    <Viewbox Height="10">
-                                                        <Path Data="{StaticResource ClockIcon}"
-                                                              Fill="{DynamicResource SystemBaseMediumColor}"
-                                                              Stretch="Uniform" />
-                                                    </Viewbox>
-                                                    <TextBlock Text="{Binding NextRunTime, StringFormat='{}{0:g}'}"
-                                                               FontSize="10"
-                                                               Foreground="{DynamicResource SystemBaseMediumColor}" />
-                                                </StackPanel>
+                                                       FontSize="12"
+                                                       MaxHeight="32" />
+                                            <StackPanel Orientation="Horizontal" Spacing="4"
+                                                        IsVisible="{Binding NextRunTime, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                                <Viewbox Height="10">
+                                                    <Path Data="{StaticResource ClockIcon}"
+                                                          Fill="{DynamicResource SystemBaseMediumColor}"
+                                                          Stretch="Uniform" />
+                                                </Viewbox>
+                                                <TextBlock Text="{Binding NextRunTime, StringFormat='{}{0:g}'}"
+                                                           FontSize="10"
+                                                           Foreground="{DynamicResource SystemBaseMediumColor}" />
                                             </StackPanel>
-                                            <StackPanel Grid.Row="3"
-                                                        Spacing="6"
-                                                        Orientation="Horizontal"
-                                                        Margin="0,8,0,0"
-                                                        HorizontalAlignment="Stretch">
-                                                <Border CornerRadius="8"
-                                                        Classes.IsReady="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static ts:TaskState.Ready}}"
-                                                        Classes.IsRunning="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static ts:TaskState.Running}}"
-                                                        Classes.IsDisabled="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static ts:TaskState.Disabled}}"
-                                                        Classes.IsQueued="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static ts:TaskState.Queued}}"
-                                                        Classes.IsUnknown="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static ts:TaskState.Unknown}}">
-                                                    <TextBlock Text="{Binding Status}" FontSize="11"
-                                                               FontWeight="SemiBold"
-                                                               Margin="7,4" />
-                                                </Border>
-                                            </StackPanel>
-                                        </Grid>
-                                    </Border>
+                                        </StackPanel>
+                                        <StackPanel Grid.Row="3"
+                                                    Spacing="6"
+                                                    Orientation="Horizontal"
+                                                    Margin="0,8,0,0"
+                                                    HorizontalAlignment="Stretch">
+                                            <Border CornerRadius="8"
+                                                    Classes.IsReady="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static ts:TaskState.Ready}}"
+                                                    Classes.IsRunning="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static ts:TaskState.Running}}"
+                                                    Classes.IsDisabled="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static ts:TaskState.Disabled}}"
+                                                    Classes.IsQueued="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static ts:TaskState.Queued}}"
+                                                    Classes.IsUnknown="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static ts:TaskState.Unknown}}">
+                                                <TextBlock Text="{Binding Status}" FontSize="11"
+                                                           FontWeight="SemiBold"
+                                                           Margin="7,4" />
+                                            </Border>
+                                        </StackPanel>
+                                    </Grid>
                                 </Button>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
