@@ -10,7 +10,7 @@ SystemCtrl is a fast Windows Desktop application built with C# and Avalonia UI. 
 - **Manage Windows Services**: View, start, stop, and filter system services.
 - **Manage Scheduled Tasks**: Interactively view and manage background tasks.
 - **Pin Favorites**: Keep your most-used services or tasks pinned to the top. It is perfect for when you frequently want to quickly enable or disable them.
-- **AI Summary**: Uses AI to explain what a service or task does in plain English, helping you decide if it is safe to disable.   
+- **AI Summary**: Uses AI to explain what a service or task does in plain English, helping you decide if it is safe to disable. *(Note: This feature uses Google Gemini and requires you to provide your own Gemini API key in the application settings).*
 
 ## Installation
 
