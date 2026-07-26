@@ -228,6 +228,7 @@
                                                    TextAlignment="Left"
                                                    VerticalAlignment="Center" />
                                         <Button Grid.Column="1"
+                                                Classes="SmallScale"
                                                 Content="Clear all"
                                                 FontSize="11"
                                                 Foreground="{StaticResource InfoForegroundBrush}"

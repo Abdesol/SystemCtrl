@@ -10,7 +10,10 @@ using SystemCtrl.Core.Models;
 using System.Reactive.Linq;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Avalonia.Threading;
 using SystemCtrl.Desktop.Services;
+using Task = System.Threading.Tasks.Task;
 
 namespace SystemCtrl.Desktop.ViewModels;
 
@@ -34,8 +37,8 @@ public partial class MainViewModel : ViewModelBase
         _windowsTaskManager = windowsTaskManager;
         _errorDialog = errorDialog;
 
-        _allServices = _windowsServiceManager.GetServices().ToList();
-        _allTasks = _windowsTaskManager.GetTasks().ToList();
+        _allServices = [];
+        _allTasks = [];
 
         SlidePanel = new SlidePanelViewModel();
         ActiveTab = 0;
@@ -55,7 +58,7 @@ public partial class MainViewModel : ViewModelBase
 
         this.WhenAnyValue(x => x.SlidePanel.IsOpen)
             .Where(isOpen => !isOpen)
-            .Subscribe(_ => RefreshCurrent());
+            .Subscribe(async void (_) => await RefreshCurrent());
 
         this.WhenAnyValue(
                 x => x.FilterServiceRunning,
@@ -79,6 +82,26 @@ public partial class MainViewModel : ViewModelBase
                 RaiseFilterChanged();
                 if (ActiveTab == 1) FilterCurrent();
             });
+
+        _ = InitializeAsync()
+            .ContinueWith(t =>
+            {
+                if (t.Exception != null)
+                {
+                    throw t.Exception.Flatten();
+                }
+            }, TaskScheduler.Default);
+    }
+
+    private async Task InitializeAsync()
+    {
+        var services = _windowsServiceManager.GetServices().ToList();
+        var tasks = _windowsTaskManager.GetTasks().ToList();
+
+        _allServices = services;
+        _allTasks = tasks;
+
+        await Dispatcher.UIThread.InvokeAsync(FilterCurrent);
     }
 
     [Reactive] public partial ObservableCollection<ServiceItemViewModel> Services { get; set; }
@@ -151,9 +174,9 @@ public partial class MainViewModel : ViewModelBase
     }
 
     [ReactiveCommand]
-    public void Refresh()
+    public async Task Refresh()
     {
-        RefreshCurrent();
+        await RefreshCurrent();
     }
 
     [ReactiveCommand]
@@ -188,12 +211,12 @@ public partial class MainViewModel : ViewModelBase
         this.RaisePropertyChanged(nameof(HasActiveFilters));
     }
 
-    private void RefreshCurrent()
+    private async Task RefreshCurrent()
     {
         if (ActiveTab == 0)
-            RefreshServices();
+            await RefreshServices();
         else
-            RefreshTasks();
+            await RefreshTasks();
     }
 
     private void FilterServices()
@@ -208,8 +231,8 @@ public partial class MainViewModel : ViewModelBase
         {
             var query = SearchText.ToLowerInvariant();
             filtered = filtered.Where(s =>
-                s.DisplayName.ToLowerInvariant().Contains(query) ||
-                s.ServiceName.ToLowerInvariant().Contains(query));
+                s.DisplayName.Contains(query, StringComparison.InvariantCultureIgnoreCase) ||
+                s.ServiceName.Contains(query, StringComparison.InvariantCultureIgnoreCase));
         }
 
         var hasStatusFilter = FilterServiceRunning || FilterServiceStopped;
@@ -256,8 +279,8 @@ public partial class MainViewModel : ViewModelBase
         {
             var query = SearchText.ToLowerInvariant();
             filtered = filtered.Where(t =>
-                t.TaskName.ToLowerInvariant().Contains(query) ||
-                t.TaskPath.ToLowerInvariant().Contains(query));
+                t.TaskName.Contains(query, StringComparison.InvariantCultureIgnoreCase) ||
+                t.TaskPath.Contains(query, StringComparison.InvariantCultureIgnoreCase));
         }
 
         var hasStatusFilter = FilterTaskReady || FilterTaskRunning || FilterTaskDisabled || FilterTaskQueued;
@@ -337,9 +360,9 @@ public partial class MainViewModel : ViewModelBase
     {
         try
         {
-            await System.Threading.Tasks.Task.Run(() => _windowsServiceManager.Start(item.Service.ServiceName));
-            await System.Threading.Tasks.Task.Delay(1000);
-            RefreshServices();
+            await Task.Run(() => _windowsServiceManager.Start(item.Service.ServiceName));
+            await Task.Delay(1000);
+            await RefreshServices();
         }
         catch (Exception ex)
         {
@@ -351,9 +374,9 @@ public partial class MainViewModel : ViewModelBase
     {
         try
         {
-            await System.Threading.Tasks.Task.Run(() => _windowsServiceManager.Stop(item.Service.ServiceName));
-            await System.Threading.Tasks.Task.Delay(1000);
-            RefreshServices();
+            await Task.Run(() => _windowsServiceManager.Stop(item.Service.ServiceName));
+            await Task.Delay(1000);
+            await RefreshServices();
         }
         catch (Exception ex)
         {
@@ -365,9 +388,9 @@ public partial class MainViewModel : ViewModelBase
     {
         try
         {
-            await System.Threading.Tasks.Task.Run(() => _windowsTaskManager.Run(item.Task.TaskPath));
-            await System.Threading.Tasks.Task.Delay(1000);
-            RefreshTasks();
+            await Task.Run(() => _windowsTaskManager.Run(item.Task.TaskPath));
+            await Task.Delay(1000);
+            await RefreshTasks();
         }
         catch (Exception ex)
         {
@@ -379,9 +402,9 @@ public partial class MainViewModel : ViewModelBase
     {
         try
         {
-            await System.Threading.Tasks.Task.Run(() => _windowsTaskManager.Stop(item.Task.TaskPath));
-            await System.Threading.Tasks.Task.Delay(1000);
-            RefreshTasks();
+            await Task.Run(() => _windowsTaskManager.Stop(item.Task.TaskPath));
+            await Task.Delay(1000);
+            await RefreshTasks();
         }
         catch (Exception ex)
         {
@@ -397,17 +420,17 @@ public partial class MainViewModel : ViewModelBase
         SlidePanel.Open("Settings", settingsViewModel);
     }
 
-    [ReactiveCommand]
-    public void RefreshServices()
+    private async Task RefreshServices()
     {
-        _allServices = _windowsServiceManager.GetServices().ToList();
+        var services = await Task.Run(() => _windowsServiceManager.GetServices().ToList());
+        _allServices = services;
         FilterServices();
     }
 
-    [ReactiveCommand]
-    public void RefreshTasks()
+    private async Task RefreshTasks()
     {
-        _allTasks = _windowsTaskManager.GetTasks().ToList();
+        var tasks = await Task.Run(() => _windowsTaskManager.GetTasks().ToList());
+        _allTasks = tasks;
         FilterTasks();
     }
 }
