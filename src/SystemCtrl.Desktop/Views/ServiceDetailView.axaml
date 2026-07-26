@@ -399,12 +399,10 @@
             </StackPanel>
         </ScrollViewer>
 
-        <Border Grid.Row="1"
-                BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}"
-                BorderThickness="0,1,0,0"
-                Padding="20"
-                IsVisible="{Binding Service, Converter={x:Static ObjectConverters.IsNotNull}}">
-            <Panel>
+        <Panel Grid.Row="1" IsVisible="{Binding Service, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <Border BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}"
+                    BorderThickness="0,1,0,0"
+                    Padding="20">
                 <StackPanel Spacing="10">
                     <!-- Standard action buttons -->
                     <UniformGrid Columns="2" Rows="2" IsEnabled="{Binding CanExecuteServiceActions}">
@@ -520,18 +518,18 @@
                         </Button>
                     </UniformGrid>
                 </StackPanel>
+            </Border>
 
-                <!-- Loading Overlay -->
-                <Border CornerRadius="10" Background="{DynamicResource SystemRegionBrush}" Opacity="0.8"
-                        IsVisible="{Binding IsExecutingAction}" />
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical" Spacing="10"
-                            IsVisible="{Binding IsExecutingAction}">
-                    <ProgressBar IsIndeterminate="True" Width="100" Height="4" CornerRadius="2"
-                                 Foreground="{DynamicResource SystemAccentColor}" />
-                    <TextBlock Text="Executing action..." Foreground="{DynamicResource SystemBaseHighColor}"
-                               FontSize="12" FontWeight="Medium" HorizontalAlignment="Center" />
-                </StackPanel>
-            </Panel>
-        </Border>
+            <!-- Loading Overlay -->
+            <Border Background="{DynamicResource SystemRegionBrush}" Opacity="0.8"
+                    IsVisible="{Binding IsExecutingAction}" />
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Vertical" Spacing="10"
+                        IsVisible="{Binding IsExecutingAction}">
+                <ProgressBar IsIndeterminate="True" Width="100" Height="4" CornerRadius="2"
+                             Foreground="{DynamicResource SystemAccentColor}" />
+                <TextBlock Text="Executing action..." Foreground="{DynamicResource SystemBaseHighColor}"
+                           FontSize="12" FontWeight="Medium" HorizontalAlignment="Center" />
+            </StackPanel>
+        </Panel>
     </Grid>
 </UserControl>
