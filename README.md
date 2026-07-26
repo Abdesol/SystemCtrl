@@ -4,6 +4,8 @@ These days, it is rarely malware or viruses that slow down our devices. It is th
 
 SystemCtrl is a Windows desktop app built with C# and Avalonia for managing Windows Services and background tasks. It gives you a unified interface to see what's running and understand what it does. No unnecessary info, just what you need to stop or disable the things you don't want, with minimal overhead.
 
+<img src="banner.png" width="100%" alt="SystemCtrl Banner" />
+
 ## Features
 - **Manage Windows Services**: View, start, stop, and filter system services.
 - **Manage Scheduled Tasks**: Interactively view and manage background tasks.
