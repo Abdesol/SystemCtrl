@@ -58,6 +58,8 @@ public partial class TaskDetailViewModel : ViewModelBase
 
     [Reactive] public partial bool IsAiSummaryExpanded { get; set; }
 
+    [Reactive] public partial bool ShowAiSummary { get; set; }
+
     [Reactive] public partial string ToggleAiSummaryText { get; set; } = "Show";
 
     [Reactive] public partial string LoadingSummaryText { get; set; } = "Generating insights...";
@@ -85,6 +87,7 @@ public partial class TaskDetailViewModel : ViewModelBase
         if (task != null!)
         {
             var settings = _settingsService.LoadSettings();
+            ShowAiSummary = settings.ShowAiSummary;
             if (settings.AiSummaries.TryGetValue(task.TaskName, out var existingSummary))
             {
                 AiSummaryList = existingSummary;

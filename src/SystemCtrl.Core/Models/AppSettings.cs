@@ -7,4 +7,5 @@ public class AppSettings
     public List<string> PinnedServices { get; set; } = new();
     public List<string> PinnedTasks { get; set; } = new();
     public Dictionary<string, List<AiQna>> AiSummaries { get; set; } = new();
+    public bool ShowAiSummary { get; set; } = true;
 }

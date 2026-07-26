@@ -18,6 +18,9 @@ public partial class SettingsViewModel : ViewModelBase
     public partial string SelectedModel { get; set; }
 
     [Reactive]
+    public partial bool ShowAiSummary { get; set; }
+
+    [Reactive]
     public partial ObservableCollection<string> AvailableModels { get; set; }
 
     public SettingsViewModel(ISettingsService settingsService)
@@ -27,6 +30,7 @@ public partial class SettingsViewModel : ViewModelBase
         
         ApiKey = settings.GeminiApiKey;
         SelectedModel = settings.GeminiModel;
+        ShowAiSummary = settings.ShowAiSummary;
         
         AvailableModels =
         [
@@ -53,6 +57,7 @@ public partial class SettingsViewModel : ViewModelBase
         var settings = _settingsService.LoadSettings();
         settings.GeminiApiKey = ApiKey;
         settings.GeminiModel = SelectedModel;
+        settings.ShowAiSummary = ShowAiSummary;
         _settingsService.SaveSettings(settings);
         OnSaved?.Invoke();
     }
