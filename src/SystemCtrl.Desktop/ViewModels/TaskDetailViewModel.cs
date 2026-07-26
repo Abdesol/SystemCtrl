@@ -64,6 +64,8 @@ public partial class TaskDetailViewModel : ViewModelBase
 
     [Reactive] public partial string LoadingSummaryText { get; set; } = "Generating insights...";
 
+    [Reactive] public partial bool HasApiKey { get; set; }
+
     public IObservable<bool> CanRunTask =>
         this.WhenAnyValue(x => x.Task, x => x.Task!.Status,
             (t, status) => t != null && status != TaskState.Running);
@@ -88,6 +90,7 @@ public partial class TaskDetailViewModel : ViewModelBase
         {
             var settings = _settingsService.LoadSettings();
             ShowAiSummary = settings.ShowAiSummary;
+            HasApiKey = !string.IsNullOrWhiteSpace(settings.GeminiApiKey);
             if (settings.AiSummaries.TryGetValue(task.TaskName, out var existingSummary))
             {
                 AiSummaryList = existingSummary;

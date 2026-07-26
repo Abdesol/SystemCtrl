@@ -55,7 +55,8 @@
                         BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}"
                         BorderThickness="1"
                         Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
-                        IsVisible="{Binding ShowAiSummary}">
+                        IsVisible="{Binding ShowAiSummary}"
+                        IsEnabled="{Binding HasApiKey}">
                     <StackPanel Spacing="16"
                                 Margin="15,12"
                                 HorizontalAlignment="Stretch">
@@ -182,6 +183,13 @@
                         </Grid>
                     </StackPanel>
                 </Border>
+                
+                <TextBlock Text="Please add your Gemini API Key in Settings to enable AI Summary."
+                           FontSize="10"
+                           Foreground="{DynamicResource CautionForegroundBrush}"
+                           IsVisible="{Binding !HasApiKey}"
+                           Margin="5,-12,0,0"
+                           FontWeight="Light" />
 
                 <!-- TASK NAME & PATH -->
                 <StackPanel Spacing="4">

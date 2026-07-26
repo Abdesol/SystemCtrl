@@ -79,6 +79,8 @@ public partial class ServiceDetailViewModel : ViewModelBase
 
     [Reactive] public partial string LoadingSummaryText { get; set; } = "Generating insights...";
 
+    [Reactive] public partial bool HasApiKey { get; set; }
+
     public void Load(WindowsServiceInfo service)
     {
         Service = service;
@@ -100,6 +102,7 @@ public partial class ServiceDetailViewModel : ViewModelBase
 
             var settings = _settingsService.LoadSettings();
             ShowAiSummary = settings.ShowAiSummary;
+            HasApiKey = !string.IsNullOrWhiteSpace(settings.GeminiApiKey);
             if (settings.AiSummaries.TryGetValue(service.ServiceName, out var existingSummary))
             {
                 AiSummaryList = existingSummary;
