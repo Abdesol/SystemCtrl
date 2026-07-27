@@ -383,6 +383,7 @@ public partial class MainViewModel : ViewModelBase
     {
         try
         {
+            item.IsBusy = true;
             await Task.Run(() => _windowsServiceManager.Start(item.Service.ServiceName));
             await Task.Delay(1000);
             await RefreshServices();
@@ -391,12 +392,17 @@ public partial class MainViewModel : ViewModelBase
         {
             await _errorDialog.ShowAsync($"Failed to start '{item.DisplayName}'", ex.Message, ex.ToString());
         }
+        finally
+        {
+            item.IsBusy = false;
+        }
     }
 
     private async void StopServiceAction(ServiceItemViewModel item)
     {
         try
         {
+            item.IsBusy = true;
             await Task.Run(() => _windowsServiceManager.Stop(item.Service.ServiceName));
             await Task.Delay(1000);
             await RefreshServices();
@@ -405,12 +411,17 @@ public partial class MainViewModel : ViewModelBase
         {
             await _errorDialog.ShowAsync($"Failed to stop '{item.DisplayName}'", ex.Message, ex.ToString());
         }
+        finally
+        {
+            item.IsBusy = false;
+        }
     }
 
     private async void StartTaskAction(TaskItemViewModel item)
     {
         try
         {
+            item.IsBusy = true;
             await Task.Run(() => _windowsTaskManager.Run(item.Task.TaskPath));
             await Task.Delay(1000);
             await RefreshTasks();
@@ -419,12 +430,17 @@ public partial class MainViewModel : ViewModelBase
         {
             await _errorDialog.ShowAsync($"Failed to start '{item.DisplayName}'", ex.Message, ex.ToString());
         }
+        finally
+        {
+            item.IsBusy = false;
+        }
     }
 
     private async void StopTaskAction(TaskItemViewModel item)
     {
         try
         {
+            item.IsBusy = true;
             await Task.Run(() => _windowsTaskManager.Stop(item.Task.TaskPath));
             await Task.Delay(1000);
             await RefreshTasks();
@@ -432,6 +448,10 @@ public partial class MainViewModel : ViewModelBase
         catch (Exception ex)
         {
             await _errorDialog.ShowAsync($"Failed to stop '{item.DisplayName}'", ex.Message, ex.ToString());
+        }
+        finally
+        {
+            item.IsBusy = false;
         }
     }
 

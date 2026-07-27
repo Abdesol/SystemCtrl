@@ -31,7 +31,7 @@ public partial class TaskDetailViewModel : ViewModelBase
         this.WhenAnyValue(
                 x => x.IsEnabled,
                 x => x.IsExecutingAction,
-                (enabled, executing) => !executing)
+                (enabled, executing) => enabled && !executing)
             .Subscribe(can => CanExecuteTaskActions = can);
 
         this.WhenAnyValue(x => x.IsAiSummaryExpanded)

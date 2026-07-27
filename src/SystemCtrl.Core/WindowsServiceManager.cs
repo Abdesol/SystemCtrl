@@ -154,9 +154,10 @@ public partial class WindowsServiceManager : IWindowsServiceManager
                 
             throw new Exceptions.ElevatedCommandException(shortMessage, $"{fileName} {arguments}", output);
         }
-        catch (System.ComponentModel.Win32Exception)
+        catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
         {
-            throw new Exception("User cancelled the UAC prompt.");
+            // User cancelled the UAC prompt
+            return;
         }
         finally
         {

@@ -29,6 +29,8 @@ public partial class TaskItemViewModel : ViewModelBase
 
     [Reactive] public partial bool IsPinned { get; set; }
 
+    [Reactive] public partial bool IsBusy { get; set; }
+
     public string PinActionText => IsPinned ? "Unpin" : "Pin";
 
     public string DisplayName => Task.TaskName;

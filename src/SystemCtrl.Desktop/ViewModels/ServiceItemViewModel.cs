@@ -29,6 +29,9 @@ public partial class ServiceItemViewModel : ViewModelBase
     [Reactive]
     public partial bool IsPinned { get; set; }
 
+    [Reactive]
+    public partial bool IsBusy { get; set; }
+
     public string PinActionText => IsPinned ? "Unpin" : "Pin";
 
     public string DisplayName => Service.DisplayName;
@@ -36,6 +39,9 @@ public partial class ServiceItemViewModel : ViewModelBase
     public string Description => Service.Description;
     public ServiceControllerStatus Status => Service.Status;
     public ServiceStartMode StartType => Service.StartType;
+
+    public bool CanStart => Status == ServiceControllerStatus.Stopped && StartType != ServiceStartMode.Disabled;
+    public bool CanStop => Status == ServiceControllerStatus.Running;
 
     [ReactiveCommand]
     public void TogglePinCommand()

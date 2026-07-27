@@ -361,6 +361,7 @@
                                     HorizontalContentAlignment="Stretch"
                                     VerticalContentAlignment="Stretch"
                                     Command="{Binding OpenServiceCommand}"
+                                    IsEnabled="{Binding !IsBusy}"
                                     Margin="0,0,5,5">
                                     <Button.ContextMenu>
                                         <ContextMenu Background="{DynamicResource CardBackgroundBrush}"
@@ -372,10 +373,10 @@
                                                       Command="{Binding OpenServiceCommand}" />
                                             <MenuItem Header="Start"
                                                       Command="{Binding StartCommand}"
-                                                      IsVisible="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.Stopped}}" />
+                                                      IsVisible="{Binding CanStart}" />
                                             <MenuItem Header="Stop"
                                                       Command="{Binding StopCommand}"
-                                                      IsVisible="{Binding Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.Running}}" />
+                                                      IsVisible="{Binding CanStop}" />
                                             <MenuItem Header="{Binding PinActionText}"
                                                       Command="{Binding TogglePinCommand}" />
                                         </ContextMenu>
@@ -561,6 +562,7 @@
                                     HorizontalContentAlignment="Stretch"
                                     VerticalContentAlignment="Stretch"
                                     Command="{Binding OpenTaskCommand}"
+                                    IsEnabled="{Binding !IsBusy}"
                                     Margin="0,0,5,5">
                                     <Button.ContextMenu>
                                         <ContextMenu Background="{DynamicResource CardBackgroundBrush}"
