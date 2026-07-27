@@ -239,7 +239,7 @@ public partial class WindowsTaskManager : IWindowsTaskManager
         catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
         {
             // User cancelled the UAC prompt
-            return;
+            throw new OperationCanceledException("User cancelled the UAC prompt.", ex);
         }
         finally
         {

@@ -152,6 +152,10 @@ public partial class ServiceDetailViewModel : ViewModelBase
             await Task.Delay(1000);
             RefreshServiceState();
         }
+        catch (OperationCanceledException)
+        {
+            // User cancelled the action, do nothing
+        }
         catch (ElevatedCommandException ex)
         {
             await _errorDialog.ShowAsync(
@@ -182,6 +186,10 @@ public partial class ServiceDetailViewModel : ViewModelBase
             await Task.Run(() => _windowsServiceManager.Stop(Service.ServiceName));
             await Task.Delay(1000);
             RefreshServiceState();
+        }
+        catch (OperationCanceledException)
+        {
+            // User cancelled the action, do nothing
         }
         catch (ElevatedCommandException ex)
         {
@@ -216,6 +224,10 @@ public partial class ServiceDetailViewModel : ViewModelBase
             await Task.Delay(1000);
             RefreshServiceState();
         }
+        catch (OperationCanceledException)
+        {
+            // User cancelled the action, do nothing
+        }
         catch (ElevatedCommandException ex)
         {
             await _errorDialog.ShowAsync(
@@ -247,6 +259,10 @@ public partial class ServiceDetailViewModel : ViewModelBase
                 _windowsServiceManager.SetStartType(Service.ServiceName, ServiceStartMode.Manual));
             IsAutoStart = false;
             Service.StartType = ServiceStartMode.Manual;
+        }
+        catch (OperationCanceledException)
+        {
+            // User cancelled the action, do nothing
         }
         catch (ElevatedCommandException ex)
         {
@@ -281,6 +297,10 @@ public partial class ServiceDetailViewModel : ViewModelBase
             IsAutoStart = true;
             Service.StartType = ServiceStartMode.Automatic;
         }
+        catch (OperationCanceledException)
+        {
+            // User cancelled the action, do nothing
+        }
         catch (ElevatedCommandException ex)
         {
             await _errorDialog.ShowAsync(
@@ -314,6 +334,10 @@ public partial class ServiceDetailViewModel : ViewModelBase
             Service.StartType = ServiceStartMode.Manual;
             RefreshServiceState();
         }
+        catch (OperationCanceledException)
+        {
+            // User cancelled the action, do nothing
+        }
         catch (ElevatedCommandException ex)
         {
             await _errorDialog.ShowAsync(
@@ -346,6 +370,10 @@ public partial class ServiceDetailViewModel : ViewModelBase
             IsDisabled = true;
             Service.StartType = ServiceStartMode.Disabled;
             RefreshServiceState();
+        }
+        catch (OperationCanceledException)
+        {
+            // User cancelled the action, do nothing
         }
         catch (ElevatedCommandException ex)
         {

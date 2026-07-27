@@ -129,6 +129,10 @@ public partial class TaskDetailViewModel : ViewModelBase
             await System.Threading.Tasks.Task.Delay(800);
             RefreshTaskState();
         }
+        catch (OperationCanceledException)
+        {
+            // User cancelled the action, do nothing
+        }
         catch (ElevatedCommandException ex)
         {
             await _errorDialog.ShowAsync($"Failed to run '{Task.TaskName}'", ex.Message, ex.ToString());
@@ -153,6 +157,10 @@ public partial class TaskDetailViewModel : ViewModelBase
             await System.Threading.Tasks.Task.Run(() => _windowsTaskManager.Stop(Task.TaskPath));
             await System.Threading.Tasks.Task.Delay(800);
             RefreshTaskState();
+        }
+        catch (OperationCanceledException)
+        {
+            // User cancelled the action, do nothing
         }
         catch (ElevatedCommandException ex)
         {
@@ -179,6 +187,10 @@ public partial class TaskDetailViewModel : ViewModelBase
             IsEnabled = true;
             Task.Status = TaskState.Ready;
         }
+        catch (OperationCanceledException)
+        {
+            // User cancelled the action, do nothing
+        }
         catch (ElevatedCommandException ex)
         {
             await _errorDialog.ShowAsync($"Failed to enable '{Task.TaskName}'", ex.Message, ex.ToString());
@@ -203,6 +215,10 @@ public partial class TaskDetailViewModel : ViewModelBase
             await System.Threading.Tasks.Task.Run(() => _windowsTaskManager.Disable(Task.TaskPath));
             IsEnabled = false;
             Task.Status = TaskState.Disabled;
+        }
+        catch (OperationCanceledException)
+        {
+            // User cancelled the action, do nothing
         }
         catch (ElevatedCommandException ex)
         {
