@@ -15,7 +15,7 @@
         Title="SystemCtrl"
         ExtendClientAreaToDecorationsHint="True"
         MinHeight="400"
-        MinWidth="700"
+        MinWidth="435"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource BackgroundBrush}">
     <Design.DataContext>
