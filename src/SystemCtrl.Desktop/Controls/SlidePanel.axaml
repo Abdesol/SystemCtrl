@@ -23,7 +23,7 @@
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Border x:Name="DimOverlay"
                 Classes.Open="{Binding IsOpen}"
-                Background="#4D000000"
+                Background="{StaticResource FreezeBackgroundBrush}"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
                 DoubleTapped="DimOverlay_DoubleTapped" />
