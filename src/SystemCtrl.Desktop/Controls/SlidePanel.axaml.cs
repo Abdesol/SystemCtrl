@@ -1,3 +1,4 @@
+#pragma warning disable IL2026, IL3050
 using System;
 using System.Globalization;
 using Avalonia;
@@ -34,6 +35,8 @@ public partial class SlidePanel : UserControl
         DataContextChanged += OnDataContextChanged;
     }
 
+    [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("Trimming", "IL2026")]
+    [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("Aot", "IL3050")]
     private void OnDataContextChanged(object? sender, EventArgs e)
     {
         _subscription?.Dispose();

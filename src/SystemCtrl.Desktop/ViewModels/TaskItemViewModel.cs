@@ -1,5 +1,4 @@
 using System;
-using Microsoft.Win32.TaskScheduler;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
 using SystemCtrl.Core.Models;

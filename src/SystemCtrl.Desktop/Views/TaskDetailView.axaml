@@ -2,7 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:SystemCtrl.Desktop.ViewModels"
              xmlns:models="using:SystemCtrl.Core.Models"
-             xmlns:ts="clr-namespace:Microsoft.Win32.TaskScheduler;assembly=Microsoft.Win32.TaskScheduler"
+             xmlns:ts="using:SystemCtrl.Core.Models"
              xmlns:conv="using:SystemCtrl.Desktop.Converters"
              x:Class="SystemCtrl.Desktop.Views.TaskDetailView"
              x:DataType="vm:TaskDetailViewModel">

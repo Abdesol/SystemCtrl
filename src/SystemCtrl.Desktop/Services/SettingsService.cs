@@ -1,10 +1,17 @@
 using System;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using SystemCtrl.Core.Interfaces;
 using SystemCtrl.Core.Models;
 
 namespace SystemCtrl.Desktop.Services;
+
+[JsonSourceGenerationOptions(WriteIndented = true)]
+[JsonSerializable(typeof(AppSettings))]
+internal partial class SettingsJsonContext : JsonSerializerContext
+{
+}
 
 public class SettingsService : ISettingsService
 {
@@ -31,7 +38,7 @@ public class SettingsService : ISettingsService
         try
         {
             var json = File.ReadAllText(_settingsFilePath);
-            return JsonSerializer.Deserialize<AppSettings>(json) ?? new AppSettings();
+            return JsonSerializer.Deserialize(json, SettingsJsonContext.Default.AppSettings) ?? new AppSettings();
         }
         catch
         {
@@ -43,7 +50,7 @@ public class SettingsService : ISettingsService
     {
         try
         {
-            var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
+            var json = JsonSerializer.Serialize(settings, SettingsJsonContext.Default.AppSettings);
             File.WriteAllText(_settingsFilePath, json);
         }
         catch

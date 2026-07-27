@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Management;
 using System.Security.Cryptography.X509Certificates;
 using System.ServiceProcess;
 using System.Text.RegularExpressions;
@@ -384,14 +383,31 @@ public partial class WindowsServiceManager : IWindowsServiceManager
     
     private static int? GetProcessId(ServiceController service)
     {
-        using var searcher = new ManagementObjectSearcher(
-            $"SELECT ProcessId FROM Win32_Service WHERE Name='{service.ServiceName}'");
+        var scmHandle = Interop.Advapi32.OpenSCManager(null, null, 0x0001);
+        if (scmHandle == IntPtr.Zero) return null;
 
-        using var result = searcher.Get().Cast<ManagementObject>().FirstOrDefault();
+        var serviceHandle = Interop.Advapi32.OpenService(scmHandle, service.ServiceName, 0x0001);
+        if (serviceHandle == IntPtr.Zero)
+        {
+            Interop.Advapi32.CloseServiceHandle(scmHandle);
+            return null;
+        }
 
-        return result?["ProcessId"] as uint? is { } pid && pid != 0
-            ? (int)pid
-            : null;
+        try
+        {
+            var status = new Interop.SERVICE_STATUS_PROCESS();
+            if (Interop.Advapi32.QueryServiceStatusEx(serviceHandle, 0, ref status, System.Runtime.InteropServices.Marshal.SizeOf(status), out _))
+            {
+                return status.dwProcessId > 0 ? status.dwProcessId : null;
+            }
+        }
+        finally
+        {
+            Interop.Advapi32.CloseServiceHandle(serviceHandle);
+            Interop.Advapi32.CloseServiceHandle(scmHandle);
+        }
+
+        return null;
     }
 
     private static string? GetServiceDescription(string serviceName)

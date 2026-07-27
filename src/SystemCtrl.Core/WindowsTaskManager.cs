@@ -1,6 +1,6 @@
 using System.Diagnostics;
-using Microsoft.Win32.TaskScheduler;
-using TsTask = Microsoft.Win32.TaskScheduler.Task;
+using System.Text;
+using System.Text.RegularExpressions;
 using SystemCtrl.Core.Exceptions;
 using SystemCtrl.Core.Interfaces;
 using SystemCtrl.Core.Models;
@@ -16,198 +16,177 @@ public partial class WindowsTaskManager : IWindowsTaskManager
 
     public IEnumerable<WindowsTaskInfo> GetTasks(bool includeSystemTasks = false)
     {
-        using var ts = new TaskService();
-        return EnumerateTasks(ts.RootFolder, includeSystemTasks).ToList();
+        var csvData = RunSchTasks("/query /v /fo CSV");
+        if (string.IsNullOrWhiteSpace(csvData))
+        {
+            return Enumerable.Empty<WindowsTaskInfo>();
+        }
+
+        return ParseCsv(csvData, includeSystemTasks);
     }
 
-    private static IEnumerable<WindowsTaskInfo> EnumerateTasks(TaskFolder folder, bool includeSystemTasks)
+    private static string RunSchTasks(string arguments)
     {
-        foreach (var task in folder.Tasks)
+        var psi = new ProcessStartInfo
         {
-            if (!includeSystemTasks && IsSystemTask(task))
+            FileName = "schtasks.exe",
+            Arguments = arguments,
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            CreateNoWindow = true,
+            StandardOutputEncoding = Encoding.UTF8
+        };
+        try
+        {
+            using var proc = Process.Start(psi);
+            if (proc == null) return string.Empty;
+            string output = proc.StandardOutput.ReadToEnd();
+            proc.WaitForExit();
+            return output;
+        }
+        catch
+        {
+            return string.Empty;
+        }
+    }
+
+    private IEnumerable<WindowsTaskInfo> ParseCsv(string csvData, bool includeSystemTasks)
+    {
+        var lines = csvData.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        if (lines.Length <= 1) yield break;
+
+        var headers = Helpers.CsvHelper.ParseCsvLine(lines[0]);
+        var colMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        for (int i = 0; i < headers.Length; i++)
+        {
+            colMap[headers[i]] = i;
+        }
+
+        for (int i = 1; i < lines.Length; i++)
+        {
+            var cols = Helpers.CsvHelper.ParseCsvLine(lines[i]);
+            if (cols.Length != headers.Length) continue;
+
+            string GetCol(string name) => colMap.TryGetValue(name, out var idx) ? cols[idx] : string.Empty;
+
+            var taskPath = GetCol("TaskName");
+            if (string.IsNullOrWhiteSpace(taskPath)) continue;
+
+            if (!includeSystemTasks && IsSystemTask(taskPath))
                 continue;
 
-            yield return MapToInfo(task);
+            var taskName = Path.GetFileName(taskPath.TrimEnd('\\'));
+            if (string.IsNullOrEmpty(taskName)) taskName = taskPath;
+
+            DateTime? nextRun = null;
+            if (DateTime.TryParse(GetCol("Next Run Time"), out var nr)) nextRun = nr;
+
+            DateTime? lastRun = null;
+            if (DateTime.TryParse(GetCol("Last Run Time"), out var lr)) lastRun = lr;
+
+            int.TryParse(GetCol("Last Result"), out var lrResult);
+
+            var statusStr = GetCol("Status");
+            var schedState = GetCol("Scheduled Task State");
+            
+            var status = TaskState.Unknown;
+            if (schedState.Contains("Disabled", StringComparison.OrdinalIgnoreCase)) status = TaskState.Disabled;
+            else if (statusStr.Contains("Running", StringComparison.OrdinalIgnoreCase)) status = TaskState.Running;
+            else if (statusStr.Contains("Ready", StringComparison.OrdinalIgnoreCase)) status = TaskState.Ready;
+            else if (statusStr.Contains("Disabled", StringComparison.OrdinalIgnoreCase)) status = TaskState.Disabled;
+
+            yield return new WindowsTaskInfo
+            {
+                TaskName = taskName,
+                TaskPath = taskPath,
+                Description = GetCol("Comment"),
+                Author = GetCol("Author"),
+                Status = status,
+                TriggerSummary = GetCol("Schedule"),
+                NextRunTime = nextRun,
+                LastRunTime = lastRun,
+                LastRunResult = lrResult,
+                RunAsUser = GetCol("Run As User")
+            };
         }
-
-        foreach (var sub in folder.SubFolders)
-        {
-            foreach (var task in EnumerateTasks(sub, includeSystemTasks))
-                yield return task;
-        }
-    }
-
-    private static WindowsTaskInfo MapToInfo(TsTask task)
-    {
-        var def = task.Definition;
-        var regInfo = def.RegistrationInfo;
-
-        DateTime? nextRun = null;
-        try { nextRun = task.NextRunTime == DateTime.MinValue ? null : task.NextRunTime; }
-        catch { /* ignored */ }
-
-        DateTime? lastRun = null;
-        try { lastRun = task.LastRunTime == DateTime.MinValue ? null : task.LastRunTime; }
-        catch { /* ignored */ }
-
-        return new WindowsTaskInfo
-        {
-            TaskName = task.Name,
-            TaskPath = task.Path,
-            Description = regInfo.Description ?? string.Empty,
-            Author = regInfo.Author ?? string.Empty,
-            Status = task.State,
-            TriggerSummary = BuildTriggerSummary(def.Triggers),
-            NextRunTime = nextRun,
-            LastRunTime = lastRun,
-            LastRunResult = task.LastTaskResult,
-            RunAsUser = def.Principal.UserId ?? string.Empty
-        };
-    }
-
-    private static string BuildTriggerSummary(TriggerCollection triggers)
-    {
-        if (triggers.Count == 0)
-            return "No trigger";
-
-        var t = triggers[0];
-        return t switch
-        {
-            DailyTrigger d => $"Daily at {d.StartBoundary:HH:mm}",
-            WeeklyTrigger w => $"Weekly on {w.DaysOfWeek} at {w.StartBoundary:HH:mm}",
-            MonthlyTrigger => $"Monthly at {t.StartBoundary:HH:mm}",
-            TimeTrigger => $"Once at {t.StartBoundary:g}",
-            BootTrigger => "At system startup",
-            LogonTrigger => "At logon",
-            IdleTrigger => "On idle",
-            EventTrigger => "On event",
-            _ => t.TriggerType.ToString()
-        };
     }
 
     public DetailedWindowsTaskInfo GetDetailedInfo(string taskPath)
     {
-        using var ts = new TaskService();
-        var task = ts.GetTask(taskPath);
-
-        if (task == null)
+        var csvData = RunSchTasks($"/query /v /fo CSV /tn \"{taskPath}\"");
+        if (string.IsNullOrWhiteSpace(csvData))
+        {
             return new DetailedWindowsTaskInfo { TaskPath = taskPath };
+        }
+        
+        var lines = csvData.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        if (lines.Length <= 1) return new DetailedWindowsTaskInfo { TaskPath = taskPath };
+        
+        var headers = Helpers.CsvHelper.ParseCsvLine(lines[0]);
+        var cols = Helpers.CsvHelper.ParseCsvLine(lines[1]);
+        if (cols.Length != headers.Length) return new DetailedWindowsTaskInfo { TaskPath = taskPath };
+        
+        var colMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        for (int i = 0; i < headers.Length; i++) colMap[headers[i]] = i;
+        string GetCol(string name) => colMap.TryGetValue(name, out var idx) ? cols[idx] : string.Empty;
+        
+        var taskName = Path.GetFileName(taskPath.TrimEnd('\\'));
+        if (string.IsNullOrEmpty(taskName)) taskName = taskPath;
 
-        var def = task.Definition;
-
-        var actions = def.Actions
-            .Select(a => a switch
-            {
-                ExecAction ea => string.IsNullOrWhiteSpace(ea.Arguments)
-                    ? ea.Path
-                    : $"{ea.Path} {ea.Arguments}",
-                _ => a.ActionType.ToString()
-            })
-            .ToArray();
-
-        var triggers = def.Triggers
-            .Select(BuildDetailedTrigger)
-            .ToArray();
-
-        var timeLimit = def.Settings.ExecutionTimeLimit == TimeSpan.Zero
-            ? "No limit"
-            : def.Settings.ExecutionTimeLimit.ToString();
+        var scheduleType = GetCol("Schedule Type");
+        var schedule = GetCol("Schedule");
+        
+        var triggers = new List<string>();
+        if (!string.IsNullOrWhiteSpace(schedule))
+        {
+            triggers.Add(schedule);
+        }
+        
+        var actions = new List<string>();
+        var taskToRun = GetCol("Task To Run");
+        if (!string.IsNullOrWhiteSpace(taskToRun))
+        {
+            actions.Add(taskToRun);
+        }
 
         return new DetailedWindowsTaskInfo
         {
-            TaskName = task.Name,
-            TaskPath = task.Path,
-            Actions = actions,
-            Triggers = triggers,
-            RunAsUser = def.Principal.UserId ?? string.Empty,
-            CompatibilityLevel = def.Settings.Compatibility.ToString(),
-            IsHidden = def.Settings.Hidden,
-            ExecutionTimeLimit = timeLimit,
-            MultipleInstancesPolicy = def.Settings.MultipleInstances.ToString()
-        };
-    }
-
-    private static string BuildDetailedTrigger(Trigger t)
-    {
-        var enabled = t.Enabled ? string.Empty : " (disabled)";
-        return t switch
-        {
-            DailyTrigger d => $"Daily every {d.DaysInterval} day(s) at {d.StartBoundary:HH:mm}{enabled}",
-            WeeklyTrigger w => $"Weekly on {w.DaysOfWeek} at {w.StartBoundary:HH:mm}{enabled}",
-            MonthlyTrigger m => $"Monthly at {m.StartBoundary:HH:mm}{enabled}",
-            TimeTrigger => $"Once at {t.StartBoundary:g}{enabled}",
-            BootTrigger => $"At system startup{enabled}",
-            LogonTrigger l => string.IsNullOrEmpty(l.UserId)
-                ? $"At logon (any user){enabled}"
-                : $"At logon of {l.UserId}{enabled}",
-            IdleTrigger => $"On idle{enabled}",
-            EventTrigger => $"On event{enabled}",
-            _ => $"{t.TriggerType}{enabled}"
+            TaskName = taskName,
+            TaskPath = taskPath,
+            Actions = actions.ToArray(),
+            Triggers = triggers.ToArray(),
+            RunAsUser = GetCol("Run As User"),
+            CompatibilityLevel = "Unknown",
+            IsHidden = false,
+            ExecutionTimeLimit = GetCol("Stop Task If Runs X Hours and X Mins"),
+            MultipleInstancesPolicy = "Unknown"
         };
     }
 
     public void Enable(string taskPath)
     {
-        try
-        {
-            using var ts = new TaskService();
-            var task = ts.GetTask(taskPath);
-            if (task == null) return;
-            task.Enabled = true;
-        }
-        catch (UnauthorizedAccessException)
-        {
-            ExecuteElevated("schtasks.exe", $"/Change /TN \"{taskPath}\" /Enable");
-        }
+        ExecuteElevated("schtasks.exe", $"/Change /TN \"{taskPath}\" /Enable");
     }
 
     public void Disable(string taskPath)
     {
-        try
-        {
-            using var ts = new TaskService();
-            var task = ts.GetTask(taskPath);
-            if (task == null) return;
-            task.Enabled = false;
-        }
-        catch (UnauthorizedAccessException)
-        {
-            ExecuteElevated("schtasks.exe", $"/Change /TN \"{taskPath}\" /Disable");
-        }
+        ExecuteElevated("schtasks.exe", $"/Change /TN \"{taskPath}\" /Disable");
     }
 
     public void Run(string taskPath)
     {
-        try
-        {
-            using var ts = new TaskService();
-            var task = ts.GetTask(taskPath);
-            task?.Run();
-        }
-        catch (UnauthorizedAccessException)
-        {
-            ExecuteElevated("schtasks.exe", $"/Run /TN \"{taskPath}\"");
-        }
+        ExecuteElevated("schtasks.exe", $"/Run /TN \"{taskPath}\"");
     }
 
     public void Stop(string taskPath)
     {
-        try
-        {
-            using var ts = new TaskService();
-            var task = ts.GetTask(taskPath);
-            task?.Stop();
-        }
-        catch (UnauthorizedAccessException)
-        {
-            ExecuteElevated("schtasks.exe", $"/End /TN \"{taskPath}\"");
-        }
+        ExecuteElevated("schtasks.exe", $"/End /TN \"{taskPath}\"");
     }
 
-    private static bool IsSystemTask(TsTask task)
+    private static bool IsSystemTask(string taskPath)
     {
         return SystemTaskFolders.Any(f =>
-            task.Path.StartsWith(f, StringComparison.OrdinalIgnoreCase));
+            taskPath.StartsWith(f, StringComparison.OrdinalIgnoreCase));
     }
 
     private void ExecuteElevated(string fileName, string arguments)
