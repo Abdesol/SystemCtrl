@@ -23,6 +23,12 @@ public partial class SettingsViewModel : ViewModelBase
     [Reactive]
     public partial ObservableCollection<string> AvailableModels { get; set; }
 
+    [Reactive]
+    public partial string SelectedTheme { get; set; }
+
+    [Reactive]
+    public partial ObservableCollection<string> AvailableThemes { get; set; }
+
     public SettingsViewModel(ISettingsService settingsService)
     {
         _settingsService = settingsService;
@@ -31,6 +37,7 @@ public partial class SettingsViewModel : ViewModelBase
         ApiKey = settings.GeminiApiKey;
         SelectedModel = settings.GeminiModel;
         ShowAiSummary = settings.ShowAiSummary;
+        SelectedTheme = settings.AppTheme;
         
         AvailableModels =
         [
@@ -41,9 +48,20 @@ public partial class SettingsViewModel : ViewModelBase
             "gemini-2.5-flash"
         ];
 
+        AvailableThemes =
+        [
+            "Light",
+            "Dark"
+        ];
+
         if (!AvailableModels.Contains(SelectedModel))
         {
             SelectedModel = AvailableModels[0];
+        }
+
+        if (!AvailableThemes.Contains(SelectedTheme))
+        {
+            SelectedTheme = AvailableThemes[0];
         }
     }
 
@@ -56,7 +74,11 @@ public partial class SettingsViewModel : ViewModelBase
         settings.GeminiApiKey = ApiKey;
         settings.GeminiModel = SelectedModel;
         settings.ShowAiSummary = ShowAiSummary;
+        settings.AppTheme = SelectedTheme;
         _settingsService.SaveSettings(settings);
+
+        App.SetTheme(SelectedTheme);
+
         OnSaved?.Invoke();
     }
 }

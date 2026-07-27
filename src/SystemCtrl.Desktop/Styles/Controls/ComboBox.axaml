@@ -23,4 +23,14 @@
         <Setter Property="BorderBrush" Value="{DynamicResource FocusStrokeBrush}" />
         <Setter Property="BorderThickness" Value="1.5" />
     </Style>
+
+    <Style Selector="ComboBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryActionForegroundBrush}" />
+    </Style>
+    <Style Selector="ComboBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryActionForegroundBrush}" />
+    </Style>
+    <Style Selector="ComboBoxItem:selected:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryActionForegroundBrush}" />
+    </Style>
 </Styles>

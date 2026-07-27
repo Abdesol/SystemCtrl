@@ -1,17 +1,36 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="SystemCtrl.Desktop.App"
-             xmlns:local="using:SystemCtrl.Desktop"
-             RequestedThemeVariant="Light">
+             xmlns:local="using:SystemCtrl.Desktop">
 
     <Application.DataTemplates>
         <local:ViewLocator />
     </Application.DataTemplates>
 
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <ResourceDictionary.MergedDictionaries>
+                        <ResourceInclude Source="avares://SystemCtrl/Styles/LightThemeColors.axaml" />
+                    </ResourceDictionary.MergedDictionaries>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <ResourceDictionary.MergedDictionaries>
+                        <ResourceInclude Source="avares://SystemCtrl/Styles/DarkThemeColors.axaml" />
+                    </ResourceDictionary.MergedDictionaries>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+
+            <FontFamily x:Key="Outfit">avares://SystemCtrl/Assets/Fonts#Outfit</FontFamily>
+            <FontFamily x:Key="ContentControlThemeFontFamily">avares://SystemCtrl/Assets/Fonts#Outfit</FontFamily>
+        </ResourceDictionary>
+    </Application.Resources>
+
     <Application.Styles>
+        <FluentTheme />
         <StyleInclude Source="avares://SystemCtrl/Assets/Icons.axaml" />
-        <StyleInclude Source="avares://SystemCtrl/Styles/Colors.axaml" />
-        
+
         <StyleInclude Source="avares://SystemCtrl/Styles/Basic.axaml" />
 
         <StyleInclude Source="avares://SystemCtrl/Styles/Controls/Button.axaml" />
@@ -20,53 +39,5 @@
         <StyleInclude Source="avares://SystemCtrl/Styles/Controls/ToggleButton.axaml" />
         <StyleInclude Source="avares://SystemCtrl/Styles/Controls/ScrollViewer.axaml" />
         <StyleInclude Source="avares://SystemCtrl/Styles/Controls/WindowDrawnDecorations.axaml" />
-
-        <FluentTheme>
-            <FluentTheme.Palettes>
-                <ColorPaletteResources x:Key="Light"
-                                       Accent="{StaticResource AccentFillDefaultColor}"
-
-                                       AltHigh="{StaticResource ControlFillDefaultColor}"
-                                       AltLow="{StaticResource BackgroundColor}"
-                                       AltMedium="{StaticResource NavigationViewBackgroundColor}"
-                                       AltMediumHigh="{StaticResource ControlFillDefaultColor}"
-                                       AltMediumLow="{StaticResource AltMediumLowColor}"
-
-                                       BaseHigh="{StaticResource TextFillPrimaryColor}"
-                                       BaseLow="{StaticResource ControlFillSecondaryColor}"
-                                       BaseMedium="{StaticResource TextFillTertiaryColor}"
-                                       BaseMediumHigh="{StaticResource BaseMediumHighColor}"
-                                       BaseMediumLow="{StaticResource BaseMediumLowColor}"
-
-                                       ChromeAltLow="{StaticResource TextFillPrimaryColor}"
-                                       ChromeBlackHigh="{StaticResource ControlStrokeDefaultColor}"
-                                       ChromeBlackLow="{StaticResource ChromeBlackLowColor}"
-                                       ChromeBlackMedium="{StaticResource ChromeBlackMediumColor}"
-                                       ChromeBlackMediumLow="{StaticResource ChromeBlackMediumLowColor}"
-                                       ChromeDisabledHigh="{StaticResource ChromeDisabledHighColor}"
-                                       ChromeDisabledLow="{StaticResource ChromeDisabledLowColor}"
-                                       ChromeGray="{StaticResource ChromeGrayColor}"
-
-                                       ChromeHigh="{StaticResource FocusStrokeColor}"
-                                       ChromeLow="{StaticResource BackgroundColor}"
-                                       ChromeMedium="{StaticResource ControlFillTertiaryColor}"
-                                       ChromeMediumLow="{StaticResource ControlFillSecondaryColor}"
-                                       ChromeWhite="{StaticResource ControlFillDefaultColor}"
-
-                                       ListLow="{StaticResource ControlFillSecondaryColor}"
-                                       ListMedium="{StaticResource FocusStrokeColor}"
-
-                                       RegionColor="{StaticResource BackgroundColor}"
-
-                                       ErrorText="{StaticResource ErrorColor}" />
-            </FluentTheme.Palettes>
-        </FluentTheme>
     </Application.Styles>
-
-    <Application.Resources>
-        <ResourceDictionary>
-            <FontFamily x:Key="Outfit">avares://SystemCtrl/Assets/Fonts#Outfit</FontFamily>
-            <FontFamily x:Key="ContentControlThemeFontFamily">avares://SystemCtrl/Assets/Fonts#Outfit</FontFamily>
-        </ResourceDictionary>
-    </Application.Resources>
 </Application>

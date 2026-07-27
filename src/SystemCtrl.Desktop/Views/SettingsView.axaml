@@ -15,6 +15,22 @@
             Padding="0,0,20,0">
             <StackPanel Spacing="25">
                 <StackPanel Spacing="10">
+                    <TextBlock Text="APPEARANCE"
+                               FontWeight="SemiBold"
+                               FontSize="12"
+                               Foreground="{DynamicResource SystemBaseMediumColor}" />
+                    <StackPanel Spacing="5">
+                        <TextBlock Text="Theme" FontWeight="SemiBold" FontSize="14" />
+                        <ComboBox ItemsSource="{Binding AvailableThemes}"
+                                  SelectedItem="{Binding SelectedTheme}"
+                                  HorizontalAlignment="Stretch"
+                                  CornerRadius="6"
+                                  Padding="10"
+                                  BorderThickness="0" />
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Spacing="10">
                     <TextBlock Text="GEMINI AI"
                                FontWeight="SemiBold"
                                FontSize="12"

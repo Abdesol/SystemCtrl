@@ -78,7 +78,7 @@
                                     </Viewbox>
                                 </Button>
                                 <Button x:Name="PART_CloseButton"
-                                        Background="{StaticResource RedBrush}"
+                                        Background="{DynamicResource RedBrush}"
                                         BorderBrush="Transparent"
                                         BorderThickness="0"
                                         Theme="{StaticResource FluentDrawnCaptionButton}"

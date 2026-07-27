@@ -23,7 +23,7 @@
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Border x:Name="DimOverlay"
                 Classes.Open="{Binding IsOpen}"
-                Background="{StaticResource FreezeBackgroundBrush}"
+                Background="{DynamicResource FreezeBackgroundBrush}"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
                 DoubleTapped="DimOverlay_DoubleTapped" />
@@ -31,7 +31,7 @@
                 Width="420"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Stretch"
-                Background="{StaticResource CardBackgroundBrush}"
+                Background="{DynamicResource CardBackgroundBrush}"
                 BoxShadow="-8 0 40 0 #1A000000"
                 CornerRadius="16,0,0,16">
             <Grid RowDefinitions="Auto, *"
@@ -45,12 +45,12 @@
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <Path Height="10"
                                   Data="{StaticResource ChevronLeftIcon}"
-                                  Fill="{StaticResource SystemBaseHighColor}"
+                                  Fill="{DynamicResource SystemBaseHighColor}"
                                   Stretch="Uniform" />
                             <TextBlock VerticalAlignment="Center"
                                        FontSize="13"
                                        FontWeight="Medium"
-                                       Foreground="{StaticResource SystemBaseHighColor}"
+                                       Foreground="{DynamicResource SystemBaseHighColor}"
                                        Text="Back" />
                         </StackPanel>
                     </Button>

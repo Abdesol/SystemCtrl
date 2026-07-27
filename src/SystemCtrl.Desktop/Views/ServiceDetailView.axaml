@@ -424,11 +424,11 @@
                                 Margin="0,0,5,5"
                                 Height="32"
                                 Background="{DynamicResource SystemAccentColor}"
-                                Foreground="White"
+                                Foreground="{DynamicResource PrimaryActionForegroundBrush}"
                                 HorizontalAlignment="Stretch"
                                 HorizontalContentAlignment="Center">
                             <StackPanel Orientation="Horizontal" Spacing="8">
-                                <PathIcon Data="{StaticResource PlayIcon}" Width="10" Height="10" Foreground="White" />
+                                <PathIcon Data="{StaticResource PlayIcon}" Width="10" Height="10" Foreground="{DynamicResource PrimaryActionForegroundBrush}" />
                                 <TextBlock Text="Start" FontWeight="Medium" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
@@ -436,10 +436,11 @@
                         <Button Command="{Binding StopServiceCommand}"
                                 Margin="5,0,0,5"
                                 Height="32"
+                                Background="{DynamicResource DangerActionBackgroundBrush}"
                                 HorizontalAlignment="Stretch"
                                 HorizontalContentAlignment="Center"
                                 BorderThickness="2"
-                                BorderBrush="{DynamicResource DangerBackgroundBrush}">
+                                BorderBrush="{DynamicResource DangerActionBorderBrush}">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <PathIcon Data="{StaticResource StopIcon}" Width="10" Height="10" />
                                 <TextBlock Text="Stop" FontWeight="Medium" VerticalAlignment="Center" />

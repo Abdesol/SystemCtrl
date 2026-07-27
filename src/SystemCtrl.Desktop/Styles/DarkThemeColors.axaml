@@ -1,0 +1,146 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Color x:Key="BackgroundColor">#1A1A1E</Color>
+    <Color x:Key="TextFillPrimaryColor">#E8E8EC</Color>
+
+    <Color x:Key="CardBackgroundColor">#242428</Color>
+
+    <Color x:Key="ButtonBackgroundPointerOverColor">#2E2E34</Color>
+    <Color x:Key="ButtonBackgroundPressedColor">#38383F</Color>
+
+    <Color x:Key="ControlFillDefaultColor">#242428</Color>
+    <Color x:Key="AccentFillDefaultColor">#E8E8EC</Color>
+
+    <Color x:Key="ControlFillSecondaryColor">#2A2A30</Color>
+
+    <Color x:Key="ControlFillTertiaryColor">#323238</Color>
+    <Color x:Key="TextFillTertiaryColor">#8E8E9A</Color>
+
+    <Color x:Key="ErrorColor">#EF4444</Color>
+    <Color x:Key="RedColor">#EF4444</Color>
+
+    <Color x:Key="ControlStrokeDefaultColor">#FFFFFF</Color>
+    <Color x:Key="FocusStrokeColor">#404048</Color>
+
+    <Color x:Key="NavigationViewBackgroundColor">#1E1E22</Color>
+
+    <Color x:Key="AltMediumLowColor">#1C1C20</Color>
+    <Color x:Key="BaseMediumHighColor">#C0C0CA</Color>
+    <Color x:Key="BaseMediumLowColor">#6E6E7E</Color>
+
+    <Color x:Key="ChromeBlackLowColor">#33FFFFFF</Color>
+    <Color x:Key="ChromeBlackMediumColor">#99FFFFFF</Color>
+    <Color x:Key="ChromeBlackMediumLowColor">#66FFFFFF</Color>
+
+    <Color x:Key="ChromeDisabledHighColor">#3A3A40</Color>
+    <Color x:Key="ChromeDisabledLowColor">#4A4A52</Color>
+    <Color x:Key="ChromeGrayColor">#8A8A94</Color>
+
+    <Color x:Key="SeparatorColor">#323238</Color>
+    <Color x:Key="FreezeBackgroundColor">#80000000</Color>
+
+    <Color x:Key="SuccessBackgroundColor">#0D2818</Color>
+    <Color x:Key="SuccessForegroundColor">#34D399</Color>
+
+    <Color x:Key="DangerBackgroundColor">#2D1114</Color>
+    <Color x:Key="DangerForegroundColor">#FB7185</Color>
+
+    <Color x:Key="InfoBackgroundColor">#0C1A2E</Color>
+    <Color x:Key="InfoForegroundColor">#60A5FA</Color>
+
+    <Color x:Key="WarningBackgroundColor">#2D1D0B</Color>
+    <Color x:Key="WarningForegroundColor">#FB923C</Color>
+
+    <Color x:Key="CautionBackgroundColor">#2D2508</Color>
+    <Color x:Key="CautionForegroundColor">#FBBF24</Color>
+
+    <Color x:Key="NeutralBackgroundColor">#1E2028</Color>
+    <Color x:Key="NeutralForegroundColor">#94A3B8</Color>
+
+    <Color x:Key="SpecialBackgroundColor">#1E0F2E</Color>
+    <Color x:Key="SpecialForegroundColor">#C084FC</Color>
+
+    <SolidColorBrush x:Key="BackgroundBrush"
+                     Color="{DynamicResource BackgroundColor}" />
+
+    <SolidColorBrush x:Key="FreezeBackgroundBrush"
+                     Color="{DynamicResource FreezeBackgroundColor}" />
+
+    <SolidColorBrush x:Key="CardBackgroundBrush"
+                     Color="{DynamicResource CardBackgroundColor}" />
+
+    <SolidColorBrush x:Key="RedBrush"
+                     Color="{DynamicResource RedColor}" />
+
+    <SolidColorBrush x:Key="ButtonBackgroundPointerOverBrush"
+                     Color="{DynamicResource ButtonBackgroundPointerOverColor}" />
+
+    <SolidColorBrush x:Key="ButtonBackgroundPressedBrush"
+                     Color="{DynamicResource ButtonBackgroundPressedColor}" />
+
+    <SolidColorBrush x:Key="SuccessBackgroundBrush" Color="{DynamicResource SuccessBackgroundColor}" />
+    <SolidColorBrush x:Key="SuccessForegroundBrush" Color="{DynamicResource SuccessForegroundColor}" />
+
+    <SolidColorBrush x:Key="DangerBackgroundBrush" Color="{DynamicResource DangerBackgroundColor}" />
+    <SolidColorBrush x:Key="DangerForegroundBrush" Color="{DynamicResource DangerForegroundColor}" />
+    <SolidColorBrush x:Key="DangerActionBackgroundBrush" Color="#20EF4444" />
+    <SolidColorBrush x:Key="DangerActionBorderBrush" Color="{DynamicResource RedColor}" />
+
+    <SolidColorBrush x:Key="InfoBackgroundBrush" Color="{DynamicResource InfoBackgroundColor}" />
+    <SolidColorBrush x:Key="InfoForegroundBrush" Color="{DynamicResource InfoForegroundColor}" />
+
+    <SolidColorBrush x:Key="WarningBackgroundBrush" Color="{DynamicResource WarningBackgroundColor}" />
+    <SolidColorBrush x:Key="WarningForegroundBrush" Color="{DynamicResource WarningForegroundColor}" />
+
+    <SolidColorBrush x:Key="CautionBackgroundBrush" Color="{DynamicResource CautionBackgroundColor}" />
+    <SolidColorBrush x:Key="CautionForegroundBrush" Color="{DynamicResource CautionForegroundColor}" />
+
+    <SolidColorBrush x:Key="NeutralBackgroundBrush" Color="{DynamicResource NeutralBackgroundColor}" />
+    <SolidColorBrush x:Key="NeutralForegroundBrush" Color="{DynamicResource NeutralForegroundColor}" />
+
+    <SolidColorBrush x:Key="SpecialBackgroundBrush" Color="{DynamicResource SpecialBackgroundColor}" />
+    <SolidColorBrush x:Key="SpecialForegroundBrush" Color="{DynamicResource SpecialForegroundColor}" />
+
+    <SolidColorBrush x:Key="PrimaryTextBrush" Color="{DynamicResource TextFillPrimaryColor}" />
+    <SolidColorBrush x:Key="SeparatorBrush" Color="{DynamicResource SeparatorColor}" />
+    <SolidColorBrush x:Key="HoverBrush" Color="{DynamicResource ButtonBackgroundPointerOverColor}" />
+    <SolidColorBrush x:Key="PressedBrush" Color="{DynamicResource ButtonBackgroundPressedColor}" />
+    <SolidColorBrush x:Key="FocusStrokeBrush" Color="{DynamicResource FocusStrokeColor}" />
+    
+    <Color x:Key="SystemAccentColor">#E8E8EC</Color>
+
+    <Color x:Key="SystemAltHighColor">#242428</Color>
+    <Color x:Key="SystemAltLowColor">#1A1A1E</Color>
+    <Color x:Key="SystemAltMediumColor">#1E1E22</Color>
+    <Color x:Key="SystemAltMediumHighColor">#242428</Color>
+    <Color x:Key="SystemAltMediumLowColor">#1C1C20</Color>
+
+    <Color x:Key="SystemBaseHighColor">#E8E8EC</Color>
+    <Color x:Key="SystemBaseLowColor">#2A2A30</Color>
+    <Color x:Key="SystemBaseMediumColor">#8E8E9A</Color>
+    <Color x:Key="SystemBaseMediumHighColor">#C0C0CA</Color>
+    <Color x:Key="SystemBaseMediumLowColor">#6E6E7E</Color>
+
+    <Color x:Key="SystemChromeAltLowColor">#E8E8EC</Color>
+    <Color x:Key="SystemChromeBlackHighColor">#FFFFFF</Color>
+    <Color x:Key="SystemChromeBlackLowColor">#33FFFFFF</Color>
+    <Color x:Key="SystemChromeBlackMediumColor">#99FFFFFF</Color>
+    <Color x:Key="SystemChromeBlackMediumLowColor">#66FFFFFF</Color>
+    <Color x:Key="SystemChromeDisabledHighColor">#3A3A40</Color>
+    <Color x:Key="SystemChromeDisabledLowColor">#4A4A52</Color>
+    <Color x:Key="SystemChromeGrayColor">#8A8A94</Color>
+    <Color x:Key="SystemChromeHighColor">#404048</Color>
+    <Color x:Key="SystemChromeLowColor">#1A1A1E</Color>
+    <Color x:Key="SystemChromeMediumColor">#323238</Color>
+    <Color x:Key="SystemChromeMediumLowColor">#2A2A30</Color>
+    <Color x:Key="SystemChromeWhiteColor">#242428</Color>
+
+    <Color x:Key="SystemListLowColor">#2A2A30</Color>
+    <Color x:Key="SystemListMediumColor">#404048</Color>
+
+    <Color x:Key="SystemRegionColor">#1A1A1E</Color>
+    <Color x:Key="SystemErrorTextColor">#EF4444</Color>
+
+    <SolidColorBrush x:Key="PrimaryActionForegroundBrush" Color="#111118" />
+
+</ResourceDictionary>

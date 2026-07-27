@@ -31,7 +31,7 @@
         </Style>
         <Style Selector="Button.close-btn">
             <Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
-            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryActionForegroundBrush}" />
             <Setter Property="CornerRadius" Value="8" />
             <Setter Property="Padding" Value="20,8" />
             <Setter Property="FontSize" Value="13" />
@@ -48,12 +48,12 @@
                     <Border Grid.Column="0"
                             Width="36" Height="36"
                             CornerRadius="18"
-                            Background="{DynamicResource DangerForegroundBrush}"
+                            Background="{DynamicResource DangerBackgroundBrush}"
                             Margin="0,0,14,0">
                         <TextBlock Text="!"
                                    FontSize="18"
                                    FontWeight="Bold"
-                                   Foreground="White"
+                                   Foreground="{DynamicResource DangerForegroundBrush}"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center" />
                     </Border>
