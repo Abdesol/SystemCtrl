@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using SystemCtrl.Core.Interfaces;
 using SystemCtrl.Core.Models;
 
 namespace SystemCtrl.Core;
+
+
 
 public class AiAnalyzer(HttpClient httpClient) : IAiAnalyzer
 {
@@ -65,15 +68,15 @@ public class AiAnalyzer(HttpClient httpClient) : IAiAnalyzer
             throw new InvalidOperationException("API Key is missing. Please configure your Gemini API Key in the settings.");
         }
 
-        var requestBody = new
+        var requestBody = new GeminiRequest
         {
-            contents = new[]
+            Contents = new List<GeminiContent>
             {
-                new
+                new GeminiContent
                 {
-                    parts = new[]
+                    Parts = new List<GeminiPart>
                     {
-                        new { text = prompt }
+                        new GeminiPart { Text = prompt }
                     }
                 }
             }
@@ -85,10 +88,9 @@ public class AiAnalyzer(HttpClient httpClient) : IAiAnalyzer
 
         var url = $"https://generativelanguage.googleapis.com/v1beta/models/{modelName}:generateContent?key={settings.GeminiApiKey}";
 
-        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         try
         {
-            var response = await _httpClient.PostAsJsonAsync(url, requestBody);
+            var response = await _httpClient.PostAsJsonAsync(url, requestBody, AiJsonContext.Default.GeminiRequest);
             
             if (!response.IsSuccessStatusCode)
             {
@@ -129,7 +131,7 @@ public class AiAnalyzer(HttpClient httpClient) : IAiAnalyzer
                 }
             }
 
-            var result = JsonSerializer.Deserialize<List<AiQna>>(text, options);
+            var result = JsonSerializer.Deserialize(text, AiJsonContext.Default.ListAiQna);
 
             return result ?? throw new InvalidOperationException("Failed to parse AI response.");
         }

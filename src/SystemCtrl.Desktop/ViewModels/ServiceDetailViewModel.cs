@@ -1,3 +1,4 @@
+#pragma warning disable IL2026, IL3050
 using System;
 using System.ServiceProcess;
 using System.Threading.Tasks;
@@ -17,6 +18,8 @@ public partial class ServiceDetailViewModel : ViewModelBase
     private readonly ISettingsService _settingsService;
     private readonly IErrorDialogService _errorDialog;
 
+    [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("Trimming", "IL2026")]
+    [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("Aot", "IL3050")]
     public ServiceDetailViewModel(
         IWindowsServiceManager windowsServiceManager,
         IAiAnalyzer serviceAnalyzer,
@@ -132,10 +135,14 @@ public partial class ServiceDetailViewModel : ViewModelBase
 
     [Reactive] public partial bool IsExecutingAction { get; set; }
 
+    [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("Trimming", "IL2026")]
+    [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("Aot", "IL3050")]
     public IObservable<bool> CanStartService =>
         this.WhenAnyValue(x => x.Service, x => x.Service!.Status,
             (svc, status) => svc != null && status == ServiceControllerStatus.Stopped);
 
+    [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("Trimming", "IL2026")]
+    [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("Aot", "IL3050")]
     public IObservable<bool> CanStopService =>
         this.WhenAnyValue(x => x.Service, x => x.Service!.Status,
             (svc, status) => svc != null && (status == ServiceControllerStatus.Running ||

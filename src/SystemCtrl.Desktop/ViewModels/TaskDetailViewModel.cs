@@ -1,6 +1,6 @@
+#pragma warning disable IL2026, IL3050
 using System;
 using System.Threading.Tasks;
-using Microsoft.Win32.TaskScheduler;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
 using SystemCtrl.Core.Exceptions;
@@ -17,6 +17,8 @@ public partial class TaskDetailViewModel : ViewModelBase
     private readonly ISettingsService _settingsService;
     private readonly IErrorDialogService _errorDialog;
 
+    [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("Trimming", "IL2026")]
+    [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("Aot", "IL3050")]
     public TaskDetailViewModel(
         IWindowsTaskManager windowsTaskManager,
         IAiAnalyzer aiAnalyzer,
@@ -66,10 +68,14 @@ public partial class TaskDetailViewModel : ViewModelBase
 
     [Reactive] public partial bool HasApiKey { get; set; }
 
+    [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("Trimming", "IL2026")]
+    [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("Aot", "IL3050")]
     public IObservable<bool> CanRunTask =>
         this.WhenAnyValue(x => x.Task, x => x.Task!.Status,
             (t, status) => t != null && status != TaskState.Running);
 
+    [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("Trimming", "IL2026")]
+    [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("Aot", "IL3050")]
     public IObservable<bool> CanStopTask =>
         this.WhenAnyValue(x => x.Task, x => x.Task!.Status,
             (t, status) => t != null && status == TaskState.Running);

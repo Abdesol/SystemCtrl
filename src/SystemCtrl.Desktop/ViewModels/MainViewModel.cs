@@ -1,8 +1,8 @@
+#pragma warning disable IL2026, IL3050
 using System;
 using System.Collections.ObjectModel;
 using System.ServiceProcess;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Win32.TaskScheduler;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
 using SystemCtrl.Core.Interfaces;
@@ -28,6 +28,8 @@ public partial class MainViewModel : ViewModelBase
     private List<ServiceItemViewModel> _allServiceViewModels;
     private List<TaskItemViewModel> _allTaskViewModels;
 
+    [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("Trimming", "IL2026")]
+    [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("Aot", "IL3050")]
     public MainViewModel(
         IServiceProvider serviceProvider,
         IWindowsServiceManager windowsServiceManager,
@@ -99,8 +101,13 @@ public partial class MainViewModel : ViewModelBase
 
     private async Task InitializeAsync()
     {
-        var services = _windowsServiceManager.GetServices().ToList();
-        var tasks = _windowsTaskManager.GetTasks().ToList();
+        var (services, tasks) = await Task.Run(() => 
+        {
+            return (
+                _windowsServiceManager.GetServices().ToList(),
+                _windowsTaskManager.GetTasks().ToList()
+            );
+        });
 
         _allServices = services;
         _allTasks = tasks;

@@ -6,7 +6,7 @@
         xmlns:behaviors="clr-namespace:SystemCtrl.Desktop.Behaviors"
         xmlns:controls="clr-namespace:SystemCtrl.Desktop.Controls"
         xmlns:sp="clr-namespace:System.ServiceProcess;assembly=System.ServiceProcess.ServiceController"
-        xmlns:ts="clr-namespace:Microsoft.Win32.TaskScheduler;assembly=Microsoft.Win32.TaskScheduler"
+        xmlns:ts="using:SystemCtrl.Core.Models"
         xmlns:conv="using:SystemCtrl.Desktop.Converters"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="SystemCtrl.Desktop.Views.MainWindow"
