@@ -38,6 +38,12 @@ jobs:
         run: |
           & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
 
+      - name: Delete Old Release and Tag
+        run: gh release delete latest-build --cleanup-tag -y
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Update Latest Release
         uses: softprops/action-gh-release@v2
         with:
