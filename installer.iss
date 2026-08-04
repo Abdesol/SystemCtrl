@@ -1,6 +1,10 @@
+#ifndef MyAppVersion
+#define MyAppVersion "1.0.0-dev"
+#endif
+
 [Setup]
 AppName=SystemCtrl
-AppVersion=1.0
+AppVersion={#MyAppVersion}
 DefaultDirName={autopf}\SystemCtrl
 DefaultGroupName=SystemCtrl
 OutputDir=Output

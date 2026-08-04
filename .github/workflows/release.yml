@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - beta
     paths:
       - 'src/**'
       - 'installer.iss'
@@ -21,6 +22,16 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Set App Version
+        run: |
+          if ("${{ github.ref }}" -eq "refs/heads/main") {
+            echo "APP_VERSION=1.0.${{ github.run_number }}" >> $env:GITHUB_ENV
+          } elseif ("${{ github.ref }}" -eq "refs/heads/beta") {
+            echo "APP_VERSION=1.0.${{ github.run_number }}-beta" >> $env:GITHUB_ENV
+          } else {
+            echo "APP_VERSION=1.0.${{ github.run_number }}-dev" >> $env:GITHUB_ENV
+          }
+
       - name: Setup .NET 10
         uses: actions/setup-dotnet@v4
         with:
@@ -28,24 +39,24 @@ jobs:
 
       - name: Publish Portable Version
         run: |
-          dotnet publish "src\SystemCtrl.Desktop\SystemCtrl.Desktop.csproj" -c Release -r win-x64 -p:PublishSingleFile=true -o portable_publish
+          dotnet publish "src\SystemCtrl.Desktop\SystemCtrl.Desktop.csproj" -c Release -r win-x64 -p:PublishSingleFile=true -p:Version=${{ env.APP_VERSION }} -o portable_publish
           Copy-Item "portable_publish\SystemCtrl.exe" "SystemCtrl.exe"
 
       - name: Publish Installer Source
-        run: dotnet publish "src\SystemCtrl.Desktop\SystemCtrl.Desktop.csproj" -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o installer_publish
+        run: dotnet publish "src\SystemCtrl.Desktop\SystemCtrl.Desktop.csproj" -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -p:Version=${{ env.APP_VERSION }} -o installer_publish
 
       - name: Build Installer (Inno Setup)
         run: |
-          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "/dMyAppVersion=${{ env.APP_VERSION }}" installer.iss
 
-      - name: Update Latest Release
+      - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: latest-build
-          name: "latest"
-          body: "This is the most recent automated build of SystemCtrl. Choose the Installer for a normal installation, or the standalone Executable for a portable version."
-          prerelease: false
-          make_latest: true
+          tag_name: "v${{ env.APP_VERSION }}"
+          name: "SystemCtrl v${{ env.APP_VERSION }}"
+          body: "This is an automated build of SystemCtrl. Choose the Installer for a normal installation, or the standalone Executable for a portable version."
+          prerelease: ${{ github.ref == 'refs/heads/beta' }}
+          make_latest: ${{ github.ref == 'refs/heads/main' }}
           files: |
             SystemCtrl.exe
             Output/SystemCtrl-Setup.exe

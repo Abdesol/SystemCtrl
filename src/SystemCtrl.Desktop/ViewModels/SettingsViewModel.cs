@@ -4,12 +4,17 @@ using ReactiveUI.SourceGenerators;
 using SystemCtrl.Core.Interfaces;
 using SystemCtrl.Core.Models;
 using SystemCtrl.Desktop.Services;
+using System.Reflection;
+using System.Linq;
 
 namespace SystemCtrl.Desktop.ViewModels;
 
 public partial class SettingsViewModel : ViewModelBase
 {
     private readonly ISettingsService _settingsService;
+
+    [Reactive]
+    public partial string AppVersion { get; set; }
 
     [Reactive]
     public partial string ApiKey { get; set; }
@@ -38,6 +43,10 @@ public partial class SettingsViewModel : ViewModelBase
         SelectedModel = settings.GeminiModel;
         ShowAiSummary = settings.ShowAiSummary;
         SelectedTheme = settings.AppTheme;
+
+        var versionAttr = Assembly.GetExecutingAssembly()
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+        AppVersion = "v" + (versionAttr?.InformationalVersion ?? "1.0.0-dev");
         
         AvailableModels =
         [

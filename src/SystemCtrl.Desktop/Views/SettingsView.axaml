@@ -6,7 +6,7 @@
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="600"
              x:Class="SystemCtrl.Desktop.Views.SettingsView"
              x:DataType="vm:SettingsViewModel">
-    <Grid RowDefinitions="*, Auto"
+    <Grid RowDefinitions="*, Auto, Auto"
           Margin="20,0,20,10">
         <ScrollViewer
             Classes="DefaultPadding"
@@ -87,5 +87,13 @@
                 Foreground="{DynamicResource SystemAltHighColor}"
                 FontWeight="Medium"
                 FontSize="14" />
+                
+        <TextBlock Grid.Row="2"
+                   Text="{Binding AppVersion}"
+                   Margin="0,15,0,0"
+                   HorizontalAlignment="Center"
+                   Foreground="{DynamicResource SystemBaseMediumColor}"
+                   FontSize="11"
+                   FontWeight="Light" />
     </Grid>
 </UserControl>
