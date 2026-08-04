@@ -83,6 +83,8 @@ public partial class ServiceDetailViewModel : ViewModelBase
 
     [Reactive] public partial bool HasApiKey { get; set; }
 
+    [Reactive] public partial bool ShowLogsTab { get; set; } = true;
+
     public void Load(WindowsServiceInfo service)
     {
         Service = service;
@@ -104,6 +106,7 @@ public partial class ServiceDetailViewModel : ViewModelBase
 
             var settings = _settingsService.LoadSettings();
             ShowAiSummary = settings.ShowAiSummary;
+            ShowLogsTab = !settings.DisableServiceLogs;
             HasApiKey = !string.IsNullOrWhiteSpace(settings.GeminiApiKey);
             if (settings.AiSummaries.TryGetValue(service.ServiceName, out var existingSummary))
             {
@@ -133,6 +136,7 @@ public partial class ServiceDetailViewModel : ViewModelBase
 
         var logsTask = Task.Run(() =>
         {
+            if (!ShowLogsTab) return null;
             try
             {
                 return _windowsServiceManager.GetLogs(service!.ServiceName);

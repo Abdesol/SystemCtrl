@@ -465,7 +465,7 @@
                 </ScrollViewer>
             </TabItem>
 
-            <TabItem Header="Logs">
+            <TabItem Header="Logs" IsVisible="{Binding ShowLogsTab}">
                 <Grid Margin="0,0,20,0">
                     <Border CornerRadius="8"
                             BorderThickness="1"

@@ -26,6 +26,12 @@ public partial class SettingsViewModel : ViewModelBase
     public partial bool ShowAiSummary { get; set; }
 
     [Reactive]
+    public partial bool DisableServiceLogs { get; set; }
+
+    [Reactive]
+    public partial bool DisableScheduledTasksLogs { get; set; }
+
+    [Reactive]
     public partial ObservableCollection<string> AvailableModels { get; set; }
 
     [Reactive]
@@ -42,6 +48,8 @@ public partial class SettingsViewModel : ViewModelBase
         ApiKey = settings.GeminiApiKey;
         SelectedModel = settings.GeminiModel;
         ShowAiSummary = settings.ShowAiSummary;
+        DisableServiceLogs = settings.DisableServiceLogs;
+        DisableScheduledTasksLogs = settings.DisableScheduledTasksLogs;
         SelectedTheme = settings.AppTheme;
 
         var versionAttr = Assembly.GetExecutingAssembly()
@@ -86,6 +94,8 @@ public partial class SettingsViewModel : ViewModelBase
         settings.GeminiApiKey = ApiKey;
         settings.GeminiModel = SelectedModel;
         settings.ShowAiSummary = ShowAiSummary;
+        settings.DisableServiceLogs = DisableServiceLogs;
+        settings.DisableScheduledTasksLogs = DisableScheduledTasksLogs;
         settings.AppTheme = SelectedTheme;
         _settingsService.SaveSettings(settings);
 
