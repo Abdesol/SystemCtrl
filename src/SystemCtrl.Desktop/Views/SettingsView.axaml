@@ -72,6 +72,19 @@
                                   IsChecked="{Binding ShowAiSummary}" />
                     </StackPanel>
                 </StackPanel>
+
+                <StackPanel Spacing="10">
+                    <TextBlock Text="LOGS"
+                               FontWeight="SemiBold"
+                               FontSize="12"
+                               Foreground="{DynamicResource SystemBaseMediumColor}" />
+                    <StackPanel Spacing="5">
+                        <CheckBox Content="Disable Service Logs"
+                                  IsChecked="{Binding DisableServiceLogs}" />
+                        <CheckBox Content="Disable Scheduled Tasks Logs"
+                                  IsChecked="{Binding DisableScheduledTasksLogs}" />
+                    </StackPanel>
+                </StackPanel>
             </StackPanel>
         </ScrollViewer>
 

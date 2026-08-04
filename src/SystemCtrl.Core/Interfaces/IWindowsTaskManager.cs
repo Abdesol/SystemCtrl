@@ -15,4 +15,6 @@ public interface IWindowsTaskManager
     void Run(string taskPath);
 
     void Stop(string taskPath);
+
+    string GetLogs(string taskPath);
 }

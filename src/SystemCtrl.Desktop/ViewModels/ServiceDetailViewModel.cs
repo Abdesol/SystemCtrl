@@ -59,6 +59,8 @@ public partial class ServiceDetailViewModel : ViewModelBase
 
     [Reactive] public partial DetailedWindowsServiceInfo? DetailedInfo { get; set; }
 
+    [Reactive] public partial string? Logs { get; set; }
+
     [Reactive] public partial bool IsLoadingDetails { get; set; }
 
     [Reactive] public partial bool IsAutoStart { get; set; }
@@ -81,6 +83,8 @@ public partial class ServiceDetailViewModel : ViewModelBase
 
     [Reactive] public partial bool HasApiKey { get; set; }
 
+    [Reactive] public partial bool ShowLogsTab { get; set; } = true;
+
     public void Load(WindowsServiceInfo service)
     {
         Service = service;
@@ -102,6 +106,7 @@ public partial class ServiceDetailViewModel : ViewModelBase
 
             var settings = _settingsService.LoadSettings();
             ShowAiSummary = settings.ShowAiSummary;
+            ShowLogsTab = !settings.DisableServiceLogs;
             HasApiKey = !string.IsNullOrWhiteSpace(settings.GeminiApiKey);
             if (settings.AiSummaries.TryGetValue(service.ServiceName, out var existingSummary))
             {
@@ -116,7 +121,8 @@ public partial class ServiceDetailViewModel : ViewModelBase
     private async Task LoadDetailsAsync(WindowsServiceInfo service)
     {
         IsLoadingDetails = true;
-        DetailedInfo = await Task.Run(() =>
+        
+        var detailedInfoTask = Task.Run(() =>
         {
             try
             {
@@ -127,6 +133,24 @@ public partial class ServiceDetailViewModel : ViewModelBase
                 return null;
             }
         });
+
+        var logsTask = Task.Run(() =>
+        {
+            if (!ShowLogsTab) return null;
+            try
+            {
+                return _windowsServiceManager.GetLogs(service!.ServiceName);
+            }
+            catch
+            {
+                return "Failed to fetch logs.";
+            }
+        });
+
+        await Task.WhenAll(detailedInfoTask, logsTask);
+        DetailedInfo = detailedInfoTask.Result;
+        Logs = logsTask.Result;
+        
         IsLoadingDetails = false;
     }
 

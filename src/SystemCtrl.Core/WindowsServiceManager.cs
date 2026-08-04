@@ -404,4 +404,59 @@ public partial class WindowsServiceManager : IWindowsServiceManager
 
     [GeneratedRegex("""-Name\s+['"]([^'"]+)['"]""", RegexOptions.IgnoreCase, "en-US")]
     private static partial Regex ServiceNameRegex();
+
+    public string GetLogs(string serviceName)
+    {
+        try
+        {
+            var logs = new List<System.Diagnostics.Eventing.Reader.EventRecord>();
+            
+            try
+            {
+                string systemQuery = $"*[System[Provider[@Name='Service Control Manager'] or Provider[@Name='{serviceName}']] or EventData[Data='{serviceName}']]";
+                var elqSys = new System.Diagnostics.Eventing.Reader.EventLogQuery("System", System.Diagnostics.Eventing.Reader.PathType.LogName, systemQuery) { ReverseDirection = true };
+                using var readerSys = new System.Diagnostics.Eventing.Reader.EventLogReader(elqSys);
+                System.Diagnostics.Eventing.Reader.EventRecord record;
+                int count = 0;
+                while ((record = readerSys.ReadEvent()) != null && count < 200)
+                {
+                    logs.Add(record);
+                    count++;
+                }
+            } catch { }
+
+            try
+            {
+                string appQuery = $"*[System[Provider[@Name='{serviceName}']] or EventData[Data='{serviceName}']]";
+                var elqApp = new System.Diagnostics.Eventing.Reader.EventLogQuery("Application", System.Diagnostics.Eventing.Reader.PathType.LogName, appQuery) { ReverseDirection = true };
+                using var readerApp = new System.Diagnostics.Eventing.Reader.EventLogReader(elqApp);
+                System.Diagnostics.Eventing.Reader.EventRecord record;
+                int count = 0;
+                while ((record = readerApp.ReadEvent()) != null && count < 200)
+                {
+                    logs.Add(record);
+                    count++;
+                }
+            } catch { }
+
+            var formattedLogs = logs
+                .OrderByDescending(l => l.TimeCreated)
+                .Take(200)
+                .Select(record => {
+                    string level = record.LevelDisplayName == "Information" ? "Info" :
+                                   record.LevelDisplayName == "Warning" ? "Warn" :
+                                   record.LevelDisplayName;
+                    try { return $"[{record.TimeCreated:yyyy-MM-dd HH:mm:ss}] [{level}] {record.ProviderName}: {record.FormatDescription()}"; }
+                    catch { return $"[{record.TimeCreated:yyyy-MM-dd HH:mm:ss}] [{level}] {record.ProviderName}: (Log description unavailable)"; }
+                })
+                .ToList();
+
+            if (formattedLogs.Count == 0) return "No logs found for this service in the System and Application event logs.";
+            return string.Join("\n", formattedLogs);
+        }
+        catch (Exception ex)
+        {
+            return $"Failed to get logs: {ex.Message}";
+        }
+    }
 }

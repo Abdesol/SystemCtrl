@@ -247,4 +247,55 @@ public partial class WindowsTaskManager : IWindowsTaskManager
                 try { File.Delete(tempOutput); } catch { /* ignored */ }
         }
     }
+
+    public string GetLogs(string taskPath)
+    {
+        try
+        {
+            var logs = new List<string>();
+            string query = $"*[System[Provider[@Name='Microsoft-Windows-TaskScheduler']]] and *[EventData[Data[@Name='TaskName']='{taskPath}']]";
+            var elq = new System.Diagnostics.Eventing.Reader.EventLogQuery("Microsoft-Windows-TaskScheduler/Operational", System.Diagnostics.Eventing.Reader.PathType.LogName, query) { ReverseDirection = true };
+            using var reader = new System.Diagnostics.Eventing.Reader.EventLogReader(elq);
+            System.Diagnostics.Eventing.Reader.EventRecord record;
+            int count = 0;
+            while ((record = reader.ReadEvent()) != null && count < 200)
+            {
+                try 
+                {
+                    string level = record.LevelDisplayName == "Information" ? "Info" :
+                                   record.LevelDisplayName == "Warning" ? "Warn" :
+                                   record.LevelDisplayName;
+                    logs.Add($"[{record.TimeCreated:yyyy-MM-dd HH:mm:ss}] [{level}] {record.FormatDescription()}");
+                }
+                catch 
+                {
+                    string level = record.LevelDisplayName == "Information" ? "Info" :
+                                   record.LevelDisplayName == "Warning" ? "Warn" :
+                                   record.LevelDisplayName;
+                    logs.Add($"[{record.TimeCreated:yyyy-MM-dd HH:mm:ss}] [{level}] (Log description unavailable)");
+                }
+                count++;
+            }
+            if (logs.Count == 0) 
+            {
+                try
+                {
+                    var config = new System.Diagnostics.Eventing.Reader.EventLogConfiguration("Microsoft-Windows-TaskScheduler/Operational");
+                    if (!config.IsEnabled)
+                    {
+                        return "The Task Scheduler Operational event log is disabled.\nTask history is not being recorded.\n\nTo enable it, open Task Scheduler and click 'Enable All Tasks History' in the Actions pane, or enable the 'Microsoft-Windows-TaskScheduler/Operational' log via Event Viewer.";
+                    }
+                }
+                catch { } // Ignore if we can't read configuration
+
+                return "No logs found for this task.";
+            }
+            
+            return string.Join("\n", logs);
+        }
+        catch (Exception ex)
+        {
+            return $"Failed to get logs: {ex.Message}";
+        }
+    }
 }

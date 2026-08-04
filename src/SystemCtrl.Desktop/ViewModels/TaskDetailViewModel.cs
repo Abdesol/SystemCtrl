@@ -42,6 +42,8 @@ public partial class TaskDetailViewModel : ViewModelBase
 
     [Reactive] public partial DetailedWindowsTaskInfo? DetailedInfo { get; set; }
 
+    [Reactive] public partial string? Logs { get; set; }
+
     [Reactive] public partial bool IsLoadingDetails { get; set; }
 
     [Reactive] public partial bool IsEnabled { get; set; }
@@ -65,6 +67,8 @@ public partial class TaskDetailViewModel : ViewModelBase
     [Reactive] public partial string LoadingSummaryText { get; set; } = "Generating insights...";
 
     [Reactive] public partial bool HasApiKey { get; set; }
+
+    [Reactive] public partial bool ShowLogsTab { get; set; } = true;
 
     public IObservable<bool> CanRunTask =>
         this.WhenAnyValue(x => x.Task, x => x.Task!.Status,
@@ -90,6 +94,7 @@ public partial class TaskDetailViewModel : ViewModelBase
         {
             var settings = _settingsService.LoadSettings();
             ShowAiSummary = settings.ShowAiSummary;
+            ShowLogsTab = !settings.DisableScheduledTasksLogs;
             HasApiKey = !string.IsNullOrWhiteSpace(settings.GeminiApiKey);
             if (settings.AiSummaries.TryGetValue(task.TaskName, out var existingSummary))
             {
@@ -104,7 +109,8 @@ public partial class TaskDetailViewModel : ViewModelBase
     private async System.Threading.Tasks.Task LoadDetailsAsync(WindowsTaskInfo task)
     {
         IsLoadingDetails = true;
-        DetailedInfo = await System.Threading.Tasks.Task.Run(() =>
+        
+        var detailedInfoTask = System.Threading.Tasks.Task.Run(() =>
         {
             try
             {
@@ -115,6 +121,24 @@ public partial class TaskDetailViewModel : ViewModelBase
                 return null;
             }
         });
+
+        var logsTask = System.Threading.Tasks.Task.Run(() =>
+        {
+            if (!ShowLogsTab) return null;
+            try
+            {
+                return _windowsTaskManager.GetLogs(task.TaskPath);
+            }
+            catch
+            {
+                return "Failed to fetch logs.";
+            }
+        });
+
+        await System.Threading.Tasks.Task.WhenAll(detailedInfoTask, logsTask);
+        DetailedInfo = detailedInfoTask.Result;
+        Logs = logsTask.Result;
+        
         IsLoadingDetails = false;
     }
 

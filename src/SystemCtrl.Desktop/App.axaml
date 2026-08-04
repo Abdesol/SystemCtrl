@@ -36,6 +36,8 @@
         <StyleInclude Source="avares://SystemCtrl/Styles/Controls/Button.axaml" />
         <StyleInclude Source="avares://SystemCtrl/Styles/Controls/TextBox.axaml" />
         <StyleInclude Source="avares://SystemCtrl/Styles/Controls/ComboBox.axaml" />
+        <StyleInclude Source="avares://SystemCtrl/Styles/Controls/TabControl.axaml" />
+        <StyleInclude Source="avares://SystemCtrl/Styles/Controls/TabItem.axaml" />
         <StyleInclude Source="avares://SystemCtrl/Styles/Controls/ToggleButton.axaml" />
         <StyleInclude Source="avares://SystemCtrl/Styles/Controls/ScrollViewer.axaml" />
         <StyleInclude Source="avares://SystemCtrl/Styles/Controls/WindowDrawnDecorations.axaml" />
