@@ -59,6 +59,8 @@ public partial class ServiceDetailViewModel : ViewModelBase
 
     [Reactive] public partial DetailedWindowsServiceInfo? DetailedInfo { get; set; }
 
+    [Reactive] public partial string? Logs { get; set; }
+
     [Reactive] public partial bool IsLoadingDetails { get; set; }
 
     [Reactive] public partial bool IsAutoStart { get; set; }
@@ -116,7 +118,8 @@ public partial class ServiceDetailViewModel : ViewModelBase
     private async Task LoadDetailsAsync(WindowsServiceInfo service)
     {
         IsLoadingDetails = true;
-        DetailedInfo = await Task.Run(() =>
+        
+        var detailedInfoTask = Task.Run(() =>
         {
             try
             {
@@ -127,6 +130,23 @@ public partial class ServiceDetailViewModel : ViewModelBase
                 return null;
             }
         });
+
+        var logsTask = Task.Run(() =>
+        {
+            try
+            {
+                return _windowsServiceManager.GetLogs(service!.ServiceName);
+            }
+            catch
+            {
+                return "Failed to fetch logs.";
+            }
+        });
+
+        await Task.WhenAll(detailedInfoTask, logsTask);
+        DetailedInfo = detailedInfoTask.Result;
+        Logs = logsTask.Result;
+        
         IsLoadingDetails = false;
     }
 

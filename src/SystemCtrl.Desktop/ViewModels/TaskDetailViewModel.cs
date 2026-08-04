@@ -42,6 +42,8 @@ public partial class TaskDetailViewModel : ViewModelBase
 
     [Reactive] public partial DetailedWindowsTaskInfo? DetailedInfo { get; set; }
 
+    [Reactive] public partial string? Logs { get; set; }
+
     [Reactive] public partial bool IsLoadingDetails { get; set; }
 
     [Reactive] public partial bool IsEnabled { get; set; }
@@ -104,7 +106,8 @@ public partial class TaskDetailViewModel : ViewModelBase
     private async System.Threading.Tasks.Task LoadDetailsAsync(WindowsTaskInfo task)
     {
         IsLoadingDetails = true;
-        DetailedInfo = await System.Threading.Tasks.Task.Run(() =>
+        
+        var detailedInfoTask = System.Threading.Tasks.Task.Run(() =>
         {
             try
             {
@@ -115,6 +118,23 @@ public partial class TaskDetailViewModel : ViewModelBase
                 return null;
             }
         });
+
+        var logsTask = System.Threading.Tasks.Task.Run(() =>
+        {
+            try
+            {
+                return _windowsTaskManager.GetLogs(task.TaskPath);
+            }
+            catch
+            {
+                return "Failed to fetch logs.";
+            }
+        });
+
+        await System.Threading.Tasks.Task.WhenAll(detailedInfoTask, logsTask);
+        DetailedInfo = detailedInfoTask.Result;
+        Logs = logsTask.Result;
+        
         IsLoadingDetails = false;
     }
 
