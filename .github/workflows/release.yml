@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - beta
+      - dev
     paths:
       - 'src/**'
       - 'installer.iss'
@@ -55,7 +56,7 @@ jobs:
           tag_name: "v${{ env.APP_VERSION }}"
           name: "SystemCtrl v${{ env.APP_VERSION }}"
           body: "This is an automated build of SystemCtrl. Choose the Installer for a normal installation, or the standalone Executable for a portable version."
-          prerelease: ${{ github.ref == 'refs/heads/beta' }}
+          prerelease: ${{ github.ref == 'refs/heads/dev' }}
           make_latest: ${{ github.ref == 'refs/heads/main' }}
           files: |
             SystemCtrl.exe
