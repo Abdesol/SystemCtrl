@@ -59,6 +59,8 @@ public partial class SlidePanel : UserControl
             _panelRoot.LayoutUpdated -= OnPanelLayoutUpdated;
     }
 
+    private double _lastTx = -1;
+
     private void OnPanelLayoutUpdated(object? sender, EventArgs e)
     {
         if (_panelRoot is null) return;
@@ -69,11 +71,11 @@ public partial class SlidePanel : UserControl
         var isOpen = DataContext is SlidePanelViewModel vm && vm.IsOpen;
         var tx = isOpen ? 0d : width;
 
-        // No transition on the initial position set
+        if (Math.Abs(_lastTx - tx) < 0.1) return;
+        _lastTx = tx;
+
         _panelRoot.RenderTransform = TransformOperations.Parse(
             $"translate({tx.ToString(CultureInfo.InvariantCulture)}px, 0px)");
-
-        _panelRoot.LayoutUpdated -= OnPanelLayoutUpdated;
     }
 
     private void AnimateSlide()

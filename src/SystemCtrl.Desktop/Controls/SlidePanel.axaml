@@ -21,15 +21,21 @@
     </UserControl.Styles>
 
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="6*" />
+            <ColumnDefinition Width="4*" MinWidth="410" MaxWidth="600" />
+        </Grid.ColumnDefinitions>
+        
         <Border x:Name="DimOverlay"
+                Grid.Column="0" Grid.ColumnSpan="2"
                 Classes.Open="{Binding IsOpen}"
                 Background="{DynamicResource FreezeBackgroundBrush}"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
                 DoubleTapped="DimOverlay_DoubleTapped" />
         <Border x:Name="PanelRoot"
-                Width="420"
-                HorizontalAlignment="Right"
+                Grid.Column="1"
+                HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
                 Background="{DynamicResource CardBackgroundBrush}"
                 BoxShadow="-8 0 40 0 #1A000000"
