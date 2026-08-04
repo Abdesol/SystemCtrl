@@ -46,7 +46,10 @@ public partial class SettingsViewModel : ViewModelBase
 
         var versionAttr = Assembly.GetExecutingAssembly()
             .GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-        AppVersion = "v" + (versionAttr?.InformationalVersion ?? "1.0.0-dev");
+        var rawVersion = versionAttr?.InformationalVersion ?? "1.0.0-dev";
+        var plusIndex = rawVersion.IndexOf('+');
+        var cleanVersion = plusIndex > 0 ? rawVersion.Substring(0, plusIndex) : rawVersion;
+        AppVersion = "v" + cleanVersion;
         
         AvailableModels =
         [
