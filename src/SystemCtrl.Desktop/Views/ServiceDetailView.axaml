@@ -4,6 +4,7 @@
              xmlns:models="using:SystemCtrl.Core.Models"
              xmlns:sp="clr-namespace:System.ServiceProcess;assembly=System.ServiceProcess.ServiceController"
              xmlns:conv="using:SystemCtrl.Desktop.Converters"
+             xmlns:controls="using:SystemCtrl.Desktop.Controls"
              x:Class="SystemCtrl.Desktop.Views.ServiceDetailView"
              x:DataType="vm:ServiceDetailViewModel">
 
@@ -418,64 +419,7 @@
                 </ScrollViewer>
             </TabItem>
             <TabItem Header="Logs" IsVisible="{Binding ShowLogsTab}">
-                <Grid Margin="0,0,20,0">
-                    <Border CornerRadius="8"
-                            BorderThickness="1"
-                            BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}"
-                            Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
-                        <ScrollViewer
-                            Classes="DefaultPadding"
-                            Classes.wrapped="{Binding #WrapLogsToggle.IsChecked}"
-                            VerticalScrollBarVisibility="Auto"
-                            VerticalAlignment="Stretch"
-                            HorizontalAlignment="Stretch">
-                            <ScrollViewer.Styles>
-                                <Style Selector="ScrollViewer">
-                                    <Setter Property="HorizontalScrollBarVisibility" Value="Auto" />
-                                </Style>
-                                <Style Selector="ScrollViewer.wrapped">
-                                    <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
-                                </Style>
-                            </ScrollViewer.Styles>
-                            <SelectableTextBlock Text="{Binding Logs}"
-                                                 FontFamily="Cascadia Code, Consolas, Courier New, monospace"
-                                                 FontSize="11"
-                                                 Classes.wrapped="{Binding #WrapLogsToggle.IsChecked}"
-                                                 Margin="10"
-                                                 Foreground="{DynamicResource SystemBaseMediumHighColor}"
-                                                 LineHeight="18">
-                                <SelectableTextBlock.Styles>
-                                    <Style Selector="SelectableTextBlock">
-                                        <Setter Property="TextWrapping" Value="NoWrap" />
-                                    </Style>
-                                    <Style Selector="SelectableTextBlock.wrapped">
-                                        <Setter Property="TextWrapping" Value="WrapWithOverflow" />
-                                    </Style>
-                                </SelectableTextBlock.Styles>
-                            </SelectableTextBlock>
-                        </ScrollViewer>
-                    </Border>
-                    <ToggleButton Name="WrapLogsToggle"
-                                  IsChecked="True"
-                                  Margin="0,12,12,0"
-                                  Padding="0"
-                                  HorizontalAlignment="Right"
-                                  VerticalAlignment="Top"
-                                  ToolTip.Tip="Toggle Word Wrap">
-                        <Border
-                            CornerRadius="100"
-                            Background="{DynamicResource PrimaryTextBrush}"
-                            Width="25"
-                            Height="25"
-                            Opacity="0.9">
-                            <Viewbox Height="10">
-                                <Path Data="{StaticResource WrapIcon}"
-                                          Fill="{DynamicResource BackgroundBrush}"
-                                          Stretch="Uniform"/>
-                            </Viewbox>
-                        </Border>
-                    </ToggleButton>
-                </Grid>
+                <controls:LogViewer LogsText="{Binding Logs}" Margin="0,0,20,0" />
             </TabItem>
         </TabControl>
 
