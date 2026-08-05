@@ -2,6 +2,7 @@ using System.Net.Http;
 using Microsoft.Extensions.DependencyInjection;
 using SystemCtrl.Core;
 using SystemCtrl.Core.Interfaces;
+using SystemCtrl.Core.Services;
 using SystemCtrl.Desktop.Services;
 using SystemCtrl.Desktop.ViewModels;
 
@@ -20,7 +21,9 @@ public static class ServiceCollectionExtensions
 
         collection.AddScoped<IWindowsServiceManager, WindowsServiceManager>();
         collection.AddScoped<IWindowsTaskManager, WindowsTaskManager>();
-        collection.AddSingleton<IElevatedResourceMonitorService, SystemCtrl.Core.Services.ElevatedResourceMonitorService>();
+        
+        collection.AddSingleton<IElevatedResourceMonitorService, ElevatedResourceMonitorService>();
+        
         collection.AddScoped<ISettingsService, SettingsService>();
         collection.AddTransient<SettingsViewModel>();
 

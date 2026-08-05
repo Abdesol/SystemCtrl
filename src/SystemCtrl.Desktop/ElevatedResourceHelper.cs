@@ -43,7 +43,7 @@ public static class ElevatedResourceHelper
 
                     if (int.TryParse(line, out var pid))
                     {
-                        currentProcessId = pid;
+                        currentProcessId = pid > 0 ? pid : null;
                     }
                 }
             }

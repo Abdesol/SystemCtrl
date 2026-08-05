@@ -45,6 +45,11 @@ public class ElevatedResourceMonitorService : IElevatedResourceMonitorService
         lock (_lock)
         {
             _currentProcessId = null;
+            try
+            {
+                _writer?.WriteLine("-1");
+            }
+            catch { }
         }
     }
 
