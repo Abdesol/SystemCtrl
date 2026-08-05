@@ -28,10 +28,10 @@ public partial class LogViewer : UserControl
 
     private void CopyMenuItem_Click(object? sender, RoutedEventArgs e)
     {
-        var textBox = this.FindControl<TextBox>("LogsTextBox");
-        if (textBox != null)
+        var textBlock = this.FindControl<SelectableTextBlock>("LogsTextBlock");
+        if (textBlock != null)
         {
-            textBox.Copy();
+            textBlock.Copy();
         }
     }
 }

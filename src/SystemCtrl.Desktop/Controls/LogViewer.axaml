@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="using:SystemCtrl.Desktop.Controls"
              x:Class="SystemCtrl.Desktop.Controls.LogViewer"
              x:Name="Root">
     <Grid Margin="0">
@@ -7,48 +8,49 @@
                 BorderThickness="1"
                 BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}"
                 Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
-            <TextBox x:Name="LogsTextBox"
-                     Text="{Binding LogsText, ElementName=Root}"
-                     IsReadOnly="True"
-                     BorderThickness="0"
-                     Background="Transparent"
-                     FontFamily="{StaticResource Firacode}"
-                     FontWeight="Regular"
-                     FontSize="12"
-                     Padding="0"
-                     Foreground="{DynamicResource SystemBaseMediumHighColor}"
-                     SelectionForegroundBrush="{DynamicResource PrimaryActionForegroundBrush}"
-                     ScrollViewer.VerticalScrollBarVisibility="Auto"
-                     Classes.wrapped="{Binding #WrapLogsToggle.IsChecked}">
-                <TextBox.Styles>
-                    <Style Selector="TextBox">
-                        <Setter Property="TextWrapping" Value="NoWrap" />
-                        <Setter Property="AcceptsReturn" Value="True" />
-                        <Setter Property="(ScrollViewer.HorizontalScrollBarVisibility)" Value="Auto" />
+            <ScrollViewer
+                Classes.wrapped="{Binding #WrapLogsToggle.IsChecked}"
+                VerticalScrollBarVisibility="Auto"
+                VerticalAlignment="Stretch"
+                HorizontalAlignment="Stretch">
+                <ScrollViewer.Styles>
+                    <Style Selector="ScrollViewer">
+                        <Setter Property="HorizontalScrollBarVisibility" Value="Auto" />
                     </Style>
-                    <Style Selector="TextBox.wrapped">
-                        <Setter Property="TextWrapping" Value="Wrap" />
-                        <Setter Property="(ScrollViewer.HorizontalScrollBarVisibility)" Value="Disabled" />
+                    <Style Selector="ScrollViewer.wrapped">
+                        <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
                     </Style>
-                    <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
-                        <Setter Property="Background" Value="Transparent" />
-                        <Setter Property="BorderThickness" Value="0" />
-                    </Style>
-                    <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
-                        <Setter Property="BorderThickness" Value="0" />
-                        <Setter Property="Background" Value="Transparent" />
-                    </Style>
-                </TextBox.Styles>
-                <TextBox.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="Copy" Click="CopyMenuItem_Click" />
-                    </ContextMenu>
-                </TextBox.ContextMenu>
-            </TextBox>
+                </ScrollViewer.Styles>
+                <SelectableTextBlock x:Name="LogsTextBlock"
+                                     Text="{Binding LogsText, ElementName=Root}"
+                                     FontFamily="{StaticResource Firacode}"
+                                     FontWeight="Light"
+                                     FontSize="12"
+                                     Padding="0"
+                                     Margin="10"
+                                     LineHeight="18"
+                                     Foreground="{DynamicResource SystemBaseHighColor}"
+                                     SelectionForegroundBrush="{DynamicResource PrimaryActionForegroundBrush}"
+                                     Classes.wrapped="{Binding #WrapLogsToggle.IsChecked}">
+                    <SelectableTextBlock.Styles>
+                        <Style Selector="SelectableTextBlock">
+                            <Setter Property="TextWrapping" Value="NoWrap" />
+                        </Style>
+                        <Style Selector="SelectableTextBlock.wrapped">
+                            <Setter Property="TextWrapping" Value="WrapWithOverflow" />
+                        </Style>
+                    </SelectableTextBlock.Styles>
+                    <SelectableTextBlock.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Copy" Click="CopyMenuItem_Click" />
+                        </ContextMenu>
+                    </SelectableTextBlock.ContextMenu>
+                </SelectableTextBlock>
+            </ScrollViewer>
         </Border>
         <ToggleButton Name="WrapLogsToggle"
                       IsChecked="True"
-                      Margin="0,12,15,0"
+                      Margin="0,12,24,0"
                       Padding="0"
                       HorizontalAlignment="Right"
                       VerticalAlignment="Top"
