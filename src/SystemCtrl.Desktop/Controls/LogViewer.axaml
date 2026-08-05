@@ -12,10 +12,12 @@
                      IsReadOnly="True"
                      BorderThickness="0"
                      Background="Transparent"
-                     FontFamily="Cascadia Code, Consolas, Courier New, monospace"
-                     FontSize="11"
-                     Padding="10"
+                     FontFamily="{StaticResource Firacode}"
+                     FontWeight="Regular"
+                     FontSize="12"
+                     Padding="0"
                      Foreground="{DynamicResource SystemBaseMediumHighColor}"
+                     SelectionForegroundBrush="{DynamicResource PrimaryActionForegroundBrush}"
                      ScrollViewer.VerticalScrollBarVisibility="Auto"
                      Classes.wrapped="{Binding #WrapLogsToggle.IsChecked}">
                 <TextBox.Styles>
@@ -46,7 +48,7 @@
         </Border>
         <ToggleButton Name="WrapLogsToggle"
                       IsChecked="True"
-                      Margin="0,12,24,0"
+                      Margin="0,12,15,0"
                       Padding="0"
                       HorizontalAlignment="Right"
                       VerticalAlignment="Top"
