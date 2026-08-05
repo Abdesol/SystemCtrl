@@ -22,7 +22,6 @@
                     </Style>
                 </ScrollViewer.Styles>
                 <SelectableTextBlock x:Name="LogsTextBlock"
-                                     Text="{Binding LogsText, ElementName=Root}"
                                      FontFamily="{StaticResource Firacode}"
                                      FontWeight="Light"
                                      FontSize="12"
@@ -38,6 +37,18 @@
                         </Style>
                         <Style Selector="SelectableTextBlock.wrapped">
                             <Setter Property="TextWrapping" Value="WrapWithOverflow" />
+                        </Style>
+                        <Style Selector="Run.error">
+                            <Setter Property="Foreground" Value="{DynamicResource DangerForegroundBrush}" />
+                        </Style>
+                        <Style Selector="Run.warning">
+                            <Setter Property="Foreground" Value="{DynamicResource CautionForegroundBrush}" />
+                        </Style>
+                        <Style Selector="Run.info">
+                            <Setter Property="Foreground" Value="{DynamicResource InfoForegroundBrush}" />
+                        </Style>
+                        <Style Selector="Run.success">
+                            <Setter Property="Foreground" Value="{DynamicResource SuccessForegroundBrush}" />
                         </Style>
                     </SelectableTextBlock.Styles>
                     <SelectableTextBlock.ContextMenu>

@@ -413,7 +413,7 @@ public partial class WindowsServiceManager : IWindowsServiceManager
             
             try
             {
-                string systemQuery = $"*[System[Provider[@Name='Service Control Manager'] or Provider[@Name='{serviceName}']] or EventData[Data='{serviceName}']]";
+                string systemQuery = $"*[System[Provider[@Name='{serviceName}']] or (System[Provider[@Name='Service Control Manager']] and EventData[Data='{serviceName}'])]";
                 var elqSys = new System.Diagnostics.Eventing.Reader.EventLogQuery("System", System.Diagnostics.Eventing.Reader.PathType.LogName, systemQuery) { ReverseDirection = true };
                 using var readerSys = new System.Diagnostics.Eventing.Reader.EventLogReader(elqSys);
                 System.Diagnostics.Eventing.Reader.EventRecord record;
