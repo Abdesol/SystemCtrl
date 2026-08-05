@@ -1,0 +1,68 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="SystemCtrl.Desktop.Controls.LogViewer"
+             x:Name="Root">
+    <Grid Margin="0">
+        <Border CornerRadius="8"
+                BorderThickness="1"
+                BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}"
+                Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+            <TextBox x:Name="LogsTextBox"
+                     Text="{Binding LogsText, ElementName=Root}"
+                     IsReadOnly="True"
+                     BorderThickness="0"
+                     Background="Transparent"
+                     FontFamily="Cascadia Code, Consolas, Courier New, monospace"
+                     FontSize="11"
+                     Padding="10"
+                     Foreground="{DynamicResource SystemBaseMediumHighColor}"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                     Classes.wrapped="{Binding #WrapLogsToggle.IsChecked}">
+                <TextBox.Styles>
+                    <Style Selector="TextBox">
+                        <Setter Property="TextWrapping" Value="NoWrap" />
+                        <Setter Property="AcceptsReturn" Value="True" />
+                        <Setter Property="(ScrollViewer.HorizontalScrollBarVisibility)" Value="Auto" />
+                    </Style>
+                    <Style Selector="TextBox.wrapped">
+                        <Setter Property="TextWrapping" Value="Wrap" />
+                        <Setter Property="(ScrollViewer.HorizontalScrollBarVisibility)" Value="Disabled" />
+                    </Style>
+                    <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="BorderThickness" Value="0" />
+                    </Style>
+                    <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+                        <Setter Property="BorderThickness" Value="0" />
+                        <Setter Property="Background" Value="Transparent" />
+                    </Style>
+                </TextBox.Styles>
+                <TextBox.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Copy" Click="CopyMenuItem_Click" />
+                    </ContextMenu>
+                </TextBox.ContextMenu>
+            </TextBox>
+        </Border>
+        <ToggleButton Name="WrapLogsToggle"
+                      IsChecked="True"
+                      Margin="0,12,24,0"
+                      Padding="0"
+                      HorizontalAlignment="Right"
+                      VerticalAlignment="Top"
+                      ToolTip.Tip="Toggle Word Wrap">
+            <Border
+                CornerRadius="100"
+                Background="{DynamicResource PrimaryTextBrush}"
+                Width="25"
+                Height="25"
+                Opacity="0.9">
+                <Viewbox Height="10">
+                    <Path Data="{StaticResource WrapIcon}"
+                          Fill="{DynamicResource BackgroundBrush}"
+                          Stretch="Uniform" />
+                </Viewbox>
+            </Border>
+        </ToggleButton>
+    </Grid>
+</UserControl>
