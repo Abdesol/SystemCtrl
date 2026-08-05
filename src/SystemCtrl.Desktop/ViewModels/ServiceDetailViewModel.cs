@@ -86,6 +86,8 @@ public partial class ServiceDetailViewModel : ViewModelBase
     [Reactive] public partial bool IsAiSummaryExpanded { get; set; }
 
     [Reactive] public partial bool ShowAiSummary { get; set; }
+    
+    [Reactive] public partial bool ShowResourceUsage { get; set; }
 
     [Reactive] public partial string ToggleAiSummaryText { get; set; } = "Show";
 
@@ -127,6 +129,7 @@ public partial class ServiceDetailViewModel : ViewModelBase
 
             var settings = _settingsService.LoadSettings();
             ShowAiSummary = settings.ShowAiSummary;
+            ShowResourceUsage = !settings.DisableResourceUsage;
             ShowLogsTab = !settings.DisableServiceLogs;
             HasApiKey = !string.IsNullOrWhiteSpace(settings.GeminiApiKey);
             if (settings.AiSummaries.TryGetValue(service.ServiceName, out var existingSummary))

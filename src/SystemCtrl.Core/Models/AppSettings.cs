@@ -9,6 +9,8 @@ public class AppSettings
     public Dictionary<string, List<AiQna>> AiSummaries { get; set; } = new();
     public bool ShowAiSummary { get; set; } = true;
     public bool DisableServiceLogs { get; set; } = false;
+    
+    public bool DisableResourceUsage { get; set; } = false;
     public bool DisableScheduledTasksLogs { get; set; } = false;
     public string AppTheme { get; set; } = "Light";
     public double? WindowWidth { get; set; }

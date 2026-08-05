@@ -74,7 +74,7 @@
                 </StackPanel>
 
                 <StackPanel Spacing="10">
-                    <TextBlock Text="LOGS"
+                    <TextBlock Text="LOGS &amp; RESOURCES"
                                FontWeight="SemiBold"
                                FontSize="12"
                                Foreground="{DynamicResource SystemBaseMediumColor}" />
@@ -83,6 +83,8 @@
                                   IsChecked="{Binding DisableServiceLogs}" />
                         <CheckBox Content="Disable Scheduled Tasks Logs"
                                   IsChecked="{Binding DisableScheduledTasksLogs}" />
+                        <CheckBox Content="Disable Resource Monitoring"
+                                  IsChecked="{Binding DisableResourceUsage}" />
                     </StackPanel>
                 </StackPanel>
             </StackPanel>

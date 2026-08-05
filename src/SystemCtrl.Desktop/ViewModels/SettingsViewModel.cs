@@ -27,6 +27,9 @@ public partial class SettingsViewModel : ViewModelBase
 
     [Reactive]
     public partial bool DisableServiceLogs { get; set; }
+    
+    [Reactive]
+    public partial bool DisableResourceUsage { get; set; }
 
     [Reactive]
     public partial bool DisableScheduledTasksLogs { get; set; }
@@ -49,6 +52,7 @@ public partial class SettingsViewModel : ViewModelBase
         SelectedModel = settings.GeminiModel;
         ShowAiSummary = settings.ShowAiSummary;
         DisableServiceLogs = settings.DisableServiceLogs;
+        DisableResourceUsage = settings.DisableResourceUsage;
         DisableScheduledTasksLogs = settings.DisableScheduledTasksLogs;
         SelectedTheme = settings.AppTheme;
 
@@ -95,6 +99,7 @@ public partial class SettingsViewModel : ViewModelBase
         settings.GeminiModel = SelectedModel;
         settings.ShowAiSummary = ShowAiSummary;
         settings.DisableServiceLogs = DisableServiceLogs;
+        settings.DisableResourceUsage = DisableResourceUsage;
         settings.DisableScheduledTasksLogs = DisableScheduledTasksLogs;
         settings.AppTheme = SelectedTheme;
         _settingsService.SaveSettings(settings);

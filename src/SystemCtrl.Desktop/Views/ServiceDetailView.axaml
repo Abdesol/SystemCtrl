@@ -215,107 +215,109 @@
                                    FontWeight="Light" />
 
                         <!-- RESOURCE USAGE EXPANDER -->
-                        <Border CornerRadius="12"
-                                BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}"
-                                BorderThickness="1"
-                                Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
-                                IsVisible="{Binding DetailedInfo.ProcessId, Converter={x:Static ObjectConverters.IsNotNull}}">
-                            <StackPanel Spacing="16"
-                                        Margin="15,12"
-                                        HorizontalAlignment="Stretch">
-                                <Grid ColumnDefinitions="*, Auto"
-                                      Height="16" HorizontalAlignment="Stretch">
-                                    <ToggleButton
-                                        Grid.Column="0"
-                                        Margin="0,0,5,0"
-                                        Classes="NoScale"
-                                        IsChecked="{Binding IsResourceUsageExpanded}"
-                                        HorizontalAlignment="Stretch"
-                                        VerticalAlignment="Stretch"
-                                        HorizontalContentAlignment="Stretch"
-                                        VerticalContentAlignment="Stretch"
-                                        Cursor="Hand">
-                                        <Grid ColumnDefinitions="Auto, *">
-                                            <Panel Grid.Column="0">
-                                                <PathIcon Data="{StaticResource ChevronDownIcon}" Width="12"
-                                                          Height="12"
-                                                          Foreground="{DynamicResource SystemBaseMediumColor}"
-                                                          IsVisible="{Binding IsResourceUsageExpanded}" />
-                                                <PathIcon Data="{StaticResource ChevronRightIcon}" Width="12"
-                                                          Height="12"
-                                                          Foreground="{DynamicResource SystemBaseMediumColor}"
-                                                          IsVisible="{Binding !IsResourceUsageExpanded}" />
-                                            </Panel>
+                        <Panel IsVisible="{Binding ShowResourceUsage}">
+                            <Border CornerRadius="12"
+                                    BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}"
+                                    BorderThickness="1"
+                                    Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                                    IsVisible="{Binding DetailedInfo.ProcessId, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                <StackPanel Spacing="16"
+                                            Margin="15,12"
+                                            HorizontalAlignment="Stretch">
+                                    <Grid ColumnDefinitions="*, Auto"
+                                          Height="16" HorizontalAlignment="Stretch">
+                                        <ToggleButton
+                                            Grid.Column="0"
+                                            Margin="0,0,5,0"
+                                            Classes="NoScale"
+                                            IsChecked="{Binding IsResourceUsageExpanded}"
+                                            HorizontalAlignment="Stretch"
+                                            VerticalAlignment="Stretch"
+                                            HorizontalContentAlignment="Stretch"
+                                            VerticalContentAlignment="Stretch"
+                                            Cursor="Hand">
+                                            <Grid ColumnDefinitions="Auto, *">
+                                                <Panel Grid.Column="0">
+                                                    <PathIcon Data="{StaticResource ChevronDownIcon}" Width="12"
+                                                              Height="12"
+                                                              Foreground="{DynamicResource SystemBaseMediumColor}"
+                                                              IsVisible="{Binding IsResourceUsageExpanded}" />
+                                                    <PathIcon Data="{StaticResource ChevronRightIcon}" Width="12"
+                                                              Height="12"
+                                                              Foreground="{DynamicResource SystemBaseMediumColor}"
+                                                              IsVisible="{Binding !IsResourceUsageExpanded}" />
+                                                </Panel>
 
-                                            <Grid Column="1"
-                                                  Margin="15,0,0,0"
-                                                  HorizontalAlignment="Stretch"
-                                                  ColumnDefinitions="Auto, *">
-                                                <PathIcon Grid.Column="0" Data="{StaticResource InfoIcon}"
-                                                          Width="14"
-                                                          Height="14"
-                                                          Foreground="{DynamicResource SystemBaseMediumColor}" />
-                                                <TextBlock Grid.Column="1"
-                                                           Margin="10,0,0,0"
-                                                           Text="RESOURCE USAGE"
-                                                           FontSize="11"
-                                                           FontWeight="SemiBold"
-                                                           Foreground="{DynamicResource SystemBaseMediumColor}"
-                                                           LetterSpacing="1.2"
-                                                           VerticalAlignment="Center"
-                                                           HorizontalAlignment="Stretch"
-                                                           TextAlignment="Left" />
+                                                <Grid Column="1"
+                                                      Margin="15,0,0,0"
+                                                      HorizontalAlignment="Stretch"
+                                                      ColumnDefinitions="Auto, *">
+                                                    <PathIcon Grid.Column="0" Data="{StaticResource InfoIcon}"
+                                                              Width="14"
+                                                              Height="14"
+                                                              Foreground="{DynamicResource SystemBaseMediumColor}" />
+                                                    <TextBlock Grid.Column="1"
+                                                               Margin="10,0,0,0"
+                                                               Text="RESOURCE USAGE"
+                                                               FontSize="11"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="{DynamicResource SystemBaseMediumColor}"
+                                                               LetterSpacing="1.2"
+                                                               VerticalAlignment="Center"
+                                                               HorizontalAlignment="Stretch"
+                                                               TextAlignment="Left" />
+                                                </Grid>
                                             </Grid>
+                                        </ToggleButton>
+                                    </Grid>
+
+                                    <StackPanel Spacing="12" IsVisible="{Binding IsResourceUsageExpanded}">
+                                        <Grid ColumnDefinitions="60, *, 48" RowDefinitions="Auto, 4, Auto">
+                                            <TextBlock Grid.Row="0" Grid.Column="0"
+                                                       Text="CPU"
+                                                       FontSize="11"
+                                                       FontWeight="Medium"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource SystemBaseMediumColor}" />
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"
+                                                       Text="{Binding LiveCpuPercent}"
+                                                       FontSize="11"
+                                                       FontWeight="SemiBold"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource SystemBaseHighColor}" />
+
+                                            <TextBlock Grid.Row="2" Grid.Column="0"
+                                                       Text="MEMORY"
+                                                       FontSize="11"
+                                                       FontWeight="Medium"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource SystemBaseMediumColor}" />
+                                            <TextBlock Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2"
+                                                       Text="{Binding LiveMemoryFormatted}"
+                                                       FontSize="11"
+                                                       FontWeight="SemiBold"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource SystemBaseHighColor}" />
                                         </Grid>
-                                    </ToggleButton>
-                                </Grid>
 
-                                <StackPanel Spacing="12" IsVisible="{Binding IsResourceUsageExpanded}">
-                                    <Grid ColumnDefinitions="60, *, 48" RowDefinitions="Auto, 4, Auto">
-                                        <TextBlock Grid.Row="0" Grid.Column="0"
-                                                   Text="CPU"
-                                                   FontSize="11"
-                                                   FontWeight="Medium"
-                                                   VerticalAlignment="Center"
-                                                   Foreground="{DynamicResource SystemBaseMediumColor}" />
-                                        <TextBlock Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"
-                                                   Text="{Binding LiveCpuPercent}"
-                                                   FontSize="11"
-                                                   FontWeight="SemiBold"
-                                                   VerticalAlignment="Center"
-                                                   Foreground="{DynamicResource SystemBaseHighColor}" />
-
-                                        <TextBlock Grid.Row="2" Grid.Column="0"
-                                                   Text="MEMORY"
-                                                   FontSize="11"
-                                                   FontWeight="Medium"
-                                                   VerticalAlignment="Center"
-                                                   Foreground="{DynamicResource SystemBaseMediumColor}" />
-                                        <TextBlock Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2"
-                                                   Text="{Binding LiveMemoryFormatted}"
-                                                   FontSize="11"
-                                                   FontWeight="SemiBold"
-                                                   VerticalAlignment="Center"
-                                                   Foreground="{DynamicResource SystemBaseHighColor}" />
-                                    </Grid>
-
-                                    <Grid ColumnDefinitions="60, *">
-                                        <TextBlock Grid.Column="0"
-                                                   Text="UPTIME"
-                                                   FontSize="11"
-                                                   FontWeight="Medium"
-                                                   VerticalAlignment="Center"
-                                                   Foreground="{DynamicResource SystemBaseMediumColor}" />
-                                        <TextBlock Grid.Column="1"
-                                                   Text="{Binding LiveRunningForFormatted}"
-                                                   FontSize="11"
-                                                   FontWeight="SemiBold"
-                                                   VerticalAlignment="Center"
-                                                   Foreground="{DynamicResource SuccessForegroundBrush}" />
-                                    </Grid>
+                                        <Grid ColumnDefinitions="60, *">
+                                            <TextBlock Grid.Column="0"
+                                                       Text="UPTIME"
+                                                       FontSize="11"
+                                                       FontWeight="Medium"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource SystemBaseMediumColor}" />
+                                            <TextBlock Grid.Column="1"
+                                                       Text="{Binding LiveRunningForFormatted}"
+                                                       FontSize="11"
+                                                       FontWeight="SemiBold"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource SuccessForegroundBrush}" />
+                                        </Grid>
+                                    </StackPanel>
                                 </StackPanel>
-                            </StackPanel>
-                        </Border>
+                            </Border>
+                        </Panel>
 
                         <!-- SERVICE NAME -->
                         <StackPanel Spacing="4">
