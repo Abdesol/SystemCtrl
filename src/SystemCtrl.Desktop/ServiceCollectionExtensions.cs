@@ -1,3 +1,4 @@
+using System.Net.Http;
 using Microsoft.Extensions.DependencyInjection;
 using SystemCtrl.Core;
 using SystemCtrl.Core.Interfaces;
@@ -15,13 +16,15 @@ public static class ServiceCollectionExtensions
         collection.AddTransient<TaskDetailViewModel>();
         collection.AddTransient<ErrorDialogViewModel>();
 
+        collection.AddScoped<IAdminService, AdminService>();
+
         collection.AddScoped<IWindowsServiceManager, WindowsServiceManager>();
         collection.AddScoped<IWindowsTaskManager, WindowsTaskManager>();
         collection.AddScoped<ISettingsService, SettingsService>();
         collection.AddTransient<SettingsViewModel>();
 
-        collection.AddSingleton<System.Net.Http.HttpClient>();
+        collection.AddSingleton<HttpClient>();
         collection.AddScoped<IAiAnalyzer, AiAnalyzer>();
         collection.AddSingleton<IErrorDialogService, ErrorDialogService>();
     }
-}
+}

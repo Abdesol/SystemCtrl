@@ -3,6 +3,7 @@ using System.Management;
 using System.Security.Cryptography.X509Certificates;
 using System.ServiceProcess;
 using System.Text.RegularExpressions;
+using System.Threading;
 using Microsoft.Win32;
 using SystemCtrl.Core.Interfaces;
 using SystemCtrl.Core.Models;
@@ -11,6 +12,13 @@ namespace SystemCtrl.Core;
 
 public partial class WindowsServiceManager : IWindowsServiceManager
 {
+    private readonly IAdminService _adminService;
+
+    public WindowsServiceManager(IAdminService adminService)
+    {
+        _adminService = adminService;
+    }
+
     public IEnumerable<WindowsServiceInfo> GetServices(bool includeSystemServices = false)
     {
         return ServiceController
@@ -45,6 +53,9 @@ public partial class WindowsServiceManager : IWindowsServiceManager
             .Select(d => d.DisplayName)
             .ToArray();
 
+        var processId = GetProcessId(service);
+        var (cpuPercent, memoryBytes, runningFor) = GetProcessStats(processId);
+
         return new DetailedWindowsServiceInfo
         {
             ServiceName = service.ServiceName,
@@ -56,9 +67,57 @@ public partial class WindowsServiceManager : IWindowsServiceManager
             IsSigned = IsSigned(path),
             ServiceAccount = key?.GetValue("ObjectName")?.ToString() ?? string.Empty,
             Dependencies = dependencies,
-            ProcessId = GetProcessId(service),
+            ProcessId = processId,
+            CpuPercent = cpuPercent,
+            MemoryBytes = memoryBytes,
+            RunningFor = runningFor,
         };
     }
+
+    private static (double? cpu, long? memory, TimeSpan? runningFor) GetProcessStats(int? processId)
+    {
+        if (processId is not { } pid)
+            return (null, null, null);
+
+        try
+        {
+            using var proc = Process.GetProcessById(pid);
+
+            // Memory
+            var memory = proc.WorkingSet64;
+
+            // Running for
+            TimeSpan? runningFor = null;
+            try { runningFor = DateTime.Now - proc.StartTime; } catch { /* access denied */ }
+
+            // CPU: two samples ~500 ms apart to calculate a meaningful percentage
+            double? cpu = null;
+            try
+            {
+                var t1 = proc.TotalProcessorTime;
+                var w1 = DateTime.UtcNow;
+                Thread.Sleep(500);
+                proc.Refresh();
+                var t2 = proc.TotalProcessorTime;
+                var w2 = DateTime.UtcNow;
+
+                var cpuUsed = (t2 - t1).TotalMilliseconds;
+                var elapsed = (w2 - w1).TotalMilliseconds;
+                var logicalCores = Environment.ProcessorCount;
+
+                cpu = Math.Round(cpuUsed / (elapsed * logicalCores) * 100.0, 1);
+                cpu = Math.Min(cpu.Value, 100.0); // cap at 100%
+            }
+            catch { /* access denied or process exited */ }
+
+            return (cpu, memory, runningFor);
+        }
+        catch
+        {
+            return (null, null, null);
+        }
+    }
+
 
     private void ExecuteElevated(string fileName, string arguments)
     {
@@ -130,13 +189,12 @@ public partial class WindowsServiceManager : IWindowsServiceManager
             FileName = fileName,
             Arguments = wrappedArgs,
             UseShellExecute = true,
-            Verb = "runas",
             WindowStyle = ProcessWindowStyle.Hidden
         };
 
         try
         {
-            using var process = Process.Start(processInfo);
+            using var process = _adminService.StartElevatedProcess(processInfo);
             process?.WaitForExit();
 
             if (process == null || process.ExitCode == 0) return;
