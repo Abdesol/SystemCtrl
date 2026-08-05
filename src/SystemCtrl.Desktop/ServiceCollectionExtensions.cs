@@ -20,6 +20,7 @@ public static class ServiceCollectionExtensions
 
         collection.AddScoped<IWindowsServiceManager, WindowsServiceManager>();
         collection.AddScoped<IWindowsTaskManager, WindowsTaskManager>();
+        collection.AddSingleton<IElevatedResourceMonitorService, SystemCtrl.Core.Services.ElevatedResourceMonitorService>();
         collection.AddScoped<ISettingsService, SettingsService>();
         collection.AddTransient<SettingsViewModel>();
 

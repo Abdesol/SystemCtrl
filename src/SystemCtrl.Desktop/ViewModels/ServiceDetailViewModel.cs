@@ -5,6 +5,8 @@ using SystemCtrl.Core.Interfaces;
 using SystemCtrl.Core.Models;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
+using System.Reactive.Linq;
+using ReactiveUI.Avalonia;
 using SystemCtrl.Core.Exceptions;
 using SystemCtrl.Desktop.Services;
 
@@ -17,19 +19,27 @@ public partial class ServiceDetailViewModel : ViewModelBase
     private readonly ISettingsService _settingsService;
     private readonly IErrorDialogService _errorDialog;
 
+    private readonly IElevatedResourceMonitorService _resourceMonitor;
+    private IDisposable? _resourceMonitorSubscription;
+
     public ServiceDetailViewModel(
         IWindowsServiceManager windowsServiceManager,
         IAiAnalyzer serviceAnalyzer,
         ISettingsService settingsService,
-        IErrorDialogService errorDialog)
+        IErrorDialogService errorDialog,
+        IElevatedResourceMonitorService resourceMonitor)
     {
         _windowsServiceManager = windowsServiceManager;
         _serviceAnalyzer = serviceAnalyzer;
         _settingsService = settingsService;
         _errorDialog = errorDialog;
+        _resourceMonitor = resourceMonitor;
 
         this.WhenAnyValue(x => x.IsAiSummaryExpanded)
             .Subscribe(expanded => ToggleAiSummaryText = expanded ? "Hide" : "Show");
+
+        this.WhenAnyValue(x => x.IsResourceUsageExpanded, x => x.DetailedInfo)
+            .Subscribe(t => HandleResourceUsageExpansion(t.Item1));
 
         this.WhenAnyValue(
                 x => x.IsDisabled,
@@ -79,6 +89,16 @@ public partial class ServiceDetailViewModel : ViewModelBase
 
     [Reactive] public partial string ToggleAiSummaryText { get; set; } = "Show";
 
+    [Reactive] public partial bool IsResourceUsageExpanded { get; set; }
+    
+    [Reactive] public partial string ToggleResourceUsageText { get; set; } = "Show";
+
+    [Reactive] public partial string? LiveCpuPercent { get; set; }
+    
+    [Reactive] public partial string? LiveMemoryFormatted { get; set; }
+    
+    [Reactive] public partial string? LiveRunningForFormatted { get; set; }
+
     [Reactive] public partial string LoadingSummaryText { get; set; } = "Generating insights...";
 
     [Reactive] public partial bool HasApiKey { get; set; }
@@ -95,6 +115,7 @@ public partial class ServiceDetailViewModel : ViewModelBase
         HasAiSummary = false;
         IsGeneratingSummary = false;
         IsAiSummaryExpanded = false;
+        IsResourceUsageExpanded = false;
 
         if (service != null!)
         {
@@ -116,6 +137,71 @@ public partial class ServiceDetailViewModel : ViewModelBase
 
             _ = LoadDetailsAsync(service);
         }
+    }
+
+    private void HandleResourceUsageExpansion(bool expanded)
+    {
+        ToggleResourceUsageText = expanded ? "Hide" : "Show";
+
+        _resourceMonitorSubscription?.Dispose();
+        _resourceMonitorSubscription = null;
+
+        if (expanded && DetailedInfo?.ProcessId is { } pid)
+        {
+            LiveCpuPercent = "Loading...";
+            LiveMemoryFormatted = "Loading...";
+            LiveRunningForFormatted = "Loading...";
+
+            _resourceMonitorSubscription = _resourceMonitor.MonitorProcess(pid)
+                .ObserveOn(AvaloniaScheduler.Instance)
+                .Subscribe(update =>
+                {
+                    if (update.Error != null)
+                    {
+                        LiveCpuPercent = "Error";
+                        LiveMemoryFormatted = "Error";
+                        LiveRunningForFormatted = "Error";
+                    }
+                    else
+                    {
+                        LiveCpuPercent = update.CpuPercent?.ToString("0.0") + " %";
+                        LiveMemoryFormatted = update.MemoryBytes.HasValue ? (update.MemoryBytes.Value / 1024 / 1024).ToString("N0") + " MB" : "-";
+                        
+                        if (update.RunningFor.HasValue)
+                        {
+                            var runningFor = update.RunningFor.Value;
+                            if (runningFor.TotalDays >= 1)
+                            {
+                                LiveRunningForFormatted = $@"{runningFor.Days}d {runningFor:hh\:mm\:ss}";
+                            }
+                            else
+                            {
+                                LiveRunningForFormatted = $@"{runningFor:hh\:mm\:ss}";
+                            }
+                        }
+                        else
+                        {
+                            LiveRunningForFormatted = "-";
+                        }
+                    }
+                });
+        }
+        else if (expanded && DetailedInfo?.ProcessId == null)
+        {
+             LiveCpuPercent = "-";
+             LiveMemoryFormatted = "-";
+             LiveRunningForFormatted = "-";
+        }
+        else
+        {
+            _resourceMonitor.StopMonitoring();
+        }
+    }
+
+    [ReactiveCommand]
+    public void ToggleResourceUsage()
+    {
+        IsResourceUsageExpanded = !IsResourceUsageExpanded;
     }
 
     private async Task LoadDetailsAsync(WindowsServiceInfo service)
@@ -210,6 +296,7 @@ public partial class ServiceDetailViewModel : ViewModelBase
             await Task.Run(() => _windowsServiceManager.Stop(Service.ServiceName));
             await Task.Delay(1000);
             RefreshServiceState();
+            IsResourceUsageExpanded = false;
         }
         catch (OperationCanceledException)
         {
@@ -436,6 +523,8 @@ public partial class ServiceDetailViewModel : ViewModelBase
                               Service.StartType == ServiceStartMode.Boot ||
                               Service.StartType == ServiceStartMode.System;
                 IsDisabled = Service.StartType == ServiceStartMode.Disabled;
+                
+                _ = LoadDetailsAsync(Service);
             }
         }
         catch

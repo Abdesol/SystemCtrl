@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using Microsoft.Win32.TaskScheduler;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
@@ -17,6 +16,7 @@ public partial class TaskDetailViewModel : ViewModelBase
     private readonly ISettingsService _settingsService;
     private readonly IErrorDialogService _errorDialog;
 
+
     public TaskDetailViewModel(
         IWindowsTaskManager windowsTaskManager,
         IAiAnalyzer aiAnalyzer,
@@ -27,6 +27,8 @@ public partial class TaskDetailViewModel : ViewModelBase
         _aiAnalyzer = aiAnalyzer;
         _settingsService = settingsService;
         _errorDialog = errorDialog;
+
+
 
         this.WhenAnyValue(
                 x => x.IsEnabled,
@@ -105,6 +107,7 @@ public partial class TaskDetailViewModel : ViewModelBase
             _ = LoadDetailsAsync(task);
         }
     }
+
 
     private async System.Threading.Tasks.Task LoadDetailsAsync(WindowsTaskInfo task)
     {

@@ -12,6 +12,12 @@ sealed class Program
     [STAThread]
     public static void Main(string[] args)
     {
+        if (args.Length > 0 && args[0] == "--elevated-helper")
+        {
+            ElevatedResourceHelper.Run(args);
+            return;
+        }
+
         const string appName = "SystemCtrl.Desktop.SingleInstanceMutex";
         _mutex = new Mutex(true, appName, out bool createdNew);
 

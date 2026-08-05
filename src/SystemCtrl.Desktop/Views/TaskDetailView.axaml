@@ -199,6 +199,7 @@
                                    Margin="5,-12,0,0"
                                    FontWeight="Light" />
 
+
                         <!-- TASK NAME & PATH -->
                         <StackPanel Spacing="4">
                             <TextBlock Text="TASK NAME"
@@ -458,86 +459,7 @@
                                         </StackPanel>
                                     </Grid>
 
-                                    <!-- RESOURCE USAGE (only when task is running) -->
-                                    <Border CornerRadius="10"
-                                            Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
-                                            BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}"
-                                            BorderThickness="1"
-                                            IsVisible="{Binding ProcessId, Converter={x:Static ObjectConverters.IsNotNull}}">
-                                        <StackPanel Spacing="12" Margin="14,12">
 
-                                            <TextBlock Text="RESOURCE USAGE"
-                                                       FontSize="10"
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource SystemBaseMediumColor}"
-                                                       LetterSpacing="1.2" />
-
-                                            <!-- CPU -->
-                                            <Grid ColumnDefinitions="60, *, 48" RowDefinitions="Auto, 4, Auto">
-                                                <TextBlock Grid.Row="0" Grid.Column="0"
-                                                           Text="CPU"
-                                                           FontSize="11"
-                                                           FontWeight="Medium"
-                                                           VerticalAlignment="Center"
-                                                           Foreground="{DynamicResource SystemBaseMediumColor}" />
-                                                <ProgressBar Grid.Row="0" Grid.Column="1"
-                                                             Value="{Binding CpuPercent, FallbackValue=0}"
-                                                             Maximum="100"
-                                                             Height="6"
-                                                             CornerRadius="3"
-                                                             VerticalAlignment="Center"
-                                                             IsVisible="{Binding CpuPercent, Converter={x:Static ObjectConverters.IsNotNull}}"
-                                                             Foreground="{DynamicResource SystemAccentColor}" />
-                                                <TextBlock Grid.Row="0" Grid.Column="1"
-                                                           Text="—"
-                                                           FontSize="11"
-                                                           VerticalAlignment="Center"
-                                                           Foreground="{DynamicResource SystemBaseMediumColor}"
-                                                           IsVisible="{Binding !CpuPercent, Converter={x:Static ObjectConverters.IsNotNull}}" />
-                                                <TextBlock Grid.Row="0" Grid.Column="2"
-                                                           Text="{Binding CpuPercent, StringFormat={}{0:N1}%}"
-                                                           FontSize="11"
-                                                           FontWeight="SemiBold"
-                                                           HorizontalAlignment="Right"
-                                                           VerticalAlignment="Center"
-                                                           IsVisible="{Binding CpuPercent, Converter={x:Static ObjectConverters.IsNotNull}}"
-                                                           Foreground="{DynamicResource SystemBaseHighColor}" />
-
-                                                <!-- MEMORY -->
-                                                <TextBlock Grid.Row="2" Grid.Column="0"
-                                                           Text="MEMORY"
-                                                           FontSize="11"
-                                                           FontWeight="Medium"
-                                                           VerticalAlignment="Center"
-                                                           Foreground="{DynamicResource SystemBaseMediumColor}" />
-                                                <TextBlock Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2"
-                                                           Text="{Binding MemoryFormatted}"
-                                                           FontSize="11"
-                                                           FontWeight="SemiBold"
-                                                           VerticalAlignment="Center"
-                                                           IsVisible="{Binding MemoryBytes, Converter={x:Static ObjectConverters.IsNotNull}}"
-                                                           Foreground="{DynamicResource SystemBaseHighColor}" />
-                                            </Grid>
-
-                                            <!-- RUNNING FOR -->
-                                            <Grid ColumnDefinitions="60, *"
-                                                  IsVisible="{Binding RunningFor, Converter={x:Static ObjectConverters.IsNotNull}}">
-                                                <TextBlock Grid.Column="0"
-                                                           Text="UPTIME"
-                                                           FontSize="11"
-                                                           FontWeight="Medium"
-                                                           VerticalAlignment="Center"
-                                                           Foreground="{DynamicResource SystemBaseMediumColor}" />
-                                                <TextBlock Grid.Column="1"
-                                                           Text="{Binding RunningForFormatted}"
-                                                           FontSize="11"
-                                                           FontWeight="SemiBold"
-                                                           VerticalAlignment="Center"
-                                                           Foreground="{DynamicResource SuccessForegroundBrush}" />
-                                            </Grid>
-
-                                        </StackPanel>
-                                    </Border>
 
                                 </StackPanel>
                             </Panel>
