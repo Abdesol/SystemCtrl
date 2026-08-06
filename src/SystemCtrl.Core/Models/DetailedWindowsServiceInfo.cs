@@ -33,7 +33,6 @@ public partial class DetailedWindowsServiceInfo : ReactiveObject
 
     [Reactive] public partial int? ProcessId { get; set; }
 
-    // Resource usage stats (populated only when the service is running)
     [Reactive] public partial double? CpuPercent { get; set; }
 
     [Reactive] public partial long? MemoryBytes { get; set; }

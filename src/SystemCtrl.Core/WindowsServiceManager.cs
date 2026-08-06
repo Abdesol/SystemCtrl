@@ -83,10 +83,8 @@ public partial class WindowsServiceManager : IWindowsServiceManager
         {
             using var proc = Process.GetProcessById(pid);
 
-            // Memory
             var memory = proc.WorkingSet64;
 
-            // Running for
             TimeSpan? runningFor = null;
             try { runningFor = DateTime.Now - proc.StartTime; } catch { /* access denied */ }
 

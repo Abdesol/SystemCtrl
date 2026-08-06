@@ -82,24 +82,32 @@ public partial class MainWindow : Window
 
     private void DebounceTimer_Elapsed(object? sender, ElapsedEventArgs e)
     {
+        Dispatcher.UIThread.Post(SaveWindowSettings);
+    }
+
+    private void SaveWindowSettings()
+    {
         if (_settingsService == null) return;
 
-        Dispatcher.UIThread.Post(() =>
+        var settings = _settingsService.LoadSettings();
+        
+        if (WindowState == WindowState.Normal)
         {
-            var settings = _settingsService.LoadSettings();
-            
-            if (WindowState == WindowState.Normal)
-            {
-                settings.WindowWidth = Width;
-                settings.WindowHeight = Height;
-                settings.WindowPositionX = Position.X;
-                settings.WindowPositionY = Position.Y;
-            }
-            
-            settings.WindowState = WindowState.ToString();
-            
-            _settingsService.SaveSettings(settings);
-        });
+            settings.WindowWidth = Width;
+            settings.WindowHeight = Height;
+            settings.WindowPositionX = Position.X;
+            settings.WindowPositionY = Position.Y;
+        }
+        
+        settings.WindowState = WindowState.ToString();
+        
+        _settingsService.SaveSettings(settings);
+    }
+
+    protected override void OnClosing(WindowClosingEventArgs e)
+    {
+        SaveWindowSettings();
+        base.OnClosing(e);
     }
 
     private void ChangeWindowPosition(object sender, PointerPressedEventArgs e)
