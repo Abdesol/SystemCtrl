@@ -15,4 +15,7 @@ public interface IWindowsTaskManager
     void Run(string taskPath);
 
     void Stop(string taskPath);
+
+    IEnumerable<string> GetLogs(string taskPath);
+    IObservable<string> StreamLogs(string taskPath);
 }

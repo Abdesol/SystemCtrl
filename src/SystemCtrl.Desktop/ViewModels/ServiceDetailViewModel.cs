@@ -5,6 +5,8 @@ using SystemCtrl.Core.Interfaces;
 using SystemCtrl.Core.Models;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
+using System.Reactive.Linq;
+using ReactiveUI.Avalonia;
 using SystemCtrl.Core.Exceptions;
 using SystemCtrl.Desktop.Services;
 
@@ -17,19 +19,27 @@ public partial class ServiceDetailViewModel : ViewModelBase
     private readonly ISettingsService _settingsService;
     private readonly IErrorDialogService _errorDialog;
 
+    private readonly IElevatedResourceMonitorService _resourceMonitor;
+    private IDisposable? _resourceMonitorSubscription;
+
     public ServiceDetailViewModel(
         IWindowsServiceManager windowsServiceManager,
         IAiAnalyzer serviceAnalyzer,
         ISettingsService settingsService,
-        IErrorDialogService errorDialog)
+        IErrorDialogService errorDialog,
+        IElevatedResourceMonitorService resourceMonitor)
     {
         _windowsServiceManager = windowsServiceManager;
         _serviceAnalyzer = serviceAnalyzer;
         _settingsService = settingsService;
         _errorDialog = errorDialog;
+        _resourceMonitor = resourceMonitor;
 
         this.WhenAnyValue(x => x.IsAiSummaryExpanded)
             .Subscribe(expanded => ToggleAiSummaryText = expanded ? "Hide" : "Show");
+
+        this.WhenAnyValue(x => x.IsResourceUsageExpanded, x => x.DetailedInfo)
+            .Subscribe(t => HandleResourceUsageExpansion(t.Item1));
 
         this.WhenAnyValue(
                 x => x.IsDisabled,
@@ -48,6 +58,27 @@ public partial class ServiceDetailViewModel : ViewModelBase
                 x => x.IsExecutingAction,
                 (isDisabled, isExecuting) => !isDisabled && !isExecuting)
             .Subscribe(canDisable => CanDisableService = canDisable);
+            
+        this.WhenAnyValue(x => x.SelectedTabIndex, x => x.Service, x => x.ShowLogsTab)
+            .Subscribe(t => 
+            {
+                var tabIndex = t.Item1;
+                var service = t.Item2;
+                var showLogs = t.Item3;
+                
+                _logStreamSubscription?.Dispose();
+                _logStreamSubscription = null;
+                
+                if (tabIndex == 1 && service != null && showLogs)
+                {
+                    _logStreamSubscription = _windowsServiceManager.StreamLogs(service.ServiceName)
+                        .ObserveOn(AvaloniaScheduler.Instance)
+                        .Subscribe(logLine => 
+                        {
+                            LogsList.Insert(0, logLine);
+                        });
+                }
+            });
     }
     
     [Reactive] public partial bool CanExecuteServiceActions { get; set; }
@@ -58,6 +89,11 @@ public partial class ServiceDetailViewModel : ViewModelBase
     [Reactive] public partial WindowsServiceInfo? Service { get; set; }
 
     [Reactive] public partial DetailedWindowsServiceInfo? DetailedInfo { get; set; }
+
+    [Reactive] public partial System.Collections.ObjectModel.ObservableCollection<string> LogsList { get; set; } = new();
+    
+    [Reactive] public partial int SelectedTabIndex { get; set; }
+    private IDisposable? _logStreamSubscription;
 
     [Reactive] public partial bool IsLoadingDetails { get; set; }
 
@@ -74,12 +110,26 @@ public partial class ServiceDetailViewModel : ViewModelBase
     [Reactive] public partial bool IsAiSummaryExpanded { get; set; }
 
     [Reactive] public partial bool ShowAiSummary { get; set; }
+    
+    [Reactive] public partial bool ShowResourceUsage { get; set; }
 
     [Reactive] public partial string ToggleAiSummaryText { get; set; } = "Show";
+
+    [Reactive] public partial bool IsResourceUsageExpanded { get; set; }
+    
+    [Reactive] public partial string ToggleResourceUsageText { get; set; } = "Show";
+
+    [Reactive] public partial string? LiveCpuPercent { get; set; }
+    
+    [Reactive] public partial string? LiveMemoryFormatted { get; set; }
+    
+    [Reactive] public partial string? LiveRunningForFormatted { get; set; }
 
     [Reactive] public partial string LoadingSummaryText { get; set; } = "Generating insights...";
 
     [Reactive] public partial bool HasApiKey { get; set; }
+
+    [Reactive] public partial bool ShowLogsTab { get; set; } = true;
 
     public void Load(WindowsServiceInfo service)
     {
@@ -91,6 +141,7 @@ public partial class ServiceDetailViewModel : ViewModelBase
         HasAiSummary = false;
         IsGeneratingSummary = false;
         IsAiSummaryExpanded = false;
+        IsResourceUsageExpanded = false;
 
         if (service != null!)
         {
@@ -102,6 +153,8 @@ public partial class ServiceDetailViewModel : ViewModelBase
 
             var settings = _settingsService.LoadSettings();
             ShowAiSummary = settings.ShowAiSummary;
+            ShowResourceUsage = !settings.DisableResourceUsage;
+            ShowLogsTab = !settings.DisableServiceLogs;
             HasApiKey = !string.IsNullOrWhiteSpace(settings.GeminiApiKey);
             if (settings.AiSummaries.TryGetValue(service.ServiceName, out var existingSummary))
             {
@@ -113,10 +166,76 @@ public partial class ServiceDetailViewModel : ViewModelBase
         }
     }
 
+    private void HandleResourceUsageExpansion(bool expanded)
+    {
+        ToggleResourceUsageText = expanded ? "Hide" : "Show";
+
+        _resourceMonitorSubscription?.Dispose();
+        _resourceMonitorSubscription = null;
+
+        if (expanded && DetailedInfo?.ProcessId is { } pid)
+        {
+            LiveCpuPercent = "Loading...";
+            LiveMemoryFormatted = "Loading...";
+            LiveRunningForFormatted = "Loading...";
+
+            _resourceMonitorSubscription = _resourceMonitor.MonitorProcess(pid)
+                .ObserveOn(AvaloniaScheduler.Instance)
+                .Subscribe(update =>
+                {
+                    if (update.Error != null)
+                    {
+                        LiveCpuPercent = "Error";
+                        LiveMemoryFormatted = "Error";
+                        LiveRunningForFormatted = "Error";
+                    }
+                    else
+                    {
+                        LiveCpuPercent = update.CpuPercent?.ToString("0.0") + " %";
+                        LiveMemoryFormatted = update.MemoryBytes.HasValue ? (update.MemoryBytes.Value / 1024 / 1024).ToString("N0") + " MB" : "-";
+                        
+                        if (update.RunningFor.HasValue)
+                        {
+                            var runningFor = update.RunningFor.Value;
+                            if (runningFor.TotalDays >= 1)
+                            {
+                                LiveRunningForFormatted = $@"{runningFor.Days}d {runningFor:hh\:mm\:ss}";
+                            }
+                            else
+                            {
+                                LiveRunningForFormatted = $@"{runningFor:hh\:mm\:ss}";
+                            }
+                        }
+                        else
+                        {
+                            LiveRunningForFormatted = "-";
+                        }
+                    }
+                });
+        }
+        else if (expanded && DetailedInfo?.ProcessId == null)
+        {
+             LiveCpuPercent = "-";
+             LiveMemoryFormatted = "-";
+             LiveRunningForFormatted = "-";
+        }
+        else
+        {
+            _resourceMonitor.StopMonitoring();
+        }
+    }
+
+    [ReactiveCommand]
+    public void ToggleResourceUsage()
+    {
+        IsResourceUsageExpanded = !IsResourceUsageExpanded;
+    }
+
     private async Task LoadDetailsAsync(WindowsServiceInfo service)
     {
         IsLoadingDetails = true;
-        DetailedInfo = await Task.Run(() =>
+        
+        var detailedInfoTask = Task.Run(() =>
         {
             try
             {
@@ -127,6 +246,28 @@ public partial class ServiceDetailViewModel : ViewModelBase
                 return null;
             }
         });
+
+        var logsTask = Task.Run(() =>
+        {
+            if (!ShowLogsTab) return null;
+            try
+            {
+                return _windowsServiceManager.GetLogs(service!.ServiceName);
+            }
+            catch
+            {
+                return new System.Collections.Generic.List<string> { "Failed to fetch logs." };
+            }
+        });
+
+        await Task.WhenAll(detailedInfoTask, logsTask);
+        DetailedInfo = detailedInfoTask.Result;
+        
+        if (logsTask.Result != null)
+        {
+            LogsList = new System.Collections.ObjectModel.ObservableCollection<string>(logsTask.Result);
+        }
+        
         IsLoadingDetails = false;
     }
 
@@ -186,6 +327,7 @@ public partial class ServiceDetailViewModel : ViewModelBase
             await Task.Run(() => _windowsServiceManager.Stop(Service.ServiceName));
             await Task.Delay(1000);
             RefreshServiceState();
+            IsResourceUsageExpanded = false;
         }
         catch (OperationCanceledException)
         {
@@ -412,6 +554,8 @@ public partial class ServiceDetailViewModel : ViewModelBase
                               Service.StartType == ServiceStartMode.Boot ||
                               Service.StartType == ServiceStartMode.System;
                 IsDisabled = Service.StartType == ServiceStartMode.Disabled;
+                
+                _ = LoadDetailsAsync(Service);
             }
         }
         catch

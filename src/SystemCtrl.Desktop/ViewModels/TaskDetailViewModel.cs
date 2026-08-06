@@ -1,8 +1,9 @@
 using System;
-using System.Threading.Tasks;
 using Microsoft.Win32.TaskScheduler;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
+using System.Reactive.Linq;
+using ReactiveUI.Avalonia;
 using SystemCtrl.Core.Exceptions;
 using SystemCtrl.Core.Interfaces;
 using SystemCtrl.Core.Models;
@@ -17,6 +18,7 @@ public partial class TaskDetailViewModel : ViewModelBase
     private readonly ISettingsService _settingsService;
     private readonly IErrorDialogService _errorDialog;
 
+
     public TaskDetailViewModel(
         IWindowsTaskManager windowsTaskManager,
         IAiAnalyzer aiAnalyzer,
@@ -28,6 +30,8 @@ public partial class TaskDetailViewModel : ViewModelBase
         _settingsService = settingsService;
         _errorDialog = errorDialog;
 
+
+
         this.WhenAnyValue(
                 x => x.IsEnabled,
                 x => x.IsExecutingAction,
@@ -36,11 +40,37 @@ public partial class TaskDetailViewModel : ViewModelBase
 
         this.WhenAnyValue(x => x.IsAiSummaryExpanded)
             .Subscribe(expanded => ToggleAiSummaryText = expanded ? "Hide" : "Show");
+            
+        this.WhenAnyValue(x => x.SelectedTabIndex, x => x.Task, x => x.ShowLogsTab)
+            .Subscribe(t => 
+            {
+                var tabIndex = t.Item1;
+                var task = t.Item2;
+                var showLogs = t.Item3;
+                
+                _logStreamSubscription?.Dispose();
+                _logStreamSubscription = null;
+                
+                if (tabIndex == 1 && task != null && showLogs)
+                {
+                    _logStreamSubscription = _windowsTaskManager.StreamLogs(task.TaskPath)
+                        .ObserveOn(AvaloniaScheduler.Instance)
+                        .Subscribe(logLine => 
+                        {
+                            LogsList.Insert(0, logLine);
+                        });
+                }
+            });
     }
 
     [Reactive] public partial WindowsTaskInfo? Task { get; set; }
 
     [Reactive] public partial DetailedWindowsTaskInfo? DetailedInfo { get; set; }
+
+    [Reactive] public partial System.Collections.ObjectModel.ObservableCollection<string> LogsList { get; set; } = new();
+    
+    [Reactive] public partial int SelectedTabIndex { get; set; }
+    private IDisposable? _logStreamSubscription;
 
     [Reactive] public partial bool IsLoadingDetails { get; set; }
 
@@ -66,6 +96,8 @@ public partial class TaskDetailViewModel : ViewModelBase
 
     [Reactive] public partial bool HasApiKey { get; set; }
 
+    [Reactive] public partial bool ShowLogsTab { get; set; } = true;
+
     public IObservable<bool> CanRunTask =>
         this.WhenAnyValue(x => x.Task, x => x.Task!.Status,
             (t, status) => t != null && status != TaskState.Running);
@@ -90,6 +122,7 @@ public partial class TaskDetailViewModel : ViewModelBase
         {
             var settings = _settingsService.LoadSettings();
             ShowAiSummary = settings.ShowAiSummary;
+            ShowLogsTab = !settings.DisableScheduledTasksLogs;
             HasApiKey = !string.IsNullOrWhiteSpace(settings.GeminiApiKey);
             if (settings.AiSummaries.TryGetValue(task.TaskName, out var existingSummary))
             {
@@ -101,10 +134,12 @@ public partial class TaskDetailViewModel : ViewModelBase
         }
     }
 
+
     private async System.Threading.Tasks.Task LoadDetailsAsync(WindowsTaskInfo task)
     {
         IsLoadingDetails = true;
-        DetailedInfo = await System.Threading.Tasks.Task.Run(() =>
+        
+        var detailedInfoTask = System.Threading.Tasks.Task.Run(() =>
         {
             try
             {
@@ -115,6 +150,28 @@ public partial class TaskDetailViewModel : ViewModelBase
                 return null;
             }
         });
+
+        var logsTask = System.Threading.Tasks.Task.Run(() =>
+        {
+            if (!ShowLogsTab) return null;
+            try
+            {
+                return _windowsTaskManager.GetLogs(task.TaskPath);
+            }
+            catch
+            {
+                return new System.Collections.Generic.List<string> { "Failed to fetch logs." };
+            }
+        });
+
+        await System.Threading.Tasks.Task.WhenAll(detailedInfoTask, logsTask);
+        DetailedInfo = detailedInfoTask.Result;
+        
+        if (logsTask.Result != null)
+        {
+            LogsList = new System.Collections.ObjectModel.ObservableCollection<string>(logsTask.Result);
+        }
+        
         IsLoadingDetails = false;
     }
 

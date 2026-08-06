@@ -7,6 +7,11 @@
         <Setter Property="Padding" Value="1" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1" />
+            </Transitions>
+        </Setter>
     </Style>
     <Style Selector="ToggleButton /template/ ContentPresenter">
         <Setter Property="Background" Value="{TemplateBinding Background}" />
@@ -14,11 +19,14 @@
         <Setter Property="BorderBrush" Value="{TemplateBinding BorderBrush}" />
         <Setter Property="CornerRadius" Value="{TemplateBinding CornerRadius}" />
     </Style>
+
     <Style Selector="ToggleButton:pointerover /template/ ContentPresenter">
         <Setter Property="Background" Value="{TemplateBinding Background}" />
         <Setter Property="Foreground" Value="{TemplateBinding Foreground}" />
         <Setter Property="BorderBrush" Value="{TemplateBinding BorderBrush}" />
         <Setter Property="CornerRadius" Value="{TemplateBinding CornerRadius}" />
+    </Style>
+    <Style Selector="ToggleButton:pointerover">
         <Setter Property="RenderTransform" Value="scale(1.05)" />
     </Style>
 
@@ -27,6 +35,8 @@
         <Setter Property="Foreground" Value="{TemplateBinding Foreground}" />
         <Setter Property="BorderBrush" Value="{TemplateBinding BorderBrush}" />
         <Setter Property="CornerRadius" Value="{TemplateBinding CornerRadius}" />
+    </Style>
+    <Style Selector="ToggleButton:pressed">
         <Setter Property="RenderTransform" Value="scale(1.015)" />
     </Style>
 
@@ -35,8 +45,11 @@
         <Setter Property="Foreground" Value="{TemplateBinding Foreground}" />
         <Setter Property="BorderBrush" Value="{TemplateBinding BorderBrush}" />
         <Setter Property="CornerRadius" Value="{TemplateBinding CornerRadius}" />
+    </Style>
+    <Style Selector="ToggleButton:checked">
         <Setter Property="RenderTransform" Value="scale(1.015)" />
     </Style>
+
     <Style Selector="ToggleButton:disabled /template/ ContentPresenter">
         <Setter Property="Background" Value="{TemplateBinding Background}" />
         <Setter Property="Foreground" Value="{TemplateBinding Foreground}" />
@@ -46,22 +59,15 @@
     </Style>
 
     <Style Selector="ToggleButton.NoScale">
-        <Setter Property="RenderTransform" Value="scale(1)" />
-
-        <Style Selector="^:not(:pointerover) /template/ ContentPresenter">
-            <Setter Property="RenderTransform" Value="scale(1)" />
-        </Style>
-
-        <Style Selector="^:pointerover /template/ ContentPresenter">
-            <Setter Property="RenderTransform" Value="scale(1)" />
-        </Style>
-
-        <Style Selector="^:pressed /template/ ContentPresenter">
-            <Setter Property="RenderTransform" Value="scale(1)" />
-        </Style>
-
-        <Style Selector="^:checked /template/ ContentPresenter">
-            <Setter Property="RenderTransform" Value="scale(1)" />
-        </Style>
+        <Setter Property="RenderTransform" Value="none" />
+    </Style>
+    <Style Selector="ToggleButton.NoScale:pointerover">
+        <Setter Property="RenderTransform" Value="none" />
+    </Style>
+    <Style Selector="ToggleButton.NoScale:pressed">
+        <Setter Property="RenderTransform" Value="none" />
+    </Style>
+    <Style Selector="ToggleButton.NoScale:checked">
+        <Setter Property="RenderTransform" Value="none" />
     </Style>
 </Styles>

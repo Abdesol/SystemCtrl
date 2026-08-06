@@ -3,6 +3,7 @@ using System.Management;
 using System.Security.Cryptography.X509Certificates;
 using System.ServiceProcess;
 using System.Text.RegularExpressions;
+using System.Threading;
 using Microsoft.Win32;
 using SystemCtrl.Core.Interfaces;
 using SystemCtrl.Core.Models;
@@ -11,6 +12,13 @@ namespace SystemCtrl.Core;
 
 public partial class WindowsServiceManager : IWindowsServiceManager
 {
+    private readonly IAdminService _adminService;
+
+    public WindowsServiceManager(IAdminService adminService)
+    {
+        _adminService = adminService;
+    }
+
     public IEnumerable<WindowsServiceInfo> GetServices(bool includeSystemServices = false)
     {
         return ServiceController
@@ -45,6 +53,9 @@ public partial class WindowsServiceManager : IWindowsServiceManager
             .Select(d => d.DisplayName)
             .ToArray();
 
+        var processId = GetProcessId(service);
+        var (cpuPercent, memoryBytes, runningFor) = GetProcessStats(processId);
+
         return new DetailedWindowsServiceInfo
         {
             ServiceName = service.ServiceName,
@@ -56,9 +67,55 @@ public partial class WindowsServiceManager : IWindowsServiceManager
             IsSigned = IsSigned(path),
             ServiceAccount = key?.GetValue("ObjectName")?.ToString() ?? string.Empty,
             Dependencies = dependencies,
-            ProcessId = GetProcessId(service),
+            ProcessId = processId,
+            CpuPercent = cpuPercent,
+            MemoryBytes = memoryBytes,
+            RunningFor = runningFor,
         };
     }
+
+    private static (double? cpu, long? memory, TimeSpan? runningFor) GetProcessStats(int? processId)
+    {
+        if (processId is not { } pid)
+            return (null, null, null);
+
+        try
+        {
+            using var proc = Process.GetProcessById(pid);
+
+            var memory = proc.WorkingSet64;
+
+            TimeSpan? runningFor = null;
+            try { runningFor = DateTime.Now - proc.StartTime; } catch { /* access denied */ }
+
+            // CPU: two samples ~500 ms apart to calculate a meaningful percentage
+            double? cpu = null;
+            try
+            {
+                var t1 = proc.TotalProcessorTime;
+                var w1 = DateTime.UtcNow;
+                Thread.Sleep(500);
+                proc.Refresh();
+                var t2 = proc.TotalProcessorTime;
+                var w2 = DateTime.UtcNow;
+
+                var cpuUsed = (t2 - t1).TotalMilliseconds;
+                var elapsed = (w2 - w1).TotalMilliseconds;
+                var logicalCores = Environment.ProcessorCount;
+
+                cpu = Math.Round(cpuUsed / (elapsed * logicalCores) * 100.0, 1);
+                cpu = Math.Min(cpu.Value, 100.0); // cap at 100%
+            }
+            catch { /* access denied or process exited */ }
+
+            return (cpu, memory, runningFor);
+        }
+        catch
+        {
+            return (null, null, null);
+        }
+    }
+
 
     private void ExecuteElevated(string fileName, string arguments)
     {
@@ -130,13 +187,12 @@ public partial class WindowsServiceManager : IWindowsServiceManager
             FileName = fileName,
             Arguments = wrappedArgs,
             UseShellExecute = true,
-            Verb = "runas",
             WindowStyle = ProcessWindowStyle.Hidden
         };
 
         try
         {
-            using var process = Process.Start(processInfo);
+            using var process = _adminService.StartElevatedProcess(processInfo);
             process?.WaitForExit();
 
             if (process == null || process.ExitCode == 0) return;
@@ -404,4 +460,130 @@ public partial class WindowsServiceManager : IWindowsServiceManager
 
     [GeneratedRegex("""-Name\s+['"]([^'"]+)['"]""", RegexOptions.IgnoreCase, "en-US")]
     private static partial Regex ServiceNameRegex();
+
+    public IEnumerable<string> GetLogs(string serviceName)
+    {
+        try
+        {
+            var logs = new List<System.Diagnostics.Eventing.Reader.EventRecord>();
+            
+            try
+            {
+                string systemQuery = $"*[System[Provider[@Name='{serviceName}']] or (System[Provider[@Name='Service Control Manager']] and EventData[Data='{serviceName}'])]";
+                var elqSys = new System.Diagnostics.Eventing.Reader.EventLogQuery("System", System.Diagnostics.Eventing.Reader.PathType.LogName, systemQuery) { ReverseDirection = true };
+                using var readerSys = new System.Diagnostics.Eventing.Reader.EventLogReader(elqSys);
+                System.Diagnostics.Eventing.Reader.EventRecord record;
+                int count = 0;
+                while ((record = readerSys.ReadEvent()) != null && count < 200)
+                {
+                    logs.Add(record);
+                    count++;
+                }
+            } catch { }
+
+            try
+            {
+                string appQuery = $"*[System[Provider[@Name='{serviceName}']] or EventData[Data='{serviceName}']]";
+                var elqApp = new System.Diagnostics.Eventing.Reader.EventLogQuery("Application", System.Diagnostics.Eventing.Reader.PathType.LogName, appQuery) { ReverseDirection = true };
+                using var readerApp = new System.Diagnostics.Eventing.Reader.EventLogReader(elqApp);
+                System.Diagnostics.Eventing.Reader.EventRecord record;
+                int count = 0;
+                while ((record = readerApp.ReadEvent()) != null && count < 200)
+                {
+                    logs.Add(record);
+                    count++;
+                }
+            } catch { }
+
+            var formattedLogs = logs
+                .OrderByDescending(l => l.TimeCreated)
+                .Take(200)
+                .Select(record => {
+                    string level = record.Level switch
+                    {
+                        1 => "Critical",
+                        2 => "Error",
+                        3 => "Warn",
+                        4 => "Info",
+                        5 => "Verbose",
+                        _ => record.LevelDisplayName ?? "Info"
+                    };
+                    try { return $"[{record.TimeCreated:yyyy-MM-dd HH:mm:ss}] [{level}] {record.ProviderName}: {record.FormatDescription()}"; }
+                    catch { return $"[{record.TimeCreated:yyyy-MM-dd HH:mm:ss}] [{level}] {record.ProviderName}: (Log description unavailable)"; }
+                })
+                .ToList();
+
+            if (formattedLogs.Count == 0) 
+            {
+                formattedLogs.Add("No logs found for this service in the System and Application event logs.");
+            }
+            return formattedLogs;
+        }
+        catch (Exception ex)
+        {
+            return new List<string> { $"Failed to get logs: {ex.Message}" };
+        }
+    }
+
+    public IObservable<string> StreamLogs(string serviceName)
+    {
+        return System.Reactive.Linq.Observable.Create<string>(observer =>
+        {
+            System.Diagnostics.Eventing.Reader.EventLogWatcher? watcherSys = null;
+            System.Diagnostics.Eventing.Reader.EventLogWatcher? watcherApp = null;
+            
+            try
+            {
+                string systemQuery = $"*[System[Provider[@Name='{serviceName}']] or (System[Provider[@Name='Service Control Manager']] and EventData[Data='{serviceName}'])]";
+                var elqSys = new System.Diagnostics.Eventing.Reader.EventLogQuery("System", System.Diagnostics.Eventing.Reader.PathType.LogName, systemQuery);
+                watcherSys = new System.Diagnostics.Eventing.Reader.EventLogWatcher(elqSys);
+
+                string appQuery = $"*[System[Provider[@Name='{serviceName}']] or EventData[Data='{serviceName}']]";
+                var elqApp = new System.Diagnostics.Eventing.Reader.EventLogQuery("Application", System.Diagnostics.Eventing.Reader.PathType.LogName, appQuery);
+                watcherApp = new System.Diagnostics.Eventing.Reader.EventLogWatcher(elqApp);
+
+                void OnEvent(object? sender, System.Diagnostics.Eventing.Reader.EventRecordWrittenEventArgs e)
+                {
+                    if (e.EventRecord != null)
+                    {
+                        string level = e.EventRecord.Level switch
+                        {
+                            1 => "Critical",
+                            2 => "Error",
+                            3 => "Warn",
+                            4 => "Info",
+                            5 => "Verbose",
+                            _ => e.EventRecord.LevelDisplayName ?? "Info"
+                        };
+                        try 
+                        {
+                            observer.OnNext($"[{e.EventRecord.TimeCreated:yyyy-MM-dd HH:mm:ss}] [{level}] {e.EventRecord.ProviderName}: {e.EventRecord.FormatDescription()}");
+                        }
+                        catch 
+                        {
+                            observer.OnNext($"[{e.EventRecord.TimeCreated:yyyy-MM-dd HH:mm:ss}] [{level}] {e.EventRecord.ProviderName}: (Log description unavailable)");
+                        }
+                    }
+                }
+
+                watcherSys.EventRecordWritten += OnEvent;
+                watcherApp.EventRecordWritten += OnEvent;
+
+                watcherSys.Enabled = true;
+                watcherApp.Enabled = true;
+            }
+            catch (Exception ex)
+            {
+                observer.OnNext($"Failed to start live log monitoring: {ex.Message}");
+            }
+
+            return System.Reactive.Disposables.Disposable.Create(() =>
+            {
+                try { if (watcherSys != null) watcherSys.Enabled = false; } catch { }
+                try { if (watcherApp != null) watcherApp.Enabled = false; } catch { }
+                try { watcherSys?.Dispose(); } catch { }
+                try { watcherApp?.Dispose(); } catch { }
+            });
+        });
+    }
 }

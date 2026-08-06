@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Threading;
 using Microsoft.Win32.TaskScheduler;
 using TsTask = Microsoft.Win32.TaskScheduler.Task;
 using SystemCtrl.Core.Exceptions;
@@ -9,6 +10,13 @@ namespace SystemCtrl.Core;
 
 public partial class WindowsTaskManager : IWindowsTaskManager
 {
+    private readonly IAdminService _adminService;
+
+    public WindowsTaskManager(IAdminService adminService)
+    {
+        _adminService = adminService;
+    }
+
     private static readonly string[] SystemTaskFolders =
     [
         @"\Microsoft\Windows\"
@@ -113,6 +121,16 @@ public partial class WindowsTaskManager : IWindowsTaskManager
             ? "No limit"
             : def.Settings.ExecutionTimeLimit.ToString();
 
+        // Resolve running process for resource stats
+        int? processId = null;
+        if (task.State == TaskState.Running)
+        {
+            var execPath = def.Actions.OfType<ExecAction>().FirstOrDefault()?.Path;
+            processId = FindTaskProcess(execPath);
+        }
+
+        var (cpuPercent, memoryBytes, runningFor) = GetProcessStats(processId);
+
         return new DetailedWindowsTaskInfo
         {
             TaskName = task.Name,
@@ -123,9 +141,72 @@ public partial class WindowsTaskManager : IWindowsTaskManager
             CompatibilityLevel = def.Settings.Compatibility.ToString(),
             IsHidden = def.Settings.Hidden,
             ExecutionTimeLimit = timeLimit,
-            MultipleInstancesPolicy = def.Settings.MultipleInstances.ToString()
+            MultipleInstancesPolicy = def.Settings.MultipleInstances.ToString(),
+            ProcessId = processId,
+            CpuPercent = cpuPercent,
+            MemoryBytes = memoryBytes,
+            RunningFor = runningFor,
         };
     }
+
+    private static int? FindTaskProcess(string? execPath)
+    {
+        if (string.IsNullOrWhiteSpace(execPath))
+            return null;
+
+        var exeName = Path.GetFileNameWithoutExtension(execPath);
+        try
+        {
+            var candidates = Process.GetProcessesByName(exeName);
+            if (candidates.Length > 0)
+                return candidates[0].Id;
+        }
+        catch { /* ignored */ }
+
+        return null;
+    }
+
+    private static (double? cpu, long? memory, TimeSpan? runningFor) GetProcessStats(int? processId)
+    {
+        if (processId is not { } pid)
+            return (null, null, null);
+
+        try
+        {
+            using var proc = Process.GetProcessById(pid);
+
+            var memory = proc.WorkingSet64;
+
+            TimeSpan? runningFor = null;
+            try { runningFor = DateTime.Now - proc.StartTime; } catch { /* access denied */ }
+
+            double? cpu = null;
+            try
+            {
+                var t1 = proc.TotalProcessorTime;
+                var w1 = DateTime.UtcNow;
+                Thread.Sleep(500);
+                proc.Refresh();
+                var t2 = proc.TotalProcessorTime;
+                var w2 = DateTime.UtcNow;
+
+                var cpuUsed = (t2 - t1).TotalMilliseconds;
+                var elapsed = (w2 - w1).TotalMilliseconds;
+                var logicalCores = Environment.ProcessorCount;
+
+                cpu = Math.Round(cpuUsed / (elapsed * logicalCores) * 100.0, 1);
+                cpu = Math.Min(cpu.Value, 100.0);
+            }
+            catch { /* access denied or process exited */ }
+
+            return (cpu, memory, runningFor);
+        }
+        catch
+        {
+            return (null, null, null);
+        }
+    }
+
 
     private static string BuildDetailedTrigger(Trigger t)
     {
@@ -148,11 +229,14 @@ public partial class WindowsTaskManager : IWindowsTaskManager
 
     public void Enable(string taskPath)
     {
+        using var ts = new TaskService();
+        var task = ts.GetTask(taskPath);
+        
+        if (task == null)
+            throw new FileNotFoundException($"Task '{taskPath}' not found.");
+
         try
         {
-            using var ts = new TaskService();
-            var task = ts.GetTask(taskPath);
-            if (task == null) return;
             task.Enabled = true;
         }
         catch (UnauthorizedAccessException)
@@ -219,13 +303,12 @@ public partial class WindowsTaskManager : IWindowsTaskManager
             FileName = "cmd.exe",
             Arguments = $"/c {fileName} {arguments} > \"{tempOutput}\" 2>&1",
             UseShellExecute = true,
-            Verb = "runas",
             WindowStyle = ProcessWindowStyle.Hidden
         };
 
         try
         {
-            using var process = Process.Start(processInfo);
+            using var process = _adminService.StartElevatedProcess(processInfo);
             process?.WaitForExit();
 
             if (process == null || process.ExitCode == 0) return;
@@ -246,5 +329,121 @@ public partial class WindowsTaskManager : IWindowsTaskManager
             if (File.Exists(tempOutput))
                 try { File.Delete(tempOutput); } catch { /* ignored */ }
         }
+    }
+
+    public IEnumerable<string> GetLogs(string taskPath)
+    {
+        try
+        {
+            var logs = new List<string>();
+            string query = $"*[System[Provider[@Name='Microsoft-Windows-TaskScheduler']]] and *[EventData[Data[@Name='TaskName']='{taskPath}']]";
+            var elq = new System.Diagnostics.Eventing.Reader.EventLogQuery("Microsoft-Windows-TaskScheduler/Operational", System.Diagnostics.Eventing.Reader.PathType.LogName, query) { ReverseDirection = true };
+            using var reader = new System.Diagnostics.Eventing.Reader.EventLogReader(elq);
+            System.Diagnostics.Eventing.Reader.EventRecord record;
+            int count = 0;
+            while ((record = reader.ReadEvent()) != null && count < 200)
+            {
+                try 
+                {
+                    string level = record.Level switch
+                    {
+                        1 => "Critical",
+                        2 => "Error",
+                        3 => "Warn",
+                        4 => "Info",
+                        5 => "Verbose",
+                        _ => record.LevelDisplayName ?? "Info"
+                    };
+                    logs.Add($"[{record.TimeCreated:yyyy-MM-dd HH:mm:ss}] [{level}] {record.FormatDescription()}");
+                }
+                catch 
+                {
+                    string level = record.Level switch
+                    {
+                        1 => "Critical",
+                        2 => "Error",
+                        3 => "Warn",
+                        4 => "Info",
+                        5 => "Verbose",
+                        _ => record.LevelDisplayName ?? "Info"
+                    };
+                    logs.Add($"[{record.TimeCreated:yyyy-MM-dd HH:mm:ss}] [{level}] (Log description unavailable)");
+                }
+                count++;
+            }
+            if (logs.Count == 0) 
+            {
+                try
+                {
+                    var config = new System.Diagnostics.Eventing.Reader.EventLogConfiguration("Microsoft-Windows-TaskScheduler/Operational");
+                    if (!config.IsEnabled)
+                    {
+                        logs.Add("The Task Scheduler Operational event log is disabled.\nTask history is not being recorded.\n\nTo enable it, open Task Scheduler and click 'Enable All Tasks History' in the Actions pane, or enable the 'Microsoft-Windows-TaskScheduler/Operational' log via Event Viewer.");
+                        return logs;
+                    }
+                }
+                catch { } // Ignore if we can't read configuration
+
+                logs.Add("No logs found for this task.");
+            }
+            
+            return logs;
+        }
+        catch (Exception ex)
+        {
+            return new List<string> { $"Failed to get logs: {ex.Message}" };
+        }
+    }
+
+    public IObservable<string> StreamLogs(string taskPath)
+    {
+        return System.Reactive.Linq.Observable.Create<string>(observer =>
+        {
+            System.Diagnostics.Eventing.Reader.EventLogWatcher? watcher = null;
+            
+            try
+            {
+                string query = $"*[System[Provider[@Name='Microsoft-Windows-TaskScheduler']]] and *[EventData[Data[@Name='TaskName']='{taskPath}']]";
+                var elq = new System.Diagnostics.Eventing.Reader.EventLogQuery("Microsoft-Windows-TaskScheduler/Operational", System.Diagnostics.Eventing.Reader.PathType.LogName, query);
+                watcher = new System.Diagnostics.Eventing.Reader.EventLogWatcher(elq);
+
+                void OnEvent(object? sender, System.Diagnostics.Eventing.Reader.EventRecordWrittenEventArgs e)
+                {
+                    if (e.EventRecord != null)
+                    {
+                        string level = e.EventRecord.Level switch
+                        {
+                            1 => "Critical",
+                            2 => "Error",
+                            3 => "Warn",
+                            4 => "Info",
+                            5 => "Verbose",
+                            _ => e.EventRecord.LevelDisplayName ?? "Info"
+                        };
+                        try 
+                        {
+                            observer.OnNext($"[{e.EventRecord.TimeCreated:yyyy-MM-dd HH:mm:ss}] [{level}] {e.EventRecord.FormatDescription()}");
+                        }
+                        catch 
+                        {
+                            observer.OnNext($"[{e.EventRecord.TimeCreated:yyyy-MM-dd HH:mm:ss}] [{level}] (Log description unavailable)");
+                        }
+                    }
+                }
+
+                watcher.EventRecordWritten += OnEvent;
+                watcher.Enabled = true;
+            }
+            catch (Exception ex)
+            {
+                observer.OnNext($"Failed to start live log monitoring: {ex.Message}");
+            }
+
+            return System.Reactive.Disposables.Disposable.Create(() =>
+            {
+                try { if (watcher != null) watcher.Enabled = false; } catch { }
+                try { watcher?.Dispose(); } catch { }
+            });
+        });
     }
 }

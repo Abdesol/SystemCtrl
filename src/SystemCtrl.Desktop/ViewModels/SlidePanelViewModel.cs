@@ -1,10 +1,15 @@
+using System;
+using System.Reactive.Linq;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
+using SystemCtrl.Desktop.Services;
 
 namespace SystemCtrl.Desktop.ViewModels;
 
 public partial class SlidePanelViewModel : ViewModelBase
 {
+    private readonly ISettingsService _settingsService;
+
     [Reactive]
     public partial bool IsOpen { get; set; }
 
@@ -14,9 +19,25 @@ public partial class SlidePanelViewModel : ViewModelBase
     [Reactive]
     public partial ViewModelBase? Content { get; set; }
 
-    public SlidePanelViewModel()
+    [Reactive]
+    public partial double PanelWidth { get; set; }
+
+    public SlidePanelViewModel(ISettingsService settingsService)
     {
+        _settingsService = settingsService;
         Title = string.Empty;
+        var settings = _settingsService.LoadSettings();
+        PanelWidth = settings.SlidePanelWidth > 0 ? settings.SlidePanelWidth : 400;
+    }
+
+    public void SaveWidth()
+    {
+        var s = _settingsService.LoadSettings();
+        if (Math.Abs(s.SlidePanelWidth - PanelWidth) > 1)
+        {
+            s.SlidePanelWidth = PanelWidth;
+            _settingsService.SaveSettings(s);
+        }
     }
 
     public void Open(string title, ViewModelBase content)

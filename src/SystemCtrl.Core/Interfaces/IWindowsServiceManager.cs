@@ -16,4 +16,7 @@ public interface IWindowsServiceManager
     void Restart(string serviceName);
 
     void SetStartType(string serviceName, ServiceStartMode startMode);
+
+    IEnumerable<string> GetLogs(string serviceName);
+    IObservable<string> StreamLogs(string serviceName);
 }

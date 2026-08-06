@@ -6,6 +6,7 @@ using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media.Transformation;
+using Avalonia.Threading;
 using Avalonia.VisualTree;
 using ReactiveUI;
 using SystemCtrl.Desktop.ViewModels;
@@ -14,12 +15,14 @@ namespace SystemCtrl.Desktop.Controls;
 
 public partial class SlidePanel : UserControl
 {
+    private static readonly TimeSpan AnimationDuration = TimeSpan.FromMilliseconds(380);
+
     private readonly Transitions _transitions =
     [
         new TransformOperationsTransition
         {
             Property = RenderTransformProperty,
-            Duration = TimeSpan.FromMilliseconds(380),
+            Duration = AnimationDuration,
             Easing = new CubicEaseOut()
         }
     ];
@@ -27,6 +30,7 @@ public partial class SlidePanel : UserControl
     private Border? _panelRoot;
     private bool? _previousIsOpen;
     private IDisposable? _subscription;
+    private DispatcherTimer? _hideTimer;
 
     public SlidePanel()
     {
@@ -48,16 +52,65 @@ public partial class SlidePanel : UserControl
 
         _panelRoot = this.FindControl<Border>("PanelRoot");
         if (_panelRoot is not null)
+        {
+            // Start hidden – the panel is not open initially
+            _panelRoot.IsVisible = false;
             _panelRoot.LayoutUpdated += OnPanelLayoutUpdated;
+        }
+
+        var splitter = this.FindControl<GridSplitter>("PanelSplitter");
+        if (splitter != null)
+            splitter.AddHandler(PointerReleasedEvent, OnSplitterPointerReleased, Avalonia.Interactivity.RoutingStrategies.Bubble, true);
+    }
+
+    private void OnSplitterPointerReleased(object? sender, PointerReleasedEventArgs e)
+    {
+        if (DataContext is SlidePanelViewModel vm)
+        {
+            var rootGrid = this.FindControl<Grid>("RootGrid");
+            var panelColumn = rootGrid?.ColumnDefinitions[2];
+            if (panelColumn is { Width.IsAbsolute: true })
+            {
+                vm.PanelWidth = panelColumn.Width.Value;
+            }
+            vm.SaveWidth();
+        }
     }
 
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnDetachedFromVisualTree(e);
         _subscription?.Dispose();
+        _hideTimer?.Stop();
+        _hideTimer = null;
         if (_panelRoot is not null)
             _panelRoot.LayoutUpdated -= OnPanelLayoutUpdated;
+
+        var splitter = this.FindControl<GridSplitter>("PanelSplitter");
+        if (splitter != null)
+            splitter.RemoveHandler(PointerReleasedEvent, OnSplitterPointerReleased);
     }
+
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    {
+        base.OnPropertyChanged(change);
+
+        if (change.Property == BoundsProperty)
+        {
+            var bounds = change.GetNewValue<Rect>();
+            if (bounds.Width > 0)
+            {
+                var rootGrid = this.FindControl<Grid>("RootGrid");
+                var panelColumn = rootGrid?.ColumnDefinitions[2];
+                if (panelColumn is { Width.IsAbsolute: true })
+                {
+                    panelColumn.MaxWidth = Math.Max(300, bounds.Width - 56);
+                }
+            }
+        }
+    }
+
+    private double _lastTx = -1;
 
     private void OnPanelLayoutUpdated(object? sender, EventArgs e)
     {
@@ -66,14 +119,23 @@ public partial class SlidePanel : UserControl
         var width = _panelRoot.Bounds.Width;
         if (width <= 0) return;
 
-        var isOpen = DataContext is SlidePanelViewModel vm && vm.IsOpen;
+        var vm = DataContext as SlidePanelViewModel;
+
+        // When Splitter is dragged, actual width changes. Sync back if it's smaller than the actual requested VM width
+        // Wait, if we use MaxWidth on the column, the actual width might be clamped by MaxWidth.
+        // We only want to sync back to ViewModel if the user actively dragged the splitter to this width.
+        // But since GridSplitter sets the Column Width directly, the TwoWay binding will push it.
+        // We don't need to manually set vm.PanelWidth = width here anymore because 
+        // the TwoWay binding handles GridSplitter dragging, and we removed the layout loop risk!
+        
+        var isOpen = vm != null && vm.IsOpen;
         var tx = isOpen ? 0d : width;
 
-        // No transition on the initial position set
+        if (Math.Abs(_lastTx - tx) < 0.1) return;
+        _lastTx = tx;
+
         _panelRoot.RenderTransform = TransformOperations.Parse(
             $"translate({tx.ToString(CultureInfo.InvariantCulture)}px, 0px)");
-
-        _panelRoot.LayoutUpdated -= OnPanelLayoutUpdated;
     }
 
     private void AnimateSlide()
@@ -84,18 +146,59 @@ public partial class SlidePanel : UserControl
 
         _previousIsOpen = vm.IsOpen;
 
-        // Prefer measured bounds. fall back to the styled Width property
+        _hideTimer?.Stop();
+        _hideTimer = null;
+
+        if (vm.IsOpen)
+        {
+            _panelRoot.IsVisible = true;
+        }
+
         var width = _panelRoot.Bounds.Width > 0
             ? _panelRoot.Bounds.Width
             : _panelRoot.Width;
 
-        if (double.IsNaN(width) || width <= 0) return;
+        if (double.IsNaN(width) || width <= 0)
+        {
+            // First open – panel has no measured bounds yet. Use VM width and defer animation.
+            if (vm.IsOpen && vm.PanelWidth > 0)
+            {
+                width = vm.PanelWidth;
+                // Position off-screen instantly (no transitions)
+                _panelRoot.Transitions = null;
+                _panelRoot.RenderTransform = TransformOperations.Parse(
+                    $"translate({width.ToString(CultureInfo.InvariantCulture)}px, 0px)");
+                // Prevent OnPanelLayoutUpdated from snapping to x=0 before our animation fires
+                _lastTx = 0;
+                // After layout, animate in
+                Dispatcher.UIThread.Post(() =>
+                {
+                    if (_panelRoot is null) return;
+                    _panelRoot.Transitions = _transitions;
+                    _panelRoot.RenderTransform = TransformOperations.Parse("translate(0px, 0px)");
+                }, DispatcherPriority.Render);
+            }
+            return;
+        }
 
         var toX = vm.IsOpen ? 0d : width;
 
         _panelRoot.Transitions ??= _transitions;
         _panelRoot.RenderTransform = TransformOperations.Parse(
             $"translate({toX.ToString(CultureInfo.InvariantCulture)}px, 0px)");
+
+        if (!vm.IsOpen)
+        {
+            _hideTimer = new DispatcherTimer { Interval = AnimationDuration };
+            _hideTimer.Tick += (_, _) =>
+            {
+                _hideTimer?.Stop();
+                _hideTimer = null;
+                if (_panelRoot is not null && _previousIsOpen == false)
+                    _panelRoot.IsVisible = false;
+            };
+            _hideTimer.Start();
+        }
     }
 
     private void DimOverlay_DoubleTapped(object? sender, TappedEventArgs e)

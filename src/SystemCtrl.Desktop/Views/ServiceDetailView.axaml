@@ -4,6 +4,7 @@
              xmlns:models="using:SystemCtrl.Core.Models"
              xmlns:sp="clr-namespace:System.ServiceProcess;assembly=System.ServiceProcess.ServiceController"
              xmlns:conv="using:SystemCtrl.Desktop.Converters"
+             xmlns:controls="using:SystemCtrl.Desktop.Controls"
              x:Class="SystemCtrl.Desktop.Views.ServiceDetailView"
              x:DataType="vm:ServiceDetailViewModel">
 
@@ -55,358 +56,480 @@
     </UserControl.Styles>
 
     <Grid RowDefinitions="*, Auto">
-        <ScrollViewer Grid.Row="0"
-                      Classes="DefaultPadding"
-                      VerticalScrollBarVisibility="Auto"
-                      HorizontalScrollBarVisibility="Disabled"
-                      HorizontalAlignment="Stretch"
-                      VerticalAlignment="Stretch">
-            <StackPanel Spacing="20"
-                        Margin="20,0,10,30"
-                        IsVisible="{Binding Service, Converter={x:Static ObjectConverters.IsNotNull}}">
-                <!-- AI SUMMARY -->
-                <Border CornerRadius="12"
-                        BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}"
-                        BorderThickness="1"
-                        Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
-                        IsVisible="{Binding ShowAiSummary}"
-                        IsEnabled="{Binding HasApiKey}">
-                    <StackPanel Spacing="16"
-                                Margin="15,12"
-                                HorizontalAlignment="Stretch">
-                        <Grid ColumnDefinitions="*, Auto"
-                              Height="16" HorizontalAlignment="Stretch"
-                              IsVisible="{Binding HasAiSummary}">
-                            <ToggleButton
-                                Grid.Column="0"
-                                Margin="0,0,5,0"
-                                Classes="NoScale"
-                                IsChecked="{Binding IsAiSummaryExpanded}"
-                                IsVisible="{Binding HasAiSummary}"
-                                HorizontalAlignment="Stretch"
-                                VerticalAlignment="Stretch"
-                                HorizontalContentAlignment="Stretch"
-                                VerticalContentAlignment="Stretch"
-                                Cursor="Hand">
-                                <Grid ColumnDefinitions="Auto, *">
-                                    <Panel Grid.Column="0">
-                                        <PathIcon Data="{StaticResource ChevronDownIcon}" Width="12" Height="12"
-                                                  Foreground="{DynamicResource SystemBaseMediumColor}"
-                                                  IsVisible="{Binding IsAiSummaryExpanded}" />
-                                        <PathIcon Data="{StaticResource ChevronRightIcon}" Width="12" Height="12"
-                                                  Foreground="{DynamicResource SystemBaseMediumColor}"
-                                                  IsVisible="{Binding !IsAiSummaryExpanded}" />
-                                    </Panel>
+        <TabControl Grid.Row="0"
+                    Margin="20,0,0,20"
+                    SelectedIndex="{Binding SelectedTabIndex}">
+            <TabItem Header="Overview">
+                <ScrollViewer
+                    Classes="DefaultPadding"
+                    VerticalScrollBarVisibility="Auto"
+                    HorizontalScrollBarVisibility="Disabled"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch">
+                    <StackPanel Spacing="20"
+                                Margin="0,0,10,0"
+                                IsVisible="{Binding Service, Converter={x:Static ObjectConverters.IsNotNull}}">
+                        <!-- AI SUMMARY -->
+                        <Border CornerRadius="12"
+                                BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}"
+                                BorderThickness="1"
+                                Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                                IsVisible="{Binding ShowAiSummary}"
+                                IsEnabled="{Binding HasApiKey}">
+                            <StackPanel Spacing="16"
+                                        Margin="15,12"
+                                        HorizontalAlignment="Stretch">
+                                <Grid ColumnDefinitions="*, Auto"
+                                      Height="16" HorizontalAlignment="Stretch"
+                                      IsVisible="{Binding HasAiSummary}">
+                                    <ToggleButton
+                                        Grid.Column="0"
+                                        Margin="0,0,5,0"
+                                        Classes="NoScale"
+                                        IsChecked="{Binding IsAiSummaryExpanded}"
+                                        IsVisible="{Binding HasAiSummary}"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch"
+                                        HorizontalContentAlignment="Stretch"
+                                        VerticalContentAlignment="Stretch"
+                                        Cursor="Hand">
+                                        <Grid ColumnDefinitions="Auto, *">
+                                            <Panel Grid.Column="0">
+                                                <PathIcon Data="{StaticResource ChevronDownIcon}" Width="12"
+                                                          Height="12"
+                                                          Foreground="{DynamicResource SystemBaseMediumColor}"
+                                                          IsVisible="{Binding IsAiSummaryExpanded}" />
+                                                <PathIcon Data="{StaticResource ChevronRightIcon}" Width="12"
+                                                          Height="12"
+                                                          Foreground="{DynamicResource SystemBaseMediumColor}"
+                                                          IsVisible="{Binding !IsAiSummaryExpanded}" />
+                                            </Panel>
 
-                                    <Grid Column="1"
-                                          Margin="15,0,0,0"
-                                          HorizontalAlignment="Stretch"
-                                          ColumnDefinitions="Auto, *">
-                                        <PathIcon Grid.Column="0" Data="{StaticResource SparkleIcon}" Width="14"
-                                                  Height="14"
+                                            <Grid Column="1"
+                                                  Margin="15,0,0,0"
+                                                  HorizontalAlignment="Stretch"
+                                                  ColumnDefinitions="Auto, *">
+                                                <PathIcon Grid.Column="0" Data="{StaticResource SparkleIcon}"
+                                                          Width="14"
+                                                          Height="14"
+                                                          Foreground="{DynamicResource SystemBaseMediumColor}" />
+                                                <TextBlock Grid.Column="1"
+                                                           Margin="10,0,0,0"
+                                                           Text="AI SUMMARY"
+                                                           FontSize="11"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource SystemBaseMediumColor}"
+                                                           LetterSpacing="1.2"
+                                                           VerticalAlignment="Center"
+                                                           HorizontalAlignment="Stretch"
+                                                           TextAlignment="Left" />
+                                            </Grid>
+                                        </Grid>
+                                    </ToggleButton>
+
+                                    <Button Grid.Column="1"
+                                            Command="{Binding GenerateAiSummaryCommand}"
+                                            IsVisible="{Binding IsAiSummaryExpanded}"
+                                            CornerRadius="4"
+                                            ToolTip.Tip="Regenerate Summary">
+                                        <PathIcon Data="{StaticResource ReloadIcon}" Width="12" Height="12"
                                                   Foreground="{DynamicResource SystemBaseMediumColor}" />
-                                        <TextBlock Grid.Column="1"
-                                                   Margin="10,0,0,0"
-                                                   Text="AI SUMMARY"
-                                                   FontSize="11"
-                                                   FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource SystemBaseMediumColor}"
-                                                   LetterSpacing="1.2"
-                                                   VerticalAlignment="Center"
-                                                   HorizontalAlignment="Stretch"
-                                                   TextAlignment="Left" />
+                                    </Button>
+                                </Grid>
+
+                                <ItemsControl ItemsSource="{Binding AiSummaryList}"
+                                              IsVisible="{Binding IsAiSummaryExpanded}"
+                                              HorizontalAlignment="Stretch">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Spacing="10" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Spacing="2">
+                                                <TextBlock Text="{Binding Question}"
+                                                           FontWeight="SemiBold"
+                                                           FontSize="13"
+                                                           Foreground="{DynamicResource SystemBaseHighColor}" />
+                                                <TextBlock Text="{Binding Answer}"
+                                                           TextWrapping="Wrap"
+                                                           FontSize="13"
+                                                           LineHeight="20"
+                                                           Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <StackPanel IsVisible="{Binding IsGeneratingSummary}" Spacing="5"
+                                            Orientation="Vertical"
+                                            HorizontalAlignment="Stretch" Margin="0, 5">
+                                    <ProgressBar IsIndeterminate="True" Height="2"
+                                                 HorizontalAlignment="Center" />
+                                    <TextBlock Text="{Binding LoadingSummaryText}" FontSize="13"
+                                               HorizontalAlignment="Center"
+                                               Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+                                </StackPanel>
+
+                                <Grid>
+                                    <Grid.IsVisible>
+                                        <MultiBinding Converter="{StaticResource BooleanAndConverter}">
+                                            <Binding Path="!IsGeneratingSummary" />
+                                            <Binding Path="!HasAiSummary" />
+                                        </MultiBinding>
+                                    </Grid.IsVisible>
+                                    <Button Classes="VerySmallScale"
+                                            Height="16"
+                                            Command="{Binding GenerateAiSummaryCommand}"
+                                            HorizontalAlignment="Stretch"
+                                            VerticalAlignment="Stretch"
+                                            HorizontalContentAlignment="Stretch"
+                                            VerticalContentAlignment="Stretch"
+                                            Cursor="Hand">
+                                        <Grid HorizontalAlignment="Stretch"
+                                              ColumnDefinitions="Auto, *">
+                                            <PathIcon Grid.Column="0" Data="{StaticResource SparkleIcon}" Width="14"
+                                                      Height="14"
+                                                      Foreground="{DynamicResource SystemBaseMediumColor}" />
+                                            <TextBlock Grid.Column="1"
+                                                       Margin="10,0,0,0"
+                                                       Text="Summarize with AI"
+                                                       FontSize="11"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource SystemBaseMediumColor}"
+                                                       LetterSpacing="1.2"
+                                                       VerticalAlignment="Center"
+                                                       HorizontalAlignment="Stretch"
+                                                       TextAlignment="Left" />
+                                        </Grid>
+                                    </Button>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <TextBlock Text="Please add your Gemini API Key in Settings to enable AI Summary."
+                                   FontSize="10"
+                                   Foreground="{DynamicResource CautionForegroundBrush}"
+                                   IsVisible="{Binding !HasApiKey}"
+                                   Margin="5,-12,0,0"
+                                   FontWeight="Light" />
+
+                        <!-- RESOURCE USAGE EXPANDER -->
+                        <Panel IsVisible="{Binding ShowResourceUsage}">
+                            <Border CornerRadius="12"
+                                    BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}"
+                                    BorderThickness="1"
+                                    Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                                    IsVisible="{Binding DetailedInfo.ProcessId, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                <StackPanel Spacing="16"
+                                            Margin="15,12"
+                                            HorizontalAlignment="Stretch">
+                                    <Grid ColumnDefinitions="*, Auto"
+                                          Height="16" HorizontalAlignment="Stretch">
+                                        <ToggleButton
+                                            Grid.Column="0"
+                                            Margin="0,0,5,0"
+                                            Classes="NoScale"
+                                            IsChecked="{Binding IsResourceUsageExpanded}"
+                                            HorizontalAlignment="Stretch"
+                                            VerticalAlignment="Stretch"
+                                            HorizontalContentAlignment="Stretch"
+                                            VerticalContentAlignment="Stretch"
+                                            Cursor="Hand">
+                                            <Grid ColumnDefinitions="Auto, *">
+                                                <Panel Grid.Column="0">
+                                                    <PathIcon Data="{StaticResource ChevronDownIcon}" Width="12"
+                                                              Height="12"
+                                                              Foreground="{DynamicResource SystemBaseMediumColor}"
+                                                              IsVisible="{Binding IsResourceUsageExpanded}" />
+                                                    <PathIcon Data="{StaticResource ChevronRightIcon}" Width="12"
+                                                              Height="12"
+                                                              Foreground="{DynamicResource SystemBaseMediumColor}"
+                                                              IsVisible="{Binding !IsResourceUsageExpanded}" />
+                                                </Panel>
+
+                                                <Grid Column="1"
+                                                      Margin="15,0,0,0"
+                                                      HorizontalAlignment="Stretch"
+                                                      ColumnDefinitions="Auto, *">
+                                                    <PathIcon Grid.Column="0" Data="{StaticResource ResourceUsageIcon}"
+                                                              Width="14"
+                                                              Height="14"
+                                                              Foreground="{DynamicResource SystemBaseMediumColor}" />
+                                                    <TextBlock Grid.Column="1"
+                                                               Margin="10,0,0,0"
+                                                               Text="RESOURCE USAGE"
+                                                               FontSize="11"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="{DynamicResource SystemBaseMediumColor}"
+                                                               LetterSpacing="1.2"
+                                                               VerticalAlignment="Center"
+                                                               HorizontalAlignment="Stretch"
+                                                               TextAlignment="Left" />
+                                                </Grid>
+                                            </Grid>
+                                        </ToggleButton>
                                     </Grid>
-                                </Grid>
-                            </ToggleButton>
 
-                            <Button Grid.Column="1"
-                                    Command="{Binding GenerateAiSummaryCommand}"
-                                    IsVisible="{Binding IsAiSummaryExpanded}"
-                                    CornerRadius="4"
-                                    ToolTip.Tip="Regenerate Summary">
-                                <PathIcon Data="{StaticResource ReloadIcon}" Width="12" Height="12"
-                                          Foreground="{DynamicResource SystemBaseMediumColor}" />
-                            </Button>
-                        </Grid>
+                                    <StackPanel Spacing="12" IsVisible="{Binding IsResourceUsageExpanded}">
+                                        <Grid ColumnDefinitions="60, *, 48" RowDefinitions="Auto, 4, Auto">
+                                            <TextBlock Grid.Row="0" Grid.Column="0"
+                                                       Text="CPU"
+                                                       FontSize="11"
+                                                       FontWeight="Medium"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource SystemBaseMediumColor}" />
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"
+                                                       Text="{Binding LiveCpuPercent}"
+                                                       FontSize="11"
+                                                       FontWeight="SemiBold"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource SystemBaseHighColor}" />
 
-                        <ItemsControl ItemsSource="{Binding AiSummaryList}"
-                                      IsVisible="{Binding IsAiSummaryExpanded}"
-                                      HorizontalAlignment="Stretch">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel Spacing="10" />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Spacing="2">
-                                        <TextBlock Text="{Binding Question}"
-                                                   FontWeight="SemiBold"
-                                                   FontSize="13"
-                                                   Foreground="{DynamicResource SystemBaseHighColor}" />
-                                        <TextBlock Text="{Binding Answer}"
-                                                   TextWrapping="Wrap"
-                                                   FontSize="13"
-                                                   LineHeight="20"
-                                                   Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+                                            <TextBlock Grid.Row="2" Grid.Column="0"
+                                                       Text="MEMORY"
+                                                       FontSize="11"
+                                                       FontWeight="Medium"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource SystemBaseMediumColor}" />
+                                            <TextBlock Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2"
+                                                       Text="{Binding LiveMemoryFormatted}"
+                                                       FontSize="11"
+                                                       FontWeight="SemiBold"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource SystemBaseHighColor}" />
+                                        </Grid>
+
+                                        <Grid ColumnDefinitions="60, *">
+                                            <TextBlock Grid.Column="0"
+                                                       Text="UPTIME"
+                                                       FontSize="11"
+                                                       FontWeight="Medium"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource SystemBaseMediumColor}" />
+                                            <TextBlock Grid.Column="1"
+                                                       Text="{Binding LiveRunningForFormatted}"
+                                                       FontSize="11"
+                                                       FontWeight="SemiBold"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource SuccessForegroundBrush}" />
+                                        </Grid>
                                     </StackPanel>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                                </StackPanel>
+                            </Border>
+                        </Panel>
 
-                        <StackPanel IsVisible="{Binding IsGeneratingSummary}" Spacing="5" Orientation="Vertical"
-                                    HorizontalAlignment="Stretch" Margin="0, 5">
-                            <ProgressBar IsIndeterminate="True" Height="2"
-                                         HorizontalAlignment="Center" />
-                            <TextBlock Text="{Binding LoadingSummaryText}" FontSize="13" HorizontalAlignment="Center"
-                                       Foreground="{DynamicResource SystemBaseMediumHighColor}" />
-                        </StackPanel>
-
-                        <Grid>
-                            <Grid.IsVisible>
-                                <MultiBinding Converter="{StaticResource BooleanAndConverter}">
-                                    <Binding Path="!IsGeneratingSummary" />
-                                    <Binding Path="!HasAiSummary" />
-                                </MultiBinding>
-                            </Grid.IsVisible>
-                            <Button Classes="VerySmallScale"
-                                    Height="16"
-                                    Command="{Binding GenerateAiSummaryCommand}"
-                                    HorizontalAlignment="Stretch"
-                                    VerticalAlignment="Stretch"
-                                    HorizontalContentAlignment="Stretch"
-                                    VerticalContentAlignment="Stretch"
-                                    Cursor="Hand">
-                                <Grid HorizontalAlignment="Stretch"
-                                      ColumnDefinitions="Auto, *">
-                                    <PathIcon Grid.Column="0" Data="{StaticResource SparkleIcon}" Width="14"
-                                              Height="14"
-                                              Foreground="{DynamicResource SystemBaseMediumColor}" />
-                                    <TextBlock Grid.Column="1"
-                                               Margin="10,0,0,0"
-                                               Text="Summarize with AI"
-                                               FontSize="11"
-                                               FontWeight="SemiBold"
-                                               Foreground="{DynamicResource SystemBaseMediumColor}"
-                                               LetterSpacing="1.2"
-                                               VerticalAlignment="Center"
-                                               HorizontalAlignment="Stretch"
-                                               TextAlignment="Left" />
-                                </Grid>
-                            </Button>
-                        </Grid>
-                    </StackPanel>
-                </Border>
-                
-                <TextBlock Text="Please add your Gemini API Key in Settings to enable AI Summary."
-                           FontSize="10"
-                           Foreground="{DynamicResource CautionForegroundBrush}"
-                           IsVisible="{Binding !HasApiKey}"
-                           Margin="5,-12,0,0"
-                           FontWeight="Light"/>
-
-                <!-- SERVICE NAME -->
-                <StackPanel Spacing="4">
-                    <TextBlock Text="SERVICE NAME"
-                               FontSize="10"
-                               FontWeight="SemiBold"
-                               Foreground="{DynamicResource SystemBaseMediumColor}"
-                               LetterSpacing="1.2" />
-                    <TextBlock Text="{Binding Service.ServiceName}"
-                               FontSize="13"
-                               TextWrapping="Wrap"
-                               Foreground="{DynamicResource SystemBaseMediumHighColor}" />
-                </StackPanel>
-
-                <!-- STATE & STARTUP -->
-                <StackPanel Spacing="8">
-                    <TextBlock Text="STATE"
-                               FontSize="10"
-                               FontWeight="SemiBold"
-                               Foreground="{DynamicResource SystemBaseMediumColor}"
-                               LetterSpacing="1.2" />
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <Border CornerRadius="8"
-                                Classes.IsStopped="{Binding Service.Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.Stopped}}"
-                                Classes.IsStartPending="{Binding Service.Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.StartPending}}"
-                                Classes.IsStopPending="{Binding Service.Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.StopPending}}"
-                                Classes.IsRunning="{Binding Service.Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.Running}}"
-                                Classes.IsContinuePending="{Binding Service.Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.ContinuePending}}"
-                                Classes.IsPausePending="{Binding Service.Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.PausePending}}"
-                                Classes.IsPaused="{Binding Service.Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.Paused}}">
-                            <TextBlock Text="{Binding Service.Status}"
-                                       FontSize="12"
-                                       FontWeight="SemiBold"
-                                       Margin="10,5" />
-                        </Border>
-
-                        <Border CornerRadius="8"
-                                Classes.IsBoot="{Binding Service.StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.Boot}}"
-                                Classes.IsSystem="{Binding Service.StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.System}}"
-                                Classes.IsAutomatic="{Binding Service.StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.Automatic}}"
-                                Classes.IsManual="{Binding Service.StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.Manual}}"
-                                Classes.IsDisabled="{Binding Service.StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.Disabled}}">
-                            <TextBlock Text="{Binding Service.StartType}"
-                                       FontSize="12"
-                                       FontWeight="SemiBold"
-                                       Margin="10,5" />
-                        </Border>
-                    </StackPanel>
-                </StackPanel>
-
-                <!-- DESCRIPTION -->
-                <StackPanel Spacing="4">
-                    <TextBlock Text="DESCRIPTION"
-                               FontSize="10"
-                               FontWeight="SemiBold"
-                               Foreground="{DynamicResource SystemBaseMediumColor}"
-                               LetterSpacing="1.2" />
-                    <TextBlock Text="{Binding Service.Description, Converter={StaticResource ToUnknownConverter}}"
-                               FontSize="13"
-                               TextWrapping="Wrap"
-                               Foreground="{DynamicResource SystemBaseMediumHighColor}" />
-                </StackPanel>
-
-                <!-- DETAILED INFO SECTION -->
-                <Panel>
-                    <!-- Loading indicator -->
-                    <StackPanel IsVisible="{Binding IsLoadingDetails}"
-                                Spacing="8"
-                                HorizontalAlignment="Center"
-                                Margin="0,8">
-                        <ProgressBar IsIndeterminate="True"
-                                     Width="160"
-                                     Height="3"
-                                     CornerRadius="2" />
-                        <TextBlock Text="Loading details…"
-                                   FontSize="12"
-                                   HorizontalAlignment="Center"
-                                   Foreground="{DynamicResource SystemBaseMediumColor}" />
-                    </StackPanel>
-
-                    <!-- Detailed fields -->
-                    <Panel DataContext="{Binding DetailedInfo}">
-                        <StackPanel Spacing="20"
-                                    x:DataType="models:DetailedWindowsServiceInfo"
-                                    IsVisible="{Binding Converter={x:Static ObjectConverters.IsNotNull}}">
-
-                        <!-- EXECUTABLE -->
-                        <StackPanel Spacing="4"
-                                    IsVisible="{Binding ExecutablePath, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
-                            <TextBlock Text="EXECUTABLE"
+                        <!-- SERVICE NAME -->
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="SERVICE NAME"
                                        FontSize="10"
                                        FontWeight="SemiBold"
                                        Foreground="{DynamicResource SystemBaseMediumColor}"
                                        LetterSpacing="1.2" />
-                            <TextBlock Text="{Binding ExecutablePath}"
-                                       FontSize="11"
+                            <TextBlock Text="{Binding Service.ServiceName}"
+                                       FontSize="13"
                                        TextWrapping="Wrap"
-                                       Opacity="0.6"
-                                       IsVisible="{Binding ExecutablePath, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
                                        Foreground="{DynamicResource SystemBaseMediumHighColor}" />
                         </StackPanel>
 
-                        <!-- PUBLISHER -->
-                        <StackPanel Spacing="4">
-                            <TextBlock Text="PUBLISHER"
+                        <!-- STATE & STARTUP -->
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="STATE"
                                        FontSize="10"
                                        FontWeight="SemiBold"
                                        Foreground="{DynamicResource SystemBaseMediumColor}"
                                        LetterSpacing="1.2" />
-                            <TextBlock
-                                Text="{Binding Publisher, Converter={StaticResource ToUnknownConverter}}"
-                                FontSize="13"
-                                Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Border CornerRadius="8"
+                                        Classes.IsStopped="{Binding Service.Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.Stopped}}"
+                                        Classes.IsStartPending="{Binding Service.Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.StartPending}}"
+                                        Classes.IsStopPending="{Binding Service.Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.StopPending}}"
+                                        Classes.IsRunning="{Binding Service.Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.Running}}"
+                                        Classes.IsContinuePending="{Binding Service.Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.ContinuePending}}"
+                                        Classes.IsPausePending="{Binding Service.Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.PausePending}}"
+                                        Classes.IsPaused="{Binding Service.Status, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceControllerStatus.Paused}}">
+                                    <TextBlock Text="{Binding Service.Status}"
+                                               FontSize="12"
+                                               FontWeight="SemiBold"
+                                               Margin="10,5" />
+                                </Border>
+
+                                <Border CornerRadius="8"
+                                        Classes.IsBoot="{Binding Service.StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.Boot}}"
+                                        Classes.IsSystem="{Binding Service.StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.System}}"
+                                        Classes.IsAutomatic="{Binding Service.StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.Automatic}}"
+                                        Classes.IsManual="{Binding Service.StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.Manual}}"
+                                        Classes.IsDisabled="{Binding Service.StartType, Converter={StaticResource EqualityConverter}, ConverterParameter={x:Static sp:ServiceStartMode.Disabled}}">
+                                    <TextBlock Text="{Binding Service.StartType}"
+                                               FontSize="12"
+                                               FontWeight="SemiBold"
+                                               Margin="10,5" />
+                                </Border>
+                            </StackPanel>
                         </StackPanel>
 
-                        <!-- FILE VERSION & SIZE -->
-                        <Grid ColumnDefinitions="*, 16, *">
-                            <StackPanel Grid.Column="0" Spacing="4">
-                                <TextBlock Text="VERSION"
-                                           FontSize="10"
-                                           FontWeight="SemiBold"
-                                           Foreground="{DynamicResource SystemBaseMediumColor}"
-                                           LetterSpacing="1.2" />
-                                <TextBlock
-                                    Text="{Binding FileVersion, Converter={StaticResource ToUnknownConverter}}"
-                                    FontSize="13"
-                                    TextWrapping="Wrap"
-                                    Foreground="{DynamicResource SystemBaseMediumHighColor}" />
-                            </StackPanel>
-                            <StackPanel Grid.Column="2" Spacing="4">
-                                <TextBlock Text="FILE SIZE"
-                                           FontSize="10"
-                                           FontWeight="SemiBold"
-                                           Foreground="{DynamicResource SystemBaseMediumColor}"
-                                           LetterSpacing="1.2" />
-                                <TextBlock
-                                    Text="{Binding FileSizeFormatted, Converter={StaticResource ToUnknownConverter}}"
-                                    FontSize="13"
-                                    Foreground="{DynamicResource SystemBaseMediumHighColor}" />
-                            </StackPanel>
-                        </Grid>
-
-                        <!-- SERVICE ACCOUNT -->
+                        <!-- DESCRIPTION -->
                         <StackPanel Spacing="4">
-                            <TextBlock Text="SERVICE ACCOUNT"
+                            <TextBlock Text="DESCRIPTION"
                                        FontSize="10"
                                        FontWeight="SemiBold"
                                        Foreground="{DynamicResource SystemBaseMediumColor}"
                                        LetterSpacing="1.2" />
                             <TextBlock
-                                Text="{Binding ServiceAccount, Converter={StaticResource ToUnknownConverter}}"
+                                Text="{Binding Service.Description, Converter={StaticResource ToUnknownConverter}}"
                                 FontSize="13"
                                 TextWrapping="Wrap"
                                 Foreground="{DynamicResource SystemBaseMediumHighColor}" />
                         </StackPanel>
 
-                        <!-- PROCESS ID -->
-                        <StackPanel Spacing="4"
-                                    IsVisible="{Binding ProcessId, Converter={x:Static ObjectConverters.IsNotNull}}">
-                            <TextBlock Text="PROCESS ID"
-                                       FontSize="10"
-                                       FontWeight="SemiBold"
-                                       Foreground="{DynamicResource SystemBaseMediumColor}"
-                                       LetterSpacing="1.2" />
-                            <TextBlock Text="{Binding ProcessId}"
-                                       FontSize="13"
-                                       Foreground="{DynamicResource SystemBaseMediumHighColor}" />
-                        </StackPanel>
+                        <!-- DETAILED INFO SECTION -->
+                        <Panel>
+                            <!-- Loading indicator -->
+                            <StackPanel IsVisible="{Binding IsLoadingDetails}"
+                                        Spacing="8"
+                                        HorizontalAlignment="Center"
+                                        Margin="0,8">
+                                <ProgressBar IsIndeterminate="True"
+                                             Width="160"
+                                             Height="3"
+                                             CornerRadius="2" />
+                                <TextBlock Text="Loading details…"
+                                           FontSize="12"
+                                           HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource SystemBaseMediumColor}" />
+                            </StackPanel>
 
-                        <!-- DEPENDENCIES -->
-                        <StackPanel Spacing="8">
-                            <TextBlock Text="DEPENDENCIES"
-                                       FontSize="10"
-                                       FontWeight="SemiBold"
-                                       Foreground="{DynamicResource SystemBaseMediumColor}"
-                                       LetterSpacing="1.2" />
-                            <ItemsControl ItemsSource="{Binding Dependencies}"
-                                          IsVisible="{Binding Dependencies, Converter={StaticResource CollectionNotEmptyConverter}}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border CornerRadius="6"
-                                                Background="{DynamicResource NeutralBackgroundBrush}"
-                                                Margin="0,0,0,4">
-                                            <TextBlock Text="{Binding}"
-                                                       FontSize="12"
-                                                       Margin="8,4"
-                                                       Foreground="{DynamicResource NeutralForegroundBrush}" />
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                            <TextBlock Text="None"
-                                       FontSize="12"
-                                       Foreground="{DynamicResource SystemBaseMediumColor}"
-                                       IsVisible="{Binding Dependencies, Converter={StaticResource CollectionEmptyConverter}}" />
-                        </StackPanel>
+                            <!-- Detailed fields -->
+                            <Panel DataContext="{Binding DetailedInfo}">
+                                <StackPanel Spacing="20"
+                                            x:DataType="models:DetailedWindowsServiceInfo"
+                                            IsVisible="{Binding Converter={x:Static ObjectConverters.IsNotNull}}">
 
-                        </StackPanel>
-                    </Panel>
-                </Panel>
+                                    <!-- EXECUTABLE -->
+                                    <StackPanel Spacing="4"
+                                                IsVisible="{Binding ExecutablePath, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                                        <TextBlock Text="EXECUTABLE"
+                                                   FontSize="10"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource SystemBaseMediumColor}"
+                                                   LetterSpacing="1.2" />
+                                        <TextBlock Text="{Binding ExecutablePath}"
+                                                   FontSize="11"
+                                                   TextWrapping="Wrap"
+                                                   Opacity="0.6"
+                                                   IsVisible="{Binding ExecutablePath, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                                                   Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+                                    </StackPanel>
 
-            </StackPanel>
-        </ScrollViewer>
+                                    <!-- PUBLISHER -->
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="PUBLISHER"
+                                                   FontSize="10"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource SystemBaseMediumColor}"
+                                                   LetterSpacing="1.2" />
+                                        <TextBlock
+                                            Text="{Binding Publisher, Converter={StaticResource ToUnknownConverter}}"
+                                            FontSize="13"
+                                            Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+                                    </StackPanel>
+
+                                    <!-- FILE VERSION & SIZE -->
+                                    <Grid ColumnDefinitions="*, 16, *">
+                                        <StackPanel Grid.Column="0" Spacing="4">
+                                            <TextBlock Text="VERSION"
+                                                       FontSize="10"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource SystemBaseMediumColor}"
+                                                       LetterSpacing="1.2" />
+                                            <TextBlock
+                                                Text="{Binding FileVersion, Converter={StaticResource ToUnknownConverter}}"
+                                                FontSize="13"
+                                                TextWrapping="Wrap"
+                                                Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2" Spacing="4">
+                                            <TextBlock Text="FILE SIZE"
+                                                       FontSize="10"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource SystemBaseMediumColor}"
+                                                       LetterSpacing="1.2" />
+                                            <TextBlock
+                                                Text="{Binding FileSizeFormatted, Converter={StaticResource ToUnknownConverter}}"
+                                                FontSize="13"
+                                                Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <!-- SERVICE ACCOUNT -->
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="SERVICE ACCOUNT"
+                                                   FontSize="10"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource SystemBaseMediumColor}"
+                                                   LetterSpacing="1.2" />
+                                        <TextBlock
+                                            Text="{Binding ServiceAccount, Converter={StaticResource ToUnknownConverter}}"
+                                            FontSize="13"
+                                            TextWrapping="Wrap"
+                                            Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+                                    </StackPanel>
+
+                                    <!-- PROCESS ID -->
+                                    <StackPanel Spacing="4"
+                                                IsVisible="{Binding ProcessId, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                        <TextBlock Text="PROCESS ID"
+                                                   FontSize="10"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource SystemBaseMediumColor}"
+                                                   LetterSpacing="1.2" />
+                                        <TextBlock Text="{Binding ProcessId}"
+                                                   FontSize="13"
+                                                   Foreground="{DynamicResource SystemBaseMediumHighColor}" />
+                                    </StackPanel>
+
+
+
+                                    <!-- DEPENDENCIES -->
+                                    <StackPanel Spacing="8">
+                                        <TextBlock Text="DEPENDENCIES"
+                                                   FontSize="10"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource SystemBaseMediumColor}"
+                                                   LetterSpacing="1.2" />
+                                        <ItemsControl ItemsSource="{Binding Dependencies}"
+                                                      IsVisible="{Binding Dependencies, Converter={StaticResource CollectionNotEmptyConverter}}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border CornerRadius="6"
+                                                            Background="{DynamicResource NeutralBackgroundBrush}"
+                                                            Margin="0,0,0,4">
+                                                        <TextBlock Text="{Binding}"
+                                                                   FontSize="12"
+                                                                   Margin="8,4"
+                                                                   Foreground="{DynamicResource NeutralForegroundBrush}" />
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <TextBlock Text="None"
+                                                   FontSize="12"
+                                                   Foreground="{DynamicResource SystemBaseMediumColor}"
+                                                   IsVisible="{Binding Dependencies, Converter={StaticResource CollectionEmptyConverter}}" />
+                                    </StackPanel>
+
+                                </StackPanel>
+                            </Panel>
+                        </Panel>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Logs" IsVisible="{Binding ShowLogsTab}">
+                <controls:LogViewer LogsList="{Binding LogsList}" Margin="0,0,20,0" />
+            </TabItem>
+        </TabControl>
 
         <Panel Grid.Row="1" IsVisible="{Binding Service, Converter={x:Static ObjectConverters.IsNotNull}}">
             <Border BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}"
@@ -428,7 +551,8 @@
                                 HorizontalAlignment="Stretch"
                                 HorizontalContentAlignment="Center">
                             <StackPanel Orientation="Horizontal" Spacing="8">
-                                <PathIcon Data="{StaticResource PlayIcon}" Width="10" Height="10" Foreground="{DynamicResource PrimaryActionForegroundBrush}" />
+                                <PathIcon Data="{StaticResource PlayIcon}" Width="10" Height="10"
+                                          Foreground="{DynamicResource PrimaryActionForegroundBrush}" />
                                 <TextBlock Text="Start" FontWeight="Medium" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
@@ -509,7 +633,7 @@
                                            Foreground="{DynamicResource SuccessForegroundBrush}" />
                             </StackPanel>
                         </Button>
-                        
+
                         <Button Command="{Binding DisableServiceCommand}"
                                 IsEnabled="{Binding CanDisableService}"
                                 Margin="0,0,5,0"

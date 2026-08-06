@@ -4,12 +4,17 @@ using ReactiveUI.SourceGenerators;
 using SystemCtrl.Core.Interfaces;
 using SystemCtrl.Core.Models;
 using SystemCtrl.Desktop.Services;
+using System.Reflection;
+using System.Linq;
 
 namespace SystemCtrl.Desktop.ViewModels;
 
 public partial class SettingsViewModel : ViewModelBase
 {
     private readonly ISettingsService _settingsService;
+
+    [Reactive]
+    public partial string AppVersion { get; set; }
 
     [Reactive]
     public partial string ApiKey { get; set; }
@@ -19,6 +24,15 @@ public partial class SettingsViewModel : ViewModelBase
 
     [Reactive]
     public partial bool ShowAiSummary { get; set; }
+
+    [Reactive]
+    public partial bool DisableServiceLogs { get; set; }
+    
+    [Reactive]
+    public partial bool DisableResourceUsage { get; set; }
+
+    [Reactive]
+    public partial bool DisableScheduledTasksLogs { get; set; }
 
     [Reactive]
     public partial ObservableCollection<string> AvailableModels { get; set; }
@@ -37,7 +51,17 @@ public partial class SettingsViewModel : ViewModelBase
         ApiKey = settings.GeminiApiKey;
         SelectedModel = settings.GeminiModel;
         ShowAiSummary = settings.ShowAiSummary;
+        DisableServiceLogs = settings.DisableServiceLogs;
+        DisableResourceUsage = settings.DisableResourceUsage;
+        DisableScheduledTasksLogs = settings.DisableScheduledTasksLogs;
         SelectedTheme = settings.AppTheme;
+
+        var versionAttr = Assembly.GetExecutingAssembly()
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+        var rawVersion = versionAttr?.InformationalVersion ?? "1.0.0-dev";
+        var plusIndex = rawVersion.IndexOf('+');
+        var cleanVersion = plusIndex > 0 ? rawVersion.Substring(0, plusIndex) : rawVersion;
+        AppVersion = "v" + cleanVersion;
         
         AvailableModels =
         [
@@ -74,6 +98,9 @@ public partial class SettingsViewModel : ViewModelBase
         settings.GeminiApiKey = ApiKey;
         settings.GeminiModel = SelectedModel;
         settings.ShowAiSummary = ShowAiSummary;
+        settings.DisableServiceLogs = DisableServiceLogs;
+        settings.DisableResourceUsage = DisableResourceUsage;
+        settings.DisableScheduledTasksLogs = DisableScheduledTasksLogs;
         settings.AppTheme = SelectedTheme;
         _settingsService.SaveSettings(settings);
 

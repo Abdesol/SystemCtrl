@@ -1,0 +1,172 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="using:SystemCtrl.Desktop.Controls"
+             x:Class="SystemCtrl.Desktop.Controls.LogViewer"
+             x:Name="Root">
+    <Grid Margin="0" RowDefinitions="Auto,*">
+        <Grid Row="0"
+              Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="0.9*" MinWidth="235" />
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="1"
+                  HorizontalAlignment="Stretch"
+                  ColumnDefinitions="*, Auto">
+                <Border Grid.Column="0" HorizontalAlignment="Stretch" CornerRadius="8"
+                        Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                        BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}"
+                        BorderThickness="1"
+                        Height="32"
+                        Margin="0,0,12,0"
+                        Padding="0,0,5,0">
+                    <Grid ColumnDefinitions="*, Auto, Auto, Auto"
+                          HorizontalAlignment="Stretch">
+                        <TextBox Grid.Column="0" x:Name="SearchTextBox"
+                                 PlaceholderText="Search logs..."
+                                 Background="Transparent"
+                                 BorderBrush="Transparent"
+                                 VerticalContentAlignment="Center"
+                                 Height="30"
+                                 Padding="5,0,0,0"
+                                 VerticalAlignment="Stretch"
+                                 HorizontalAlignment="Stretch"
+                                 FontSize="12">
+                            <TextBox.InnerRightContent>
+                                <Button x:Name="ClearSearchButton" Click="ClearSearch_Click"
+                                        Classes="SmallScale"
+                                        Background="Transparent"
+                                        Margin="0,0,8,0">
+                                    <Viewbox Height="8">
+                                        <Path Data="{StaticResource CloseIcon}"
+                                              Fill="{DynamicResource SystemBaseMediumColor}"
+                                              Stretch="Uniform" />
+                                    </Viewbox>
+                                </Button>
+                            </TextBox.InnerRightContent>
+                        </TextBox>
+
+                        <TextBlock Grid.Column="1" x:Name="MatchCountTextBlock"
+                                   Text="0/0"
+                                   VerticalAlignment="Center"
+                                   FontSize="12"
+                                   Margin="8,0"
+                                   Foreground="{DynamicResource SystemBaseMediumColor}" />
+
+                        <Button Grid.Column="2" x:Name="UpButton" Click="PreviousMatch_Click"
+                                Background="Transparent" BorderThickness="0" Width="25" Height="25" Padding="0">
+                            <Viewbox Height="10">
+                                <Path Fill="{DynamicResource SystemBaseHighColor}"
+                                      Data="{StaticResource ChevronUpIcon}" Stretch="Uniform" />
+                            </Viewbox>
+                        </Button>
+
+                        <Button Grid.Column="3" x:Name="DownButton" Click="NextMatch_Click"
+                                Background="Transparent" BorderThickness="0" Width="25" Height="25" Padding="0">
+                            <Viewbox Height="10">
+                                <Path Fill="{DynamicResource SystemBaseHighColor}"
+                                      Data="{StaticResource ChevronDownIcon}" Stretch="Uniform" />
+                            </Viewbox>
+                        </Button>
+                    </Grid>
+                </Border>
+
+                <ToggleButton Grid.Column="1" Name="WrapLogsToggle"
+                              IsChecked="True"
+                              Padding="0">
+                    <ToggleButton.Styles>
+                        <Style Selector="Border.Wrap">
+                            <Setter Property="ToolTip.Tip" Value="Wrap Logs" />
+                        </Style>
+                        <Style Selector="Border.Unwrap">
+                            <Setter Property="ToolTip.Tip" Value="Unwrap Logs" />
+                        </Style>
+
+                        <Style Selector="Path.Wrap">
+                            <Setter Property="Data" Value="{StaticResource WrapIcon}" />
+                        </Style>
+                        <Style Selector="Path.Unwrap">
+                            <Setter Property="Data" Value="{StaticResource UnwrapIcon}" />
+                        </Style>
+                    </ToggleButton.Styles>
+                    <Border
+                        Classes.Wrap="{Binding !IsChecked, ElementName=WrapLogsToggle}"
+                        Classes.Unwrap="{Binding IsChecked, ElementName=WrapLogsToggle}"
+                        CornerRadius="100"
+                        Background="{DynamicResource PrimaryTextBrush}"
+                        Width="25"
+                        Height="25">
+                        <Viewbox Height="10"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center">
+                            <Path Fill="{DynamicResource BackgroundBrush}"
+                                  Stretch="Uniform"
+                                  Classes.Wrap="{Binding !IsChecked, ElementName=WrapLogsToggle}"
+                                  Classes.Unwrap="{Binding IsChecked, ElementName=WrapLogsToggle}" />
+                        </Viewbox>
+                    </Border>
+                </ToggleButton>
+            </Grid>
+        </Grid>
+
+        <Border Grid.Row="1"
+                CornerRadius="8"
+                BorderThickness="1"
+                BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}"
+                Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
+            <ScrollViewer x:Name="LogScrollViewer"
+                          Classes.wrapped="{Binding #WrapLogsToggle.IsChecked}"
+                          VerticalScrollBarVisibility="Auto"
+                          VerticalAlignment="Stretch"
+                          HorizontalAlignment="Stretch">
+                <ScrollViewer.Styles>
+                    <Style Selector="ScrollViewer">
+                        <Setter Property="HorizontalScrollBarVisibility" Value="Auto" />
+                    </Style>
+                    <Style Selector="ScrollViewer.wrapped">
+                        <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
+                    </Style>
+                </ScrollViewer.Styles>
+                <SelectableTextBlock x:Name="LogsTextBlock"
+                                     FontFamily="{StaticResource Firacode}"
+                                     FontWeight="Light"
+                                     FontSize="12"
+                                     Padding="0"
+                                     Margin="10"
+                                     LineHeight="18"
+                                     Foreground="{DynamicResource SystemBaseHighColor}"
+                                     SelectionForegroundBrush="{DynamicResource PrimaryActionForegroundBrush}"
+                                     Classes.wrapped="{Binding #WrapLogsToggle.IsChecked}">
+                    <SelectableTextBlock.Styles>
+                        <Style Selector="SelectableTextBlock">
+                            <Setter Property="TextWrapping" Value="NoWrap" />
+                        </Style>
+                        <Style Selector="SelectableTextBlock.wrapped">
+                            <Setter Property="TextWrapping" Value="WrapWithOverflow" />
+                        </Style>
+                        <Style Selector="Run.timestamp">
+                            <Setter Property="Foreground" Value="{DynamicResource SpecialForegroundBrush}" />
+                        </Style>
+                        <Style Selector="Run.error">
+                            <Setter Property="Foreground" Value="{DynamicResource DangerForegroundBrush}" />
+                        </Style>
+                        <Style Selector="Run.warning">
+                            <Setter Property="Foreground" Value="{DynamicResource CautionForegroundBrush}" />
+                        </Style>
+                        <Style Selector="Run.info">
+                            <Setter Property="Foreground" Value="{DynamicResource InfoForegroundBrush}" />
+                        </Style>
+                        <Style Selector="Run.success">
+                            <Setter Property="Foreground" Value="{DynamicResource SuccessForegroundBrush}" />
+                        </Style>
+                    </SelectableTextBlock.Styles>
+                    <SelectableTextBlock.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Copy" Click="CopyMenuItem_Click" />
+                        </ContextMenu>
+                    </SelectableTextBlock.ContextMenu>
+                </SelectableTextBlock>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</UserControl>
