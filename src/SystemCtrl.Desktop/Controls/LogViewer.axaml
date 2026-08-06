@@ -67,18 +67,37 @@
                       Margin="0,12,24,0"
                       Padding="0"
                       HorizontalAlignment="Right"
-                      VerticalAlignment="Top"
-                      ToolTip.Tip="Toggle Word Wrap">
+                      VerticalAlignment="Top">
+            <ToggleButton.Styles>
+                <Style Selector="Border.Wrap">
+                    <Setter Property="ToolTip.Tip" Value="Wrap Logs" />
+                </Style>
+                <Style Selector="Border.Unwrap">
+                    <Setter Property="ToolTip.Tip" Value="Unwrap Logs" />
+                </Style>
+
+                <Style Selector="Path.Wrap">
+                    <Setter Property="Data" Value="{StaticResource WrapIcon}" />
+                </Style>
+                <Style Selector="Path.Unwrap">
+                    <Setter Property="Data" Value="{StaticResource UnwrapIcon}" />
+                </Style>
+            </ToggleButton.Styles>
             <Border
+                Classes.Wrap="{Binding !IsChecked, ElementName=WrapLogsToggle}"
+                Classes.Unwrap="{Binding IsChecked, ElementName=WrapLogsToggle}"
                 CornerRadius="100"
                 Background="{DynamicResource PrimaryTextBrush}"
                 Width="25"
                 Height="25"
                 Opacity="0.9">
-                <Viewbox Height="10">
-                    <Path Data="{StaticResource WrapIcon}"
-                          Fill="{DynamicResource BackgroundBrush}"
-                          Stretch="Uniform" />
+                <Viewbox Height="12"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center">
+                    <Path Fill="{DynamicResource BackgroundBrush}"
+                          Stretch="Uniform"
+                          Classes.Wrap="{Binding !IsChecked, ElementName=WrapLogsToggle}"
+                          Classes.Unwrap="{Binding IsChecked, ElementName=WrapLogsToggle}" />
                 </Viewbox>
             </Border>
         </ToggleButton>
