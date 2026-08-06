@@ -331,7 +331,7 @@ public partial class WindowsTaskManager : IWindowsTaskManager
         }
     }
 
-    public string GetLogs(string taskPath)
+    public IEnumerable<string> GetLogs(string taskPath)
     {
         try
         {
@@ -366,19 +366,66 @@ public partial class WindowsTaskManager : IWindowsTaskManager
                     var config = new System.Diagnostics.Eventing.Reader.EventLogConfiguration("Microsoft-Windows-TaskScheduler/Operational");
                     if (!config.IsEnabled)
                     {
-                        return "The Task Scheduler Operational event log is disabled.\nTask history is not being recorded.\n\nTo enable it, open Task Scheduler and click 'Enable All Tasks History' in the Actions pane, or enable the 'Microsoft-Windows-TaskScheduler/Operational' log via Event Viewer.";
+                        logs.Add("The Task Scheduler Operational event log is disabled.\nTask history is not being recorded.\n\nTo enable it, open Task Scheduler and click 'Enable All Tasks History' in the Actions pane, or enable the 'Microsoft-Windows-TaskScheduler/Operational' log via Event Viewer.");
+                        return logs;
                     }
                 }
                 catch { } // Ignore if we can't read configuration
 
-                return "No logs found for this task.";
+                logs.Add("No logs found for this task.");
             }
             
-            return string.Join("\n", logs);
+            return logs;
         }
         catch (Exception ex)
         {
-            return $"Failed to get logs: {ex.Message}";
+            return new List<string> { $"Failed to get logs: {ex.Message}" };
         }
+    }
+
+    public IObservable<string> StreamLogs(string taskPath)
+    {
+        return System.Reactive.Linq.Observable.Create<string>(observer =>
+        {
+            System.Diagnostics.Eventing.Reader.EventLogWatcher? watcher = null;
+            
+            try
+            {
+                string query = $"*[System[Provider[@Name='Microsoft-Windows-TaskScheduler']]] and *[EventData[Data[@Name='TaskName']='{taskPath}']]";
+                var elq = new System.Diagnostics.Eventing.Reader.EventLogQuery("Microsoft-Windows-TaskScheduler/Operational", System.Diagnostics.Eventing.Reader.PathType.LogName, query);
+                watcher = new System.Diagnostics.Eventing.Reader.EventLogWatcher(elq);
+
+                void OnEvent(object? sender, System.Diagnostics.Eventing.Reader.EventRecordWrittenEventArgs e)
+                {
+                    if (e.EventRecord != null)
+                    {
+                        string level = e.EventRecord.LevelDisplayName == "Information" ? "Info" :
+                                       e.EventRecord.LevelDisplayName == "Warning" ? "Warn" :
+                                       e.EventRecord.LevelDisplayName;
+                        try 
+                        {
+                            observer.OnNext($"[{e.EventRecord.TimeCreated:yyyy-MM-dd HH:mm:ss}] [{level}] {e.EventRecord.FormatDescription()}");
+                        }
+                        catch 
+                        {
+                            observer.OnNext($"[{e.EventRecord.TimeCreated:yyyy-MM-dd HH:mm:ss}] [{level}] (Log description unavailable)");
+                        }
+                    }
+                }
+
+                watcher.EventRecordWritten += OnEvent;
+                watcher.Enabled = true;
+            }
+            catch (Exception ex)
+            {
+                observer.OnNext($"Failed to start live log monitoring: {ex.Message}");
+            }
+
+            return System.Reactive.Disposables.Disposable.Create(() =>
+            {
+                try { if (watcher != null) watcher.Enabled = false; } catch { }
+                try { watcher?.Dispose(); } catch { }
+            });
+        });
     }
 }

@@ -463,7 +463,7 @@ public partial class WindowsServiceManager : IWindowsServiceManager
     [GeneratedRegex("""-Name\s+['"]([^'"]+)['"]""", RegexOptions.IgnoreCase, "en-US")]
     private static partial Regex ServiceNameRegex();
 
-    public string GetLogs(string serviceName)
+    public IEnumerable<string> GetLogs(string serviceName)
     {
         try
         {
@@ -509,12 +509,71 @@ public partial class WindowsServiceManager : IWindowsServiceManager
                 })
                 .ToList();
 
-            if (formattedLogs.Count == 0) return "No logs found for this service in the System and Application event logs.";
-            return string.Join("\n", formattedLogs);
+            if (formattedLogs.Count == 0) 
+            {
+                formattedLogs.Add("No logs found for this service in the System and Application event logs.");
+            }
+            return formattedLogs;
         }
         catch (Exception ex)
         {
-            return $"Failed to get logs: {ex.Message}";
+            return new List<string> { $"Failed to get logs: {ex.Message}" };
         }
+    }
+
+    public IObservable<string> StreamLogs(string serviceName)
+    {
+        return System.Reactive.Linq.Observable.Create<string>(observer =>
+        {
+            System.Diagnostics.Eventing.Reader.EventLogWatcher? watcherSys = null;
+            System.Diagnostics.Eventing.Reader.EventLogWatcher? watcherApp = null;
+            
+            try
+            {
+                string systemQuery = $"*[System[Provider[@Name='{serviceName}']] or (System[Provider[@Name='Service Control Manager']] and EventData[Data='{serviceName}'])]";
+                var elqSys = new System.Diagnostics.Eventing.Reader.EventLogQuery("System", System.Diagnostics.Eventing.Reader.PathType.LogName, systemQuery);
+                watcherSys = new System.Diagnostics.Eventing.Reader.EventLogWatcher(elqSys);
+
+                string appQuery = $"*[System[Provider[@Name='{serviceName}']] or EventData[Data='{serviceName}']]";
+                var elqApp = new System.Diagnostics.Eventing.Reader.EventLogQuery("Application", System.Diagnostics.Eventing.Reader.PathType.LogName, appQuery);
+                watcherApp = new System.Diagnostics.Eventing.Reader.EventLogWatcher(elqApp);
+
+                void OnEvent(object? sender, System.Diagnostics.Eventing.Reader.EventRecordWrittenEventArgs e)
+                {
+                    if (e.EventRecord != null)
+                    {
+                        string level = e.EventRecord.LevelDisplayName == "Information" ? "Info" :
+                                       e.EventRecord.LevelDisplayName == "Warning" ? "Warn" :
+                                       e.EventRecord.LevelDisplayName;
+                        try 
+                        {
+                            observer.OnNext($"[{e.EventRecord.TimeCreated:yyyy-MM-dd HH:mm:ss}] [{level}] {e.EventRecord.ProviderName}: {e.EventRecord.FormatDescription()}");
+                        }
+                        catch 
+                        {
+                            observer.OnNext($"[{e.EventRecord.TimeCreated:yyyy-MM-dd HH:mm:ss}] [{level}] {e.EventRecord.ProviderName}: (Log description unavailable)");
+                        }
+                    }
+                }
+
+                watcherSys.EventRecordWritten += OnEvent;
+                watcherApp.EventRecordWritten += OnEvent;
+
+                watcherSys.Enabled = true;
+                watcherApp.Enabled = true;
+            }
+            catch (Exception ex)
+            {
+                observer.OnNext($"Failed to start live log monitoring: {ex.Message}");
+            }
+
+            return System.Reactive.Disposables.Disposable.Create(() =>
+            {
+                try { if (watcherSys != null) watcherSys.Enabled = false; } catch { }
+                try { if (watcherApp != null) watcherApp.Enabled = false; } catch { }
+                try { watcherSys?.Dispose(); } catch { }
+                try { watcherApp?.Dispose(); } catch { }
+            });
+        });
     }
 }

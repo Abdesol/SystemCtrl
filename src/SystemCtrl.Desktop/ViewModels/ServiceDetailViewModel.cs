@@ -58,6 +58,27 @@ public partial class ServiceDetailViewModel : ViewModelBase
                 x => x.IsExecutingAction,
                 (isDisabled, isExecuting) => !isDisabled && !isExecuting)
             .Subscribe(canDisable => CanDisableService = canDisable);
+            
+        this.WhenAnyValue(x => x.SelectedTabIndex, x => x.Service, x => x.ShowLogsTab)
+            .Subscribe(t => 
+            {
+                var tabIndex = t.Item1;
+                var service = t.Item2;
+                var showLogs = t.Item3;
+                
+                _logStreamSubscription?.Dispose();
+                _logStreamSubscription = null;
+                
+                if (tabIndex == 1 && service != null && showLogs)
+                {
+                    _logStreamSubscription = _windowsServiceManager.StreamLogs(service.ServiceName)
+                        .ObserveOn(AvaloniaScheduler.Instance)
+                        .Subscribe(logLine => 
+                        {
+                            LogsList.Insert(0, logLine);
+                        });
+                }
+            });
     }
     
     [Reactive] public partial bool CanExecuteServiceActions { get; set; }
@@ -69,7 +90,10 @@ public partial class ServiceDetailViewModel : ViewModelBase
 
     [Reactive] public partial DetailedWindowsServiceInfo? DetailedInfo { get; set; }
 
-    [Reactive] public partial string? Logs { get; set; }
+    [Reactive] public partial System.Collections.ObjectModel.ObservableCollection<string> LogsList { get; set; } = new();
+    
+    [Reactive] public partial int SelectedTabIndex { get; set; }
+    private IDisposable? _logStreamSubscription;
 
     [Reactive] public partial bool IsLoadingDetails { get; set; }
 
@@ -232,13 +256,17 @@ public partial class ServiceDetailViewModel : ViewModelBase
             }
             catch
             {
-                return "Failed to fetch logs.";
+                return new System.Collections.Generic.List<string> { "Failed to fetch logs." };
             }
         });
 
         await Task.WhenAll(detailedInfoTask, logsTask);
         DetailedInfo = detailedInfoTask.Result;
-        Logs = logsTask.Result;
+        
+        if (logsTask.Result != null)
+        {
+            LogsList = new System.Collections.ObjectModel.ObservableCollection<string>(logsTask.Result);
+        }
         
         IsLoadingDetails = false;
     }

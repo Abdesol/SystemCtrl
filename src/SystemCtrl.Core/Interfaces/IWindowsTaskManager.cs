@@ -16,5 +16,6 @@ public interface IWindowsTaskManager
 
     void Stop(string taskPath);
 
-    string GetLogs(string taskPath);
+    IEnumerable<string> GetLogs(string taskPath);
+    IObservable<string> StreamLogs(string taskPath);
 }
