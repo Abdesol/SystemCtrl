@@ -6,6 +6,7 @@
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <AssemblyName>SystemCtrl</AssemblyName>
         <ApplicationIcon>Assets\logo.ico</ApplicationIcon>
+        <Version>1.0.0</Version>
         
         <PublishTrimmed>false</PublishTrimmed>
         <PublishSingleFile>true</PublishSingleFile>

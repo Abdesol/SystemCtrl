@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - beta
       - dev
     paths:
       - 'src/**'
@@ -12,26 +11,65 @@ on:
   workflow_dispatch:
 
 jobs:
+  version-check:
+    name: Check Version
+    runs-on: ubuntu-latest
+
+    outputs:
+      should_build: ${{ steps.check.outputs.should_build }}
+      app_version: ${{ steps.version.outputs.app_version }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read App Version
+        id: version
+        shell: pwsh
+        run: |
+          [xml]$csproj = Get-Content "src/SystemCtrl.Desktop/SystemCtrl.Desktop.csproj"
+          $baseVersion = $csproj.Project.PropertyGroup.Version | Where-Object { $_ }
+          if (-not $baseVersion) { $baseVersion = "1.0.0" }
+          if ("${{ github.ref }}" -eq "refs/heads/dev") {
+            $appVersion = "$baseVersion-dev"
+          } else {
+            $appVersion = "$baseVersion"
+          }
+          echo "app_version=$appVersion" >> $env:GITHUB_OUTPUT
+          echo "Resolved version: $appVersion"
+
+      - name: Check If Release Exists
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="v${{ steps.version.outputs.app_version }}"
+          echo "Checking for existing tag: $TAG"
+          if gh release view "$TAG" --repo "${{ github.repository }}" > /dev/null 2>&1; then
+            echo "Release $TAG already exists. Skipping build."
+            echo "should_build=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "No existing release for $TAG. Proceeding with build."
+            echo "should_build=true" >> "$GITHUB_OUTPUT"
+          fi
+
   build:
     name: Build SystemCtrl (Windows)
     runs-on: windows-latest
-    
+    needs: version-check
+    if: needs.version-check.outputs.should_build == 'true'
+
     permissions:
       contents: write
-      
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Set App Version
-        run: |
-          if ("${{ github.ref }}" -eq "refs/heads/main") {
-            echo "APP_VERSION=1.0.${{ github.run_number }}" >> $env:GITHUB_ENV
-          } elseif ("${{ github.ref }}" -eq "refs/heads/beta") {
-            echo "APP_VERSION=1.0.${{ github.run_number }}-beta" >> $env:GITHUB_ENV
-          } else {
-            echo "APP_VERSION=1.0.${{ github.run_number }}-dev" >> $env:GITHUB_ENV
-          }
+        run: echo "APP_VERSION=${{ needs.version-check.outputs.app_version }}" >> $env:GITHUB_ENV
 
       - name: Setup .NET 10
         uses: actions/setup-dotnet@v4
@@ -63,3 +101,70 @@ jobs:
             Output/SystemCtrl-Setup.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  auto-bump:
+    name: Auto-Bump Patch Version
+    runs-on: ubuntu-latest
+    needs: version-check
+    if: needs.version-check.outputs.should_build == 'false'
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Bump Patch Version
+        id: bump
+        shell: pwsh
+        run: |
+          $csprojPath = "src/SystemCtrl.Desktop/SystemCtrl.Desktop.csproj"
+          [xml]$csproj = Get-Content $csprojPath
+          $currentVersion = $csproj.Project.PropertyGroup.Version | Where-Object { $_ }
+          if (-not $currentVersion) { $currentVersion = "1.0.0" }
+
+          $parts = $currentVersion.Split('.')
+          $major = [int]$parts[0]
+          $minor = [int]$parts[1]
+          $patch = [int]$parts[2] + 1
+          $newVersion = "$major.$minor.$patch"
+
+          $content = Get-Content $csprojPath -Raw
+          $content = $content -replace "<Version>$currentVersion</Version>", "<Version>$newVersion</Version>"
+          Set-Content -Path $csprojPath -Value $content -NoNewline
+
+          echo "current_version=$currentVersion" >> $env:GITHUB_OUTPUT
+          echo "new_version=$newVersion" >> $env:GITHUB_OUTPUT
+          echo "Bumped version: $currentVersion -> $newVersion"
+
+      - name: Create Pull Request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NEW_VERSION="${{ steps.bump.outputs.new_version }}"
+          TARGET_BRANCH="${{ github.ref_name }}"
+          BRANCH="auto/bump-version-${TARGET_BRANCH}-${NEW_VERSION}"
+
+          # Skip if a bump branch/PR already exists
+          if git ls-remote --heads origin "$BRANCH" | grep -q "$BRANCH"; then
+            echo "Branch $BRANCH already exists. Skipping auto-bump."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git checkout -b "$BRANCH"
+          git add src/SystemCtrl.Desktop/SystemCtrl.Desktop.csproj
+          git commit -m "chore: bump version to ${NEW_VERSION}"
+          git push origin "$BRANCH"
+
+          gh pr create \
+            --base "$TARGET_BRANCH" \
+            --head "$BRANCH" \
+            --title "chore: bump version to ${NEW_VERSION}" \
+            --body "Release \`v${{ steps.bump.outputs.current_version }}\` already exists. This PR bumps the version to \`${NEW_VERSION}\` so the next build can proceed."
