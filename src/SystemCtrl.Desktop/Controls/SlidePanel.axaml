@@ -2,7 +2,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:SystemCtrl.Desktop.ViewModels"
              x:Class="SystemCtrl.Desktop.Controls.SlidePanel"
-             x:DataType="vm:SlidePanelViewModel">
+             x:DataType="vm:SlidePanelViewModel"
+             xmlns:conv="using:SystemCtrl.Desktop.Converters">
+
+    <UserControl.Resources>
+        <conv:GridLengthConverter x:Key="GridLengthConverter" />
+    </UserControl.Resources>
 
     <UserControl.Styles>
         <Style Selector="Border#DimOverlay">
@@ -20,21 +25,32 @@
         </Style>
     </UserControl.Styles>
 
-    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <Grid x:Name="RootGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="6*" />
-            <ColumnDefinition Width="4*" MinWidth="410" MaxWidth="600" />
+            <ColumnDefinition Width="*" MinWidth="50" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="{Binding PanelWidth, Mode=TwoWay, Converter={StaticResource GridLengthConverter}}"
+                              MinWidth="300" />
         </Grid.ColumnDefinitions>
-        
+
         <Border x:Name="DimOverlay"
-                Grid.Column="0" Grid.ColumnSpan="2"
+                Grid.Column="0" Grid.ColumnSpan="3"
                 Classes.Open="{Binding IsOpen}"
                 Background="{DynamicResource FreezeBackgroundBrush}"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
                 DoubleTapped="DimOverlay_DoubleTapped" />
+
+        <GridSplitter Grid.Column="1"
+                      x:Name="PanelSplitter"
+                      Width="6"
+                      Background="Transparent"
+                      ResizeDirection="Columns"
+                      ResizeBehavior="PreviousAndNext"
+                      IsHitTestVisible="{Binding IsOpen}" />
+
         <Border x:Name="PanelRoot"
-                Grid.Column="1"
+                Grid.Column="2"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
                 Background="{DynamicResource CardBackgroundBrush}"

@@ -44,7 +44,8 @@ public partial class MainViewModel : ViewModelBase
         _allServiceViewModels = [];
         _allTaskViewModels = [];
 
-        SlidePanel = new SlidePanelViewModel();
+        var settingsService = _serviceProvider.GetRequiredService<ISettingsService>();
+        SlidePanel = new SlidePanelViewModel(settingsService);
         ActiveTab = 0;
 
         this.WhenAnyValue(x => x.SearchText)

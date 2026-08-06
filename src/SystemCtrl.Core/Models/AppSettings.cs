@@ -13,6 +13,7 @@ public class AppSettings
     public bool DisableResourceUsage { get; set; } = false;
     public bool DisableScheduledTasksLogs { get; set; } = false;
     public string AppTheme { get; set; } = "Light";
+    public double SlidePanelWidth { get; set; } = 400;
     public double? WindowWidth { get; set; }
     public double? WindowHeight { get; set; }
     public int? WindowPositionX { get; set; }
