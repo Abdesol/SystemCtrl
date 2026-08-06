@@ -13,7 +13,7 @@
             Grid.Row="0" VerticalScrollBarVisibility="Auto"
             Margin="0,0,-20,0"
             Padding="0,0,20,0">
-            <StackPanel Spacing="25">
+            <StackPanel Spacing="25" Margin="0,0,0,20">
                 <StackPanel Spacing="10">
                     <TextBlock Text="APPEARANCE"
                                FontWeight="SemiBold"
@@ -74,17 +74,26 @@
                 </StackPanel>
 
                 <StackPanel Spacing="10">
-                    <TextBlock Text="LOGS &amp; RESOURCES"
+                    <TextBlock Text="SERVICES"
                                FontWeight="SemiBold"
                                FontSize="12"
                                Foreground="{DynamicResource SystemBaseMediumColor}" />
                     <StackPanel Spacing="5">
                         <CheckBox Content="Disable Service Logs"
                                   IsChecked="{Binding DisableServiceLogs}" />
+                        <CheckBox Content="Disable Service Resource Monitoring"
+                                  IsChecked="{Binding DisableResourceUsage}" />
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Spacing="10">
+                    <TextBlock Text="TASKS"
+                               FontWeight="SemiBold"
+                               FontSize="12"
+                               Foreground="{DynamicResource SystemBaseMediumColor}" />
+                    <StackPanel Spacing="5">
                         <CheckBox Content="Disable Scheduled Tasks Logs"
                                   IsChecked="{Binding DisableScheduledTasksLogs}" />
-                        <CheckBox Content="Disable Resource Monitoring"
-                                  IsChecked="{Binding DisableResourceUsage}" />
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
