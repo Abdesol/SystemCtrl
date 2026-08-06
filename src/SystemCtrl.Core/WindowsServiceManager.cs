@@ -499,9 +499,15 @@ public partial class WindowsServiceManager : IWindowsServiceManager
                 .OrderByDescending(l => l.TimeCreated)
                 .Take(200)
                 .Select(record => {
-                    string level = record.LevelDisplayName == "Information" ? "Info" :
-                                   record.LevelDisplayName == "Warning" ? "Warn" :
-                                   record.LevelDisplayName;
+                    string level = record.Level switch
+                    {
+                        1 => "Critical",
+                        2 => "Error",
+                        3 => "Warn",
+                        4 => "Info",
+                        5 => "Verbose",
+                        _ => record.LevelDisplayName ?? "Info"
+                    };
                     try { return $"[{record.TimeCreated:yyyy-MM-dd HH:mm:ss}] [{level}] {record.ProviderName}: {record.FormatDescription()}"; }
                     catch { return $"[{record.TimeCreated:yyyy-MM-dd HH:mm:ss}] [{level}] {record.ProviderName}: (Log description unavailable)"; }
                 })
@@ -540,9 +546,15 @@ public partial class WindowsServiceManager : IWindowsServiceManager
                 {
                     if (e.EventRecord != null)
                     {
-                        string level = e.EventRecord.LevelDisplayName == "Information" ? "Info" :
-                                       e.EventRecord.LevelDisplayName == "Warning" ? "Warn" :
-                                       e.EventRecord.LevelDisplayName;
+                        string level = e.EventRecord.Level switch
+                        {
+                            1 => "Critical",
+                            2 => "Error",
+                            3 => "Warn",
+                            4 => "Info",
+                            5 => "Verbose",
+                            _ => e.EventRecord.LevelDisplayName ?? "Info"
+                        };
                         try 
                         {
                             observer.OnNext($"[{e.EventRecord.TimeCreated:yyyy-MM-dd HH:mm:ss}] [{level}] {e.EventRecord.ProviderName}: {e.EventRecord.FormatDescription()}");

@@ -345,16 +345,28 @@ public partial class WindowsTaskManager : IWindowsTaskManager
             {
                 try 
                 {
-                    string level = record.LevelDisplayName == "Information" ? "Info" :
-                                   record.LevelDisplayName == "Warning" ? "Warn" :
-                                   record.LevelDisplayName;
+                    string level = record.Level switch
+                    {
+                        1 => "Critical",
+                        2 => "Error",
+                        3 => "Warn",
+                        4 => "Info",
+                        5 => "Verbose",
+                        _ => record.LevelDisplayName ?? "Info"
+                    };
                     logs.Add($"[{record.TimeCreated:yyyy-MM-dd HH:mm:ss}] [{level}] {record.FormatDescription()}");
                 }
                 catch 
                 {
-                    string level = record.LevelDisplayName == "Information" ? "Info" :
-                                   record.LevelDisplayName == "Warning" ? "Warn" :
-                                   record.LevelDisplayName;
+                    string level = record.Level switch
+                    {
+                        1 => "Critical",
+                        2 => "Error",
+                        3 => "Warn",
+                        4 => "Info",
+                        5 => "Verbose",
+                        _ => record.LevelDisplayName ?? "Info"
+                    };
                     logs.Add($"[{record.TimeCreated:yyyy-MM-dd HH:mm:ss}] [{level}] (Log description unavailable)");
                 }
                 count++;
@@ -399,9 +411,15 @@ public partial class WindowsTaskManager : IWindowsTaskManager
                 {
                     if (e.EventRecord != null)
                     {
-                        string level = e.EventRecord.LevelDisplayName == "Information" ? "Info" :
-                                       e.EventRecord.LevelDisplayName == "Warning" ? "Warn" :
-                                       e.EventRecord.LevelDisplayName;
+                        string level = e.EventRecord.Level switch
+                        {
+                            1 => "Critical",
+                            2 => "Error",
+                            3 => "Warn",
+                            4 => "Info",
+                            5 => "Verbose",
+                            _ => e.EventRecord.LevelDisplayName ?? "Info"
+                        };
                         try 
                         {
                             observer.OnNext($"[{e.EventRecord.TimeCreated:yyyy-MM-dd HH:mm:ss}] [{level}] {e.EventRecord.FormatDescription()}");

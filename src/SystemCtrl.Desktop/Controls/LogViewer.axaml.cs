@@ -109,24 +109,41 @@ public partial class LogViewer : UserControl
 
     private Inline CreateInline(string line)
     {
-        var lowerLine = line.ToLowerInvariant();
         string? logClass = null;
         
-        if (lowerLine.Contains("error") || lowerLine.Contains("fail") || lowerLine.Contains("exception"))
+        // Exact tag matches from WindowsServiceManager / WindowsTaskManager
+        if (line.Contains("[Critical]") || line.Contains("[Error]"))
         {
             logClass = "error";
         }
-        else if (lowerLine.Contains("warn"))
+        else if (line.Contains("[Warn]"))
         {
             logClass = "warning";
         }
-        else if (lowerLine.Contains("info"))
+        else if (line.Contains("[Info]") || line.Contains("[Verbose]"))
         {
             logClass = "info";
         }
-        else if (lowerLine.Contains("success"))
+        else
         {
-            logClass = "success";
+            // Fallback for general logs
+            var lowerLine = line.ToLowerInvariant();
+            if (lowerLine.Contains("error") || lowerLine.Contains("fail") || lowerLine.Contains("exception"))
+            {
+                logClass = "error";
+            }
+            else if (lowerLine.Contains("warn"))
+            {
+                logClass = "warning";
+            }
+            else if (lowerLine.Contains("info"))
+            {
+                logClass = "info";
+            }
+            else if (lowerLine.Contains("success"))
+            {
+                logClass = "success";
+            }
         }
 
         var match = System.Text.RegularExpressions.Regex.Match(line, @"^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\]");
