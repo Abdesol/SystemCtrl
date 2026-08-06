@@ -38,6 +38,9 @@
                         <Style Selector="SelectableTextBlock.wrapped">
                             <Setter Property="TextWrapping" Value="WrapWithOverflow" />
                         </Style>
+                        <Style Selector="Run.timestamp">
+                            <Setter Property="Foreground" Value="{DynamicResource SpecialForegroundBrush}" />
+                        </Style>
                         <Style Selector="Run.error">
                             <Setter Property="Foreground" Value="{DynamicResource DangerForegroundBrush}" />
                         </Style>

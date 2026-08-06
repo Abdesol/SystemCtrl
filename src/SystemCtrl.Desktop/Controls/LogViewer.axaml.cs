@@ -70,7 +70,7 @@ public partial class LogViewer : UserControl
                     {
                         if (e.NewItems[i] is string line)
                         {
-                            textBlock.Inlines.Insert(0, CreateRun(line));
+                            textBlock.Inlines.Insert(0, CreateInline(line));
                         }
                     }
                 }
@@ -81,7 +81,7 @@ public partial class LogViewer : UserControl
                     {
                         if (item is string line)
                         {
-                            textBlock.Inlines.Add(CreateRun(line));
+                            textBlock.Inlines.Add(CreateInline(line));
                         }
                     }
                 }
@@ -101,34 +101,51 @@ public partial class LogViewer : UserControl
         var newInlines = new List<Inline>();
         foreach (var line in lines)
         {
-            newInlines.Add(CreateRun(line));
+            newInlines.Add(CreateInline(line));
         }
 
         textBlock.Inlines.AddRange(newInlines);
     }
 
-    private Run CreateRun(string line)
+    private Inline CreateInline(string line)
     {
-        var run = new Run(line + "\n");
         var lowerLine = line.ToLowerInvariant();
+        string? logClass = null;
+        
+        if (lowerLine.Contains("error") || lowerLine.Contains("fail") || lowerLine.Contains("exception"))
+        {
+            logClass = "error";
+        }
+        else if (lowerLine.Contains("warn"))
+        {
+            logClass = "warning";
+        }
+        else if (lowerLine.Contains("info"))
+        {
+            logClass = "info";
+        }
+        else if (lowerLine.Contains("success"))
+        {
+            logClass = "success";
+        }
+
+        var match = System.Text.RegularExpressions.Regex.Match(line, @"^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\]");
+        if (match.Success)
+        {
+            var span = new Span();
+            var timestampRun = new Run(match.Value + " ");
+            timestampRun.Classes.Add("timestamp");
             
-            if (lowerLine.Contains("error") || lowerLine.Contains("fail") || lowerLine.Contains("exception"))
-            {
-                run.Classes.Add("error");
-            }
-            else if (lowerLine.Contains("warn"))
-            {
-                run.Classes.Add("warning");
-            }
-            else if (lowerLine.Contains("info"))
-            {
-                run.Classes.Add("info");
-            }
-            else if (lowerLine.Contains("success"))
-            {
-                run.Classes.Add("success");
-            }
+            var messageRun = new Run(line.Substring(match.Length).TrimStart() + "\n");
+            if (logClass != null) messageRun.Classes.Add(logClass);
             
+            span.Inlines.Add(timestampRun);
+            span.Inlines.Add(messageRun);
+            return span;
+        }
+
+        var run = new Run(line + "\n");
+        if (logClass != null) run.Classes.Add(logClass);
         return run;
     }
 
