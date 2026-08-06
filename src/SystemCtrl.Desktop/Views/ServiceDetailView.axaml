@@ -253,7 +253,7 @@
                                                       Margin="15,0,0,0"
                                                       HorizontalAlignment="Stretch"
                                                       ColumnDefinitions="Auto, *">
-                                                    <PathIcon Grid.Column="0" Data="{StaticResource InfoIcon}"
+                                                    <PathIcon Grid.Column="0" Data="{StaticResource ResourceUsageIcon}"
                                                               Width="14"
                                                               Height="14"
                                                               Foreground="{DynamicResource SystemBaseMediumColor}" />
